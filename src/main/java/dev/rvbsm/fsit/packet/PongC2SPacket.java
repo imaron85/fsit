@@ -1,19 +1,24 @@
 package dev.rvbsm.fsit.packet;
 
-import dev.rvbsm.fsit.FSitMod;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.FabricPacket;
+import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
-public abstract class PongC2SPacket {
+public record PongC2SPacket() implements FabricPacket {
 
-	public static final Identifier PING_PACKET = new Identifier(FSitMod.getModId(), "ping");
-	public static final Identifier PONG_PACKET = new Identifier(FSitMod.getModId(), "pong");
+	public static final PacketType<PongC2SPacket> TYPE = PacketType.create(new Identifier("fsit", "pong"), PongC2SPacket::new);
 
-	public static void receive(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
-		FSitMod.addModded(player.getUuid());
+	private PongC2SPacket(PacketByteBuf buf) {
+		this();
+	}
+
+	@Override
+	public void write(PacketByteBuf buf) {
+	}
+
+	@Override
+	public PacketType<?> getType() {
+		return TYPE;
 	}
 }
