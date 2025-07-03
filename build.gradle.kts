@@ -84,9 +84,7 @@ tasks {
     processResources {
         val properties = mapOf(
             "version" to "$version",
-            "minecraftVersion" to ">=$minecraftProjectVersion-${
-                " <=$minecraftTargetVersion".takeIf { isMinecraftVersionRange }.orEmpty()
-            }",
+            "minecraftVersion" to ">=$minecraftProjectVersion-",
             "javaVersion" to javaVersion,
         )
 
