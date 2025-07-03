@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.7.10
+
+Now with real 1.21.7 support
+
 ## v2.7.9
 
 **Chase the Skies** drop (and Dennis)
