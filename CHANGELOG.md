@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.7.11
+
+### Fixed
+
+- (1.21.6+) Sneaking didn't dismount riders off you
+
 ## v2.7.10
 
 Now with real 1.21.7 support
