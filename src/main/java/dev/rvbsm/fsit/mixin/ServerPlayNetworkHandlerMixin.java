@@ -60,13 +60,18 @@ public abstract class ServerPlayNetworkHandlerMixin implements RidingRequestHand
 
     // just a copy-paste from SneakListener
     //? if >=1.21.6 {
-    /*@ModifyArg(
+    /*@Unique
+    private boolean prevSneaking = false;
+
+    @ModifyArg(
         method = "onPlayerInput",
         at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;setSneaking(Z)V"))
     public boolean onPlayerInput(boolean sneaking) {
-        if (sneaking && this.updateSneaking()) {
+        if (!this.prevSneaking && sneaking && this.updateSneaking()) {
+            this.prevSneaking = false;
             return false;
         }
+        this.prevSneaking = sneaking;
 
         return sneaking;
     }
