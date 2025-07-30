@@ -75,6 +75,7 @@ public abstract class ServerPlayNetworkHandlerMixin implements RidingRequestHand
     private boolean updateSneaking() {
         if (player.getFirstPassenger() instanceof dev.rvbsm.fsit.entity.RideEntity) {
             player.removeAllPassengers();
+            return false;
         }
 
         final var playerSneak = (PlayerLastSneakTime) this.player;
