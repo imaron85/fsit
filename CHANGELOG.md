@@ -1,10 +1,16 @@
 # Changelog
 
+## v2.7.12
+
+### Fixed
+
+- (1.21.6+) Moving while crouching resulted in a player jiggering. Thanks [#3](https://codeberg.org/rvbsm/fsit/issues/3)!
+
 ## v2.7.11
 
 ### Fixed
 
-- (1.21.6+) Sneaking didn't dismount riders off you
+- (1.21.6+) Sneaking didn't dismount riders off you. Thanks [#1](https://codeberg.org/rvbsm/fsit/issues/1)!
 
 ## v2.7.10
 
