@@ -3,6 +3,7 @@ package dev.rvbsm.fsit.mixin;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityPose;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -138,17 +139,26 @@ public abstract class ServerPlayNetworkHandlerMixin implements RidingRequestHand
         ActionResult interactionActionResult,
         @Local ServerWorld world,
         @Local LocalRef<Hand> handRef,
+        @Local ItemStack itemStack,
         @Local BlockHitResult blockHitResult
     ) {
-        if (interactionActionResult == ActionResult.PASS &&
-            handRef.get() == Hand.OFF_HAND &&
-            player.getStackInHand(handRef.get()).getUseAction().ordinal() == 0) {
-            handRef.set(Hand.MAIN_HAND);
-
-            return PassedUseBlockCallback.EVENT.invoker().interact(player, world, blockHitResult);
+        if (interactionActionResult != ActionResult.PASS || itemStack.getUseAction().ordinal() != 0) {
+            return interactionActionResult;
         }
 
-        return interactionActionResult;
+        switch (handRef.get()) {
+            case MAIN_HAND -> {
+                if (!this.player.getOffHandStack().isEmpty()) {
+                    return interactionActionResult;
+                }
+            }
+
+            case OFF_HAND -> {
+                handRef.set(Hand.MAIN_HAND);
+            }
+        }
+
+        return PassedUseBlockCallback.EVENT.invoker().interact(player, world, blockHitResult);
     }
 
     @Inject(method = "onDisconnected", at = @At("TAIL"))
