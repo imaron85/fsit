@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.7.13
+
+### Fixed
+
+- Bedrock Edition players (Geyser) couldn't use use-to-sit feature. Thanks [#4](https://codeberg.org/rvbsm/fsit/issues/4)!
+
 ## v2.7.12
 
 ### Fixed
