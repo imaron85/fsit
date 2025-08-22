@@ -2,6 +2,7 @@
   "yacl3.config.fsit.category.general": "General",
   "yacl3.config.fsit.category.onUse": "Use Interactions",
   "yacl3.config.fsit.category.onSneak": "Sneak Interactions",
+  "yacl3.config.fsit.category.commands": "Commands",
 
   "yacl3.config.fsit.category.general.group.sitting": "Sitting",
   "yacl3.config.fsit.category.general.group.keybindings": "Key Bindings",
@@ -25,6 +26,9 @@
   "yacl3.config.fsit.category.onSneak.root.option.crawling": "Double Sneak to Crawl (near one-block gaps)",
   "yacl3.config.fsit.category.onSneak.root.option.minPitch": "Minimal Pitch",
   "yacl3.config.fsit.category.onSneak.root.option.delay": "Delay Between Sneaks",
+  "yacl3.config.fsit.category.commands.root.option.root": "Register /fsit",
+  "yacl3.config.fsit.category.commands.root.option.sit": "Register /sit",
+  "yacl3.config.fsit.category.commands.root.option.crawl": "Register /crawl",
 
   "yacl3.config.fsit.category.general.root.option.useServer.description.1": "Whether to use the server-side configuration.",
   "yacl3.config.fsit.category.general.group.sitting.option.behaviour.description.1": "Controls seats behaviour.\n",
@@ -43,6 +47,12 @@
   "yacl3.config.fsit.category.onSneak.root.option.crawling.description.1": "Allows to start crawling by double sneaking near a one-block gap.",
   "yacl3.config.fsit.category.onSneak.root.option.minPitch.description.1": "The minimum angle must be looking down (in degrees) with double sneak.",
   "yacl3.config.fsit.category.onSneak.root.option.delay.description.1": "The window between sneaks (in milliseconds).",
+  "yacl3.config.fsit.category.commands.root.option.root.description.1": "Toggles /fsit and /fsit:client commands.",
+  "yacl3.config.fsit.category.commands.root.option.root.description.2": "§4Requires to restart the game!§r",
+  "yacl3.config.fsit.category.commands.root.option.sit.description.1": "Toggles /sit command.",
+  "yacl3.config.fsit.category.commands.root.option.sit.description.2": "§4Requires to restart the game!§r",
+  "yacl3.config.fsit.category.commands.root.option.crawl.description.1": "Toggles /crawl command.",
+  "yacl3.config.fsit.category.commands.root.option.crawl.description.2": "§4Requires to restart the game!§r",
 
   "key.fsit.sit": "Sit",
   "key.fsit.crawl": "Crawl",
