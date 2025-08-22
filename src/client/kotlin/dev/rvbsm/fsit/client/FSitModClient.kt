@@ -123,7 +123,7 @@ object FSitModClient : ClientModInitializer {
     }
 
     private fun registerClientCommands() {
-        command("$MOD_ID:client") {
+        if (FSitMod.config.commands.root) command("$MOD_ID:client") {
             fun restrictionCommand(name: String, action: (UUID) -> Boolean, message: (Text?) -> Text) = literal(name) {
                 argument("player", { source.playerNames }) { playerName ->
                     executes {

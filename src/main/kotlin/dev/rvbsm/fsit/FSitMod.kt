@@ -133,7 +133,7 @@ object FSitMod : ModInitializer {
     }
 
     private fun registerCommands() {
-        command(MOD_ID) {
+        if (config.commands.root) command(MOD_ID) {
             requires(ServerCommandSource::isGameMaster)
 
             literal("reload") executesSuspend {
@@ -165,8 +165,8 @@ object FSitMod : ModInitializer {
             }
         }
 
-        poseCommand("sit", ModPose.Sitting)
-        poseCommand("crawl", ModPose.Crawling)
+        if (config.commands.sit) poseCommand("sit", ModPose.Sitting)
+        if (config.commands.crawl) poseCommand("crawl", ModPose.Crawling)
     }
 }
 

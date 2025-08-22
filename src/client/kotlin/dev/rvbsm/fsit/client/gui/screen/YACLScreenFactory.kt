@@ -139,6 +139,24 @@ val YACLScreenFactory = ConfigScreenFactory { parent ->
             }
         }
 
+        categories.register("commands") {
+            rootOptions.register("root") {
+                controller = tickBox()
+                binding(configBuilder::commandsRoot, ModConfig.Default.commands.root)
+                descriptionBuilder { addDefaultText() }
+            }
+            rootOptions.register("sit") {
+                controller = tickBox()
+                binding(configBuilder::commandsSit, ModConfig.Default.commands.sit)
+                descriptionBuilder { addDefaultText() }
+            }
+            rootOptions.register("crawl") {
+                controller = tickBox()
+                binding(configBuilder::commandsCrawl, ModConfig.Default.commands.crawl)
+                descriptionBuilder { addDefaultText() }
+            }
+        }
+
         save {
             modClientScope.launch {
                 FSitMod.writeConfig(configBuilder.build())

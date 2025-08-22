@@ -12,7 +12,7 @@ import net.minecraft.block.Block
 import net.minecraft.registry.Registries
 import net.minecraft.registry.tag.BlockTags
 
-private const val CURRENT_VERSION = 2
+private const val CURRENT_VERSION = 3
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -25,6 +25,7 @@ data class ModConfig(
     val sitting: Sitting = Sitting(),
     val onUse: OnUse = OnUse(),
     val onSneak: OnSneak = OnSneak(),
+    val commands: Commands = Commands(),
 ) {
     companion object {
         val Default = ModConfig()
@@ -47,6 +48,10 @@ data class ModConfig(
         var onSneakMinPitch = config.onSneak.minPitch
         var onSneakDelay = config.onSneak.delay
 
+        var commandsRoot = config.commands.root
+        var commandsSit = config.commands.sit
+        var commandsCrawl = config.commands.crawl
+
         fun build(): ModConfig {
             onUseRange = onUseRange.coerceIn(1, 4)
             onSneakMinPitch = onSneakMinPitch.coerceIn(-90.0, 90.0)
@@ -68,6 +73,11 @@ data class ModConfig(
                     minPitch = onSneakMinPitch,
                     delay = onSneakDelay,
                 ),
+                commands = Commands(
+                    root = commandsRoot,
+                    sit = commandsSit,
+                    crawl = commandsCrawl,
+                )
             )
         }
     }
@@ -126,6 +136,16 @@ data class OnSneak(
     val minPitch: Double = 60.0,
     @YamlComment("The window between sneaks to sit down (in milliseconds).")
     val delay: Long = 600,
+)
+
+@Serializable
+data class Commands(
+    @YamlComment("Whether to register /fsit command. Requires restart")
+    val root: Boolean = true,
+    @YamlComment("Whether to register /sit command. Requires restart")
+    val sit: Boolean = true,
+    @YamlComment("Whether to register /crawl command. Requires restart")
+    val crawl: Boolean = true,
 )
 
 fun Result<ModConfig>.orDefault() = getOrDefault(ModConfig.Default)
