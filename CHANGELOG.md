@@ -1,6 +1,10 @@
 # Changelog
 
-## v2.7.13
+## v2.8.0
+
+### Added
+
+- `commands` config category
 
 ### Fixed
 
