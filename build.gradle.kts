@@ -25,8 +25,6 @@ private val devLibsPath = rootProject.layout.buildDirectory.map { it.dir("devlib
 private val libsPath = rootProject.layout.buildDirectory.map { it.dir("libs") }
 
 loom {
-    accessWidenerPath = rootProject.file("src/main/resources/fsit.accesswidener")
-
     splitEnvironmentSourceSets()
     mods.register(name) {
         sourceSet("main")

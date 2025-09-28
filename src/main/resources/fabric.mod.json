@@ -15,24 +15,6 @@
   "icon": "assets/fsit/icon.png",
   "environment": "*",
   "entrypoints": {
-    "main": [
-      {
-        "value": "dev.rvbsm.fsit.FSitMod",
-        "adapter": "kotlin"
-      }
-    ],
-    "client": [
-      {
-        "value": "dev.rvbsm.fsit.client.FSitModClient",
-        "adapter": "kotlin"
-      }
-    ],
-    "modmenu": [
-      {
-        "value": "dev.rvbsm.fsit.client.FSitModMenu",
-        "adapter": "kotlin"
-      }
-    ]
   },
   "mixins": [
     "fsit.mixins.json",
@@ -41,7 +23,6 @@
       "environment": "client"
     }
   ],
-  "accessWidener": "fsit.accesswidener",
   "depends": {
     "java": ">=${javaVersion}",
     "minecraft": "${minecraftVersion}",
