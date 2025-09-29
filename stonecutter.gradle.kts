@@ -5,9 +5,6 @@ buildscript {
 plugins {
     id("dev.kikugie.stonecutter")
 
-    alias(libs.plugins.kotlin.jvm) apply false
-    alias(libs.plugins.kotlin.serialization) apply false
-
     alias(libs.plugins.fabric.loom) apply false
     alias(libs.plugins.publish) apply false
     alias(libs.plugins.shadow) apply false

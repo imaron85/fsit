@@ -1,11 +1,8 @@
 [versions]
-kotlin = "2.1.20"
-
 fabric-loom = "1.11-SNAPSHOT"
 fabric-loader = "0.16.14"
-fabric-kotlin = "1.13.3+kotlin.2.1.21"
 
-kaml = "0.82.0"
+configurate = "4.2.0"
 
 mod-publish = "0.8.4"
 shadow = "8.3.+"
@@ -13,9 +10,6 @@ shadow = "8.3.+"
 junit = "5.10.1"
 
 [plugins]
-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-
 fabric-loom = { id = "fabric-loom", version.ref = "fabric-loom" }
 publish = { id = "me.modmuss50.mod-publish-plugin", version.ref = "mod-publish" }
 
@@ -23,20 +17,15 @@ shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 
 [libraries]
 fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
-fabric-kotlin = { module = "net.fabricmc:fabric-language-kotlin", version.ref = "fabric-kotlin" }
 
-kaml = { module = "com.charleskorn.kaml:kaml-jvm", version.ref = "kaml" }
+configurate-core = { module = "org.spongepowered:configurate-core", version.ref = "configurate" }
+configurate-gson = { module = "org.spongepowered:configurate-gson", version.ref = "configurate" }
+configurate-yaml = { module = "org.spongepowered:configurate-yaml", version.ref = "configurate" }
 
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
 fabric-loader-junit = { module = "net.fabricmc:fabric-loader-junit", version.ref = "fabric-loader" }
 
-kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
-
 [bundles]
-junit-jupiter = [
-  "junit-jupiter-engine",
-  "junit-jupiter-api",
-  "junit-jupiter-params",
-]
+configurate = ["configurate-core", "configurate-gson", "configurate-yaml"]

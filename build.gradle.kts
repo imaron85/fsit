@@ -1,9 +1,6 @@
 import proguard.gradle.ProGuardTask
 
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.kotlin.serialization)
-
     alias(libs.plugins.fabric.loom)
     alias(libs.plugins.publish)
     alias(libs.plugins.shadow)
@@ -54,7 +51,6 @@ dependencies {
     mappings("net.fabricmc:yarn:$minecraftTargetVersion+build.${property("fabric.yarn_build")}:v2")
 
     modImplementation(libs.fabric.loader)
-    modImplementation(libs.fabric.kotlin)
 
     setOf(
         "fabric-api-base",
@@ -70,12 +66,11 @@ dependencies {
         exclude("net.fabricmc.fabric-api", "fabric-api")
     }
 
-    implementation(libs.kaml)
-    shadow(libs.kaml)
+    implementation(libs.bundles.configurate)
+    shadow(libs.bundles.configurate)
 
     testImplementation(libs.bundles.junit.jupiter)
     testImplementation(libs.fabric.loader.junit)
-    testImplementation(libs.kotlin.test)
 }
 
 tasks {
@@ -106,20 +101,7 @@ tasks {
 
         configurations = listOf(project.configurations["shadow"])
         val relocationPath = "dev.rvbsm.fsit.lib"
-        relocate("com.charleskorn.kaml", "$relocationPath.kaml")
-        relocate("it.krzeminski.snakeyaml.engine.kmp", "$relocationPath.snakeyaml-kmp")
-        relocate("okio", "$relocationPath.okio")
-        relocate("net.thauvin.erik.urlencoder", "$relocationPath.urlencoder")
 
-        exclude("kotlin/**")
-        exclude("kotlinx/**")
-        exclude("org/jetbrains/**")
-
-        exclude("META-INF/com.android.tools/**")
-        exclude("META-INF/maven/**")
-        exclude("META-INF/proguard/**")
-        exclude("META-INF/kotlin-*.kotlin_module")
-        exclude("META-INF/kotlinx-*.kotlin_module")
 
         minimize()
     }
@@ -180,8 +162,6 @@ java {
     targetCompatibility = JavaVersion.toVersion(javaVersion)
 }
 
-kotlin {
-    jvmToolchain(javaVersion)
 }
 
 publishMods {
@@ -208,7 +188,7 @@ publishMods {
             end = minecraftTargetVersion
         }
 
-        requires("fabric-api", "fabric-language-kotlin")
+        requires("fabric-api")
         optional("modmenu", "yacl")
     }
 }
