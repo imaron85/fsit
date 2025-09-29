@@ -4,15 +4,12 @@ plugins {
     alias(libs.plugins.shadow)
 }
 
-private val gitVersion: String by rootProject.ext
-private val minecraftProjectVersion = stonecutter.current.project
-private val minecraftTargetVersion = stonecutter.current.version
-private val isMinecraftVersionRange = stonecutter.eval(minecraftTargetVersion, ">$minecraftProjectVersion")
+private val gitVersion = providers.exec {
+    executable = "git"
+    args = listOf("describe", "--tags", "--always", "--dirty")
+}.standardOutput.asText.map { it.trim().drop(1) }.get()
 
-private val javaVersion = property("java.version").toString().toInt(10)
-private val modrinthId = property("mod.modrinth_id").toString()
-
-version = "$gitVersion+mc$minecraftProjectVersion"
+version = "$gitVersion+mc${stonecutter.current.project}"
 group = "dev.rvbsm"
 base.archivesName = rootProject.name
 
@@ -38,27 +35,27 @@ repositories {
     mavenCentral()
     maven("https://maven.terraformersmc.com/releases")
     maven("https://maven.isxander.dev/releases")
-    maven("https://maven.nucleoid.xyz/")
 }
 
 dependencies {
-    minecraft("com.minecraft:minecraft:$minecraftTargetVersion")
-    mappings("net.fabricmc:yarn:$minecraftTargetVersion+build.${property("fabric.yarn_build")}:v2")
+    minecraft("com.minecraft:minecraft:${property("minecraft.version")}")
+    mappings("net.fabricmc:yarn:${property("minecraft.version")}+build.${property("fabric.yarn_build")}:v2")
 
     modImplementation(libs.fabric.loader)
 
+    val fabricVersion = property("fabric.api").toString()
     setOf(
         "fabric-api-base",
         "fabric-command-api-v2",
         "fabric-key-binding-api-v1",
         "fabric-lifecycle-events-v1",
         "fabric-networking-api-v1",
-    ).map { fabricApi.module(it, property("fabric.api").toString()) }.forEach(::modImplementation)
-    modRuntimeOnly("net.fabricmc.fabric-api:fabric-api:${property("fabric.api")}")
+    ).map { fabricApi.module(it, fabricVersion) }.forEach(::modImplementation)
 
     modImplementation("com.terraformersmc:modmenu:${property("api.modmenu")}")
     modImplementation("dev.isxander:yet-another-config-lib:${property("api.yacl")}-fabric") {
         exclude("net.fabricmc.fabric-api", "fabric-api")
+        modRuntimeOnly("net.fabricmc.fabric-api:fabric-api:$fabricVersion")
     }
 
     implementation(libs.bundles.configurate)
@@ -71,8 +68,8 @@ tasks {
     processResources {
         val properties = mapOf(
             "version" to "$version",
-            "minecraftVersion" to ">=$minecraftProjectVersion-",
-            "javaVersion" to javaVersion,
+            "minecraftVersion" to ">=${project.property("minecraft.version")}-",
+            "javaVersion" to project.property("java.version"),
         )
 
         inputs.properties(properties)
@@ -120,8 +117,8 @@ tasks {
 java {
     withSourcesJar()
 
-    sourceCompatibility = JavaVersion.toVersion(javaVersion)
-    targetCompatibility = JavaVersion.toVersion(javaVersion)
+    sourceCompatibility = JavaVersion.toVersion(project.property("java.version")!!)
+    targetCompatibility = JavaVersion.toVersion(project.property("java.version")!!)
 }
 
 }
@@ -135,19 +132,19 @@ publishMods {
         "beta" in gitVersion -> BETA
         else -> STABLE
     }
-    displayName = "[$minecraftProjectVersion] v$gitVersion"
+    displayName = "[${stonecutter.current.project}] v$gitVersion"
     modLoaders.addAll("fabric", "quilt")
 
     dryRun = !providers.environmentVariable("MODRINTH_TOKEN").isPresent
 
     modrinth {
         accessToken = providers.environmentVariable("MODRINTH_TOKEN")
-        projectId = modrinthId
+        projectId = providers.gradleProperty("mod.modrinth_id")
         featured = true
 
         minecraftVersionRange {
-            start = minecraftProjectVersion
-            end = minecraftTargetVersion
+            start = stonecutter.current.project
+            end = project.property("minecraft.version").toString()
         }
 
         requires("fabric-api")
