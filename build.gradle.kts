@@ -83,12 +83,15 @@ tasks {
     }
 
     shadowJar {
-        from(jar)
-
         archiveClassifier = "all"
-
         configurations = project.configurations.shadow.map(::listOf)
 
+        enableAutoRelocation = true
+        relocationPrefix = "dev.rvbsm.fsit.lib"
+
+        dependencies {
+            exclude(dependency(":gson:.*"))
+        }
 
         minimize()
     }
