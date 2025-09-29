@@ -58,6 +58,10 @@ dependencies {
         modRuntimeOnly("net.fabricmc.fabric-api:fabric-api:$fabricVersion")
     }
 
+    modCompileOnly("me.lucko:fabric-permissions-api:${property("api.fabric-permissions")}") {
+        exclude("net.fabricmc.fabric-api", "fabric-api")
+    }
+
     implementation(libs.bundles.configurate)
     shadow(libs.bundles.configurate)
 
