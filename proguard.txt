@@ -3,7 +3,6 @@
 -dontwarn
 -dontobfuscate
 
--keep class kotlin.Metadata
 -keep class !dev.rvbsm.fsit.lib.** { *; }
 
 -keepattributes

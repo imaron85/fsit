@@ -1,5 +1,3 @@
-import proguard.gradle.ProGuardTask
-
 plugins {
     alias(libs.plugins.fabric.loom)
     alias(libs.plugins.publish)
@@ -17,9 +15,6 @@ private val modrinthId = property("mod.modrinth_id").toString()
 version = "$gitVersion+mc$minecraftProjectVersion"
 group = "dev.rvbsm"
 base.archivesName = rootProject.name
-
-private val devLibsPath = rootProject.layout.buildDirectory.map { it.dir("devlibs") }
-private val libsPath = rootProject.layout.buildDirectory.map { it.dir("libs") }
 
 loom {
     splitEnvironmentSourceSets()
@@ -86,20 +81,16 @@ tasks {
         }
     }
 
-    jar {
-        from(rootProject.file("LICENSE")) {
-            rename { "${it}_${rootProject.name}" }
-        }
+    withType<JavaCompile> {
+        options.release.set(project.property("java.version").toString().toInt())
     }
 
     shadowJar {
         from(jar)
 
         archiveClassifier = "all"
-        destinationDirectory = devLibsPath
 
-        configurations = listOf(project.configurations["shadow"])
-        val relocationPath = "dev.rvbsm.fsit.lib"
+        configurations = project.configurations.shadow.map(::listOf)
 
 
         minimize()
@@ -107,19 +98,13 @@ tasks {
 
     remapJar {
         dependsOn(shadowJar)
-
-        archiveClassifier = "dev"
-        destinationDirectory = devLibsPath
-
         inputFile.set(shadowJar.flatMap { it.archiveFile })
     }
 
-    remapSourcesJar {
-        destinationDirectory = libsPath
-    }
-
-    build {
-        finalizedBy(proguardJar)
+    jar {
+        from(rootProject.file("LICENSE")) {
+            into("META-INF")
+        }
     }
 
     if (stonecutter.current.isActive) register("buildActive") {
@@ -129,28 +114,6 @@ tasks {
 
     test {
         useJUnitPlatform()
-    }
-}
-
-val proguardJar by tasks.registering(ProGuardTask::class) {
-    group = "project"
-    dependsOn(tasks.remapJar)
-    mustRunAfter(stonecutter.versions.takeWhile {
-        stonecutter.eval(stonecutter.current.project, ">${it.project}")
-    }.map { ":${it.project}:$name" })
-
-    configuration("$rootDir/proguard.txt")
-
-    injars(tasks.remapJar)
-    outjars(libsPath.map { it.file("${rootProject.name}-$version.jar") })
-
-    // blackd "~ the GOAT"
-    // https://github.com/blackd/Inventory-Profiles/blob/c66b8adf57684d94eb272eb741864e74d78f522f/platforms/fabric-1.21/build.gradle.kts#L254-L257
-    doFirst {
-        libraryjars(
-            configurations.compileClasspath.map { it.files }
-                .zip(configurations.runtimeClasspath.map { it.files }, Set<File>::plus)
-        )
     }
 }
 
@@ -164,7 +127,7 @@ java {
 }
 
 publishMods {
-    file = proguardJar.map { it.outputs.files.singleFile }
+    file = tasks.remapJar.map { it.archiveFile }.get()
     additionalFiles.from(tasks.remapSourcesJar.map { it.archiveFile })
     changelog = providers.environmentVariable("CHANGELOG")
     type = when {
