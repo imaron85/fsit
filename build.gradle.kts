@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.fabric.loom)
-    alias(libs.plugins.publish)
+    alias(libs.plugins.mod.publish)
     alias(libs.plugins.shadow)
 }
 

@@ -4,12 +4,12 @@ fabric-loader = "0.17.2"
 
 configurate = "4.2.0"
 
-mod-publish = "0.8.4"
+mod-publish = "1.0.0"
 shadow = "9.2.2"
 
 [plugins]
 fabric-loom = { id = "fabric-loom", version.ref = "fabric-loom" }
-publish = { id = "me.modmuss50.mod-publish-plugin", version.ref = "mod-publish" }
+mod-publish = { id = "me.modmuss50.mod-publish-plugin", version.ref = "mod-publish" }
 
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 
