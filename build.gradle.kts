@@ -143,6 +143,36 @@ stonecutter {
         replace("PacketCodecs\\.BOOL" + "(?!EAN)", "PacketCodecs\\.BOOLEAN")
         reverse("PacketCodecs\\.BOOLEAN", "PacketCodecs\\.BOOL")
     }
+
+    replacements.string(bundlesOfBravery) {
+        from = "import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket"
+        to = "import net.minecraft.network.packet.s2c.play.EntityPositionSyncS2CPacket"
+    }
+
+    replacements.string(bundlesOfBravery) {
+        from = "new EntityPositionS2CPacket(this)"
+        to = "EntityPositionSyncS2CPacket.create(this)"
+    }
+
+    replacements.string(chaseTheSkies) {
+        from = "ValueLists.createIdToValueFunction"
+        to = "ValueLists.createIndexToValueFunction"
+    }
+
+    replacements.regex(theCopperAge) {
+        replace("((?:entity|player|this)(?:\\.|::))" + "get(World|Pos)" + "(?!\\w)", "$1getEntity$2")
+        reverse("((?:entity|player|this)(?:\\.|::))" + "getEntity(World|Pos)" + "(?!\\w)", "$1get$2")
+    }
+
+    replacements.regex(theCopperAge) {
+        replace("KeyBinding\\.(\\w+)_CATEGORY", "KeyBinding.Category.$1")
+        reverse("KeyBinding\\.Category.(\\w+)", "KeyBinding.$1_CATEGORY")
+    }
+
+    replacements.regex(theCopperAge) {
+        replace("(\\w+Key)\\.getTranslationKey", "$1\\.getId")
+        reverse("(\\w+Key)\\.getId", "$1\\.getTranslationKey")
+    }
 }
 
 publishMods {
