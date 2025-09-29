@@ -15,6 +15,7 @@
   "icon": "assets/fsit/icon.png",
   "environment": "*",
   "entrypoints": {
+    "main": ["dev.rvbsm.fsit.FSitMod"],
   },
   "mixins": [
     "fsit.mixins.json",
