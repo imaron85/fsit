@@ -35,6 +35,7 @@
   },
   "suggests": {
     "modmenu": "*",
-    "yet_another_config_lib_v3": ">=3.5"
+    "yet_another_config_lib_v3": ">=3.5",
+    "fabric-permissions-api-v0": "*"
   }
 }
