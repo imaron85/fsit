@@ -3,6 +3,9 @@
   "package": "dev.rvbsm.fsit.mixin.client",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "KeyBindingMixin_hybridKeyBinding",
+    "access.KeyBindingAccess",
+    "access.SimpleOptionAccess"
   ],
   "injectors": {
     "defaultRequire": 1
