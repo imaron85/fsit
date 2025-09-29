@@ -128,6 +128,21 @@ java {
     targetCompatibility = JavaVersion.toVersion(project.property("java.version")!!)
 }
 
+stonecutter {
+    val trickyTrials = eval(current.version, ">=1.21")
+    val bundlesOfBravery = eval(current.version, ">=1.21.2")
+    val chaseTheSkies = eval(current.version, ">=1.21.6")
+    val theCopperAge = eval(current.version, ">=1.21.9")
+
+    replacements.string(bundlesOfBravery) {
+        from = "PacketCodec.tuple(PacketCodecs.DOUBLE, Vec3d::getX, PacketCodecs.DOUBLE, Vec3d::getY, PacketCodecs.DOUBLE, Vec3d::getZ, Vec3d::new)"
+        to = "Vec3d.PACKET_CODEC"
+    }
+
+    replacements.regex(bundlesOfBravery) {
+        replace("PacketCodecs\\.BOOL" + "(?!EAN)", "PacketCodecs\\.BOOLEAN")
+        reverse("PacketCodecs\\.BOOLEAN", "PacketCodecs\\.BOOL")
+    }
 }
 
 publishMods {
