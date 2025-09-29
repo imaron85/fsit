@@ -16,6 +16,7 @@
   "environment": "*",
   "entrypoints": {
     "main": ["dev.rvbsm.fsit.FSitMod"],
+    "client": ["dev.rvbsm.fsit.client.FSitModClient"],
   },
   "mixins": [
     "fsit.mixins.json",
