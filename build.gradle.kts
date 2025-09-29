@@ -69,7 +69,6 @@ dependencies {
     implementation(libs.bundles.configurate)
     shadow(libs.bundles.configurate)
 
-    testImplementation(libs.bundles.junit.jupiter)
     testImplementation(libs.fabric.loader.junit)
 }
 

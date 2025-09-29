@@ -7,8 +7,6 @@ configurate = "4.2.0"
 mod-publish = "0.8.4"
 shadow = "8.3.+"
 
-junit = "5.10.1"
-
 [plugins]
 fabric-loom = { id = "fabric-loom", version.ref = "fabric-loom" }
 publish = { id = "me.modmuss50.mod-publish-plugin", version.ref = "mod-publish" }
@@ -22,9 +20,6 @@ configurate-core = { module = "org.spongepowered:configurate-core", version.ref 
 configurate-gson = { module = "org.spongepowered:configurate-gson", version.ref = "configurate" }
 configurate-yaml = { module = "org.spongepowered:configurate-yaml", version.ref = "configurate" }
 
-junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
-junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
-junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
 fabric-loader-junit = { module = "net.fabricmc:fabric-loader-junit", version.ref = "fabric-loader" }
 
 [bundles]
