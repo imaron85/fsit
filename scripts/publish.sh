@@ -9,9 +9,12 @@ if [ -z "$MODRINTH_TOKEN" ]; then
   read -r MODRINTH_TOKEN
   stty echo
   printf '\n'
-
-  [ -z "$MODRINTH_TOKEN" ] && exit 1
 fi
+
+case "$MODRINTH_TOKEN" in
+'mrp_'*) ;;
+*) exit 1 ;;
+esac
 
 readonly MODRINTH_TOKEN
 
