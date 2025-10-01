@@ -7,7 +7,6 @@ import dev.isxander.yacl3.gui.AbstractWidget;
 import dev.isxander.yacl3.gui.YACLScreen;
 import dev.isxander.yacl3.gui.controllers.ControllerWidget;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -87,17 +86,17 @@ public final class KeyBindingController implements Controller<InputUtil.Key> {
         }
 
         @Override
-        //? if >=1.21.9-rc0 {
-        public boolean keyPressed(net.minecraft.client.input.KeyInput key) {
-            final int keyCode = key.key();
+        //? if >=1.21.9 {
+        public boolean keyPressed(net.minecraft.client.input.KeyInput input) {
+            final int keyCode = input.key();
         //?} else
         /*public boolean keyPressed(int keyCode, int scanCode, int modifiers) {*/
             if (this.isFocused()) {
                 if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
                     this.control.option.requestSet(InputUtil.UNKNOWN_KEY);
                 } else {
-                    //? if >=1.21.9-rc0 {
-                    this.control.option.requestSet(InputUtil.fromKeyCode(key));
+                    //? if >=1.21.9 {
+                    this.control.option.requestSet(InputUtil.fromKeyCode(input));
                     //?} else
                     /*this.control.option.requestSet(InputUtil.fromKeyCode(keyCode, scanCode));*/
                 }
@@ -106,8 +105,8 @@ public final class KeyBindingController implements Controller<InputUtil.Key> {
                 return true;
             }
 
-            //? if >=1.21.9-rc0 {
-            return super.keyPressed(key);
+            //? if >=1.21.9 {
+            return super.keyPressed(input);
             //?} else
             /*return super.keyPressed(keyCode, scanCode, modifiers);*/
         }

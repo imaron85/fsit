@@ -35,13 +35,12 @@ public final class RideEntity extends PoseEntity {
     }
 
     @Override
-    //? if >=1.21.9-rc0 {
+    //? if >=1.21.9 {
     public boolean startRiding(Entity entity, boolean force, boolean emitEvent) {
     //?} else {
     /*public boolean startRiding(Entity entity, boolean force) {
         final boolean emitEvent = true;
     *///?}
-
         if (this == entity) {
             return false;
         }
