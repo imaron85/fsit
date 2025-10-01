@@ -22,33 +22,54 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public final class ServerModNetworkHandler {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    private static final long REQUEST_TIMEOUT = 5_000; // ms
     private static final Map<Long, RidingRequest> RIDING_REQUESTS = new Long2ReferenceOpenHashMap<>();
 
     private ServerModNetworkHandler() {
     }
 
-    public static <P extends CustomPayload> void trySend(
-        ServerPlayerEntity player,
-        CustomPayload.Id<P> type,
-        Supplier<P> payload,
-        Runnable action
-    ) {
-        if (ServerPlayNetworking.canSend(player, type)) {
-            ServerPlayNetworking.send(player, payload.get());
-        } else {
-            action.run();
+    public static <P extends CustomPayload> void trySend(ServerPlayerEntity player, CustomPayload.Id<P> type, Supplier<P> payloadFn, Runnable fallback) {
+        if (!ServerPlayNetworking.canSend(player, type)) {
+            fallback.run();
+            return;
         }
+
+        final P payload = payloadFn.get();
+        ServerPlayNetworking.send(player, payload);
+    }
+
+    public static <V, P extends CustomPayload> void trySendFuture(ServerPlayerEntity player, CustomPayload.Id<P> type, Supplier<CompletableFuture<V>> futureFn, Function<? super V, P> payloadFn, Runnable fallback) {
+        if (!ServerPlayNetworking.canSend(player, type)) {
+            fallback.run();
+            return;
+        }
+
+        final CompletableFuture<V> payloadFuture = futureFn.get();
+        payloadFuture.thenApply(payloadFn).whenComplete((payload, e) -> {
+            if (e != null) {
+                LOGGER.warn("Could not create a payload {}", type, e);
+                return;
+            }
+
+            ServerPlayNetworking.send(player, payload);
+        });
     }
 
     public static void onConfigUpdateJson(ConfigUpdateJsonC2SPayload payload, ServerPlayNetworking.Context ctx) {
-        ConfigLoader.loadJson(payload.configJson()).thenAccept(config -> {
+        ConfigLoader.loadJson(payload.configJson()).whenComplete((config, e) -> {
             final ServerPlayerEntity player = ctx.player();
+
+            if (e != null) {
+                LOGGER.warn("Could not update player config for {}", player.getName(), e);
+                return;
+            }
 
             ((Configurable) player).fsit$setConfig(config);
         });
@@ -85,22 +106,17 @@ public final class ServerModNetworkHandler {
             danglingRequest.refuseBoth();
         }
 
-        trySend(
-            player, RidingRequestS2CPayload.ID, () -> new RidingRequestS2CPayload(otherUuid),
-            () -> request.accept(riderUuid)
-        );
+        trySend(player, RidingRequestS2CPayload.ID, () -> new RidingRequestS2CPayload(otherUuid),
+            () -> request.accept(riderUuid));
+        trySend(other, RidingRequestS2CPayload.ID, () -> new RidingRequestS2CPayload(riderUuid),
+            () -> request.accept(otherUuid));
 
-        trySend(
-            other, RidingRequestS2CPayload.ID, () -> new RidingRequestS2CPayload(riderUuid),
-            () -> request.accept(otherUuid)
-        );
-
-        request.thenCombineAsync().completeOnTimeout(false, 5_000, TimeUnit.MILLISECONDS)
+        request.thenCombineAsync().completeOnTimeout(false, REQUEST_TIMEOUT, TimeUnit.MILLISECONDS)
             .whenCompleteAsync((isAccepted, e) -> {
                 RIDING_REQUESTS.remove(requestId);
 
                 if (e != null) {
-                    LOGGER.warn("Certain someone has no clue about concurrency", e);
+                    LOGGER.warn("Something went wrong", e);
                 }
 
                 if (isAccepted) {
