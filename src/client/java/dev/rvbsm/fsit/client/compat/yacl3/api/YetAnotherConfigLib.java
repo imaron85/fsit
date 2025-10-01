@@ -11,9 +11,7 @@ import dev.isxander.yacl3.api.controller.FloatSliderControllerBuilder;
 import dev.isxander.yacl3.api.controller.IntegerSliderControllerBuilder;
 import dev.isxander.yacl3.api.controller.StringControllerBuilder;
 import dev.isxander.yacl3.api.controller.TickBoxControllerBuilder;
-import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.client.FSitModClient;
-import dev.rvbsm.fsit.client.compat.yacl3.api.controller.BlockControllerBuilder;
 import dev.rvbsm.fsit.client.compat.yacl3.api.controller.KeyBindingControllerBuilder;
 import dev.rvbsm.fsit.client.option.HybridKeyBinding;
 import dev.rvbsm.fsit.client.option.ModOptions;
@@ -39,7 +37,7 @@ public final class YetAnotherConfigLib {
     }
 
     public static Screen generateScreen(Screen screen) {
-        final ConfigBuilder configBuilder = FSitMod.getInstance().getConfig().toBuilder();
+        final ConfigBuilder configBuilder = FSitModClient.getInstance().getConfig().toBuilder();
 
         return dev.isxander.yacl3.api.YetAnotherConfigLib.createBuilder()
             .title(Text.translatable("fsit.config.title"))
@@ -295,13 +293,10 @@ public final class YetAnotherConfigLib {
     }
 
     private static void save(final ConfigBuilder config) {
-        FSitMod.getInstance().setConfig(config.build()).whenComplete((v, e) -> {
+        FSitModClient.getInstance().setConfig(config.build()).whenComplete((v, e) -> {
             if (e != null) {
                 LOGGER.warn("Could not save configuration provided by YACL screen", e);
-                return;
             }
-
-            FSitModClient.syncConfig();
         });
     }
 }
