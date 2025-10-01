@@ -1,6 +1,7 @@
 package dev.rvbsm.fsit.mixin.server;
 
 import com.mojang.authlib.GameProfile;
+import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.api.access.Configurable;
 import dev.rvbsm.fsit.config.ConfigData;
 import net.minecraft.entity.player.PlayerEntity;
@@ -51,5 +52,16 @@ public abstract class ServerPlayerEntityMixin_configStore extends PlayerEntity i
     @Override
     public boolean fsit$hasConfig() {
         return this.config != null;
+    }
+
+    @Override
+    public ConfigData fsit$configOrDefault() {
+        final ConfigData config = this.fsit$getConfig();
+        final ConfigData modConfig = FSitMod.getInstance().getConfig();
+        if (config == null || modConfig.useServer() || config.useServer()) {
+            return modConfig;
+        }
+
+        return config;
     }
 }
