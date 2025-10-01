@@ -54,7 +54,7 @@ public final class FSitCommand {
 
     private static int executeReload(CommandContext<ServerCommandSource> ctx) {
         ctx.getSource().sendFeedback(() -> RELOAD_SUCCESS_MESSAGE, true);
-        FSitMod.getInstance().reloadConfig().exceptionally(e -> {
+        FSitMod.getInstance().loadConfig().exceptionally(e -> {
             LOGGER.warn("Failed to execute configuration reload", e);
             ctx.getSource().sendError(RELOAD_FAILURE_MESSAGE);
 

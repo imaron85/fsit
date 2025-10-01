@@ -32,11 +32,13 @@ public final class FSitMod implements ModInitializer {
         return Objects.requireNonNull(instance, "too early");
     }
 
+    public FSitMod() {
+        instance = this;
+    }
+
     @Override
     public void onInitialize() {
-        instance = this;
-
-        final CompletableFuture<ConfigData> config = ConfigLoader.loadYaml();
+        final CompletableFuture<Void> configLoader = loadConfig();
 
         PayloadTypeRegistry.playC2S().register(ConfigUpdateJsonC2SPayload.ID, ConfigUpdateJsonC2SPayload.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(ConfigUpdateJsonC2SPayload.ID, ServerModNetworkHandler::onConfigUpdateJson);
@@ -49,8 +51,7 @@ public final class FSitMod implements ModInitializer {
         ServerPlayNetworking.registerGlobalReceiver(RidingResponseC2SPayload.ID, ServerModNetworkHandler::onRidingResponse);
 
         try {
-            this.config = config.get();
-            ConfigLoader.saveYaml(this.config);
+            configLoader.get();
         } catch (InterruptedException | ExecutionException e) {
             LOGGER.warn("Error when loading configuration", e);
         }
@@ -79,9 +80,7 @@ public final class FSitMod implements ModInitializer {
         return ConfigLoader.saveYaml(config);
     }
 
-    public CompletableFuture<Void> reloadConfig() {
-        return ConfigLoader.loadYaml().thenAccept(config -> {
-            this.config = config;
-        });
+    public CompletableFuture<Void> loadConfig() {
+        return ConfigLoader.loadYaml().thenAccept(this::setConfig);
     }
 }
