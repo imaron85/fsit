@@ -70,6 +70,6 @@ public final class ClientModNetworkHandler {
         final UUID targetUuid = payload.uuid();
         final boolean isBlocked = FSitModClient.getInstance().getRestrictionsManager().isRestricted(targetUuid);
 
-        trySend(RidingResponseC2SPayload.ID, () -> new RidingResponseC2SPayload(targetUuid, !isBlocked), () -> {});
+        ctx.responseSender().sendPacket(new RidingResponseC2SPayload(targetUuid, !isBlocked));
     }
 }
