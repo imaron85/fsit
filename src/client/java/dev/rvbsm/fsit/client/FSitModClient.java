@@ -8,6 +8,7 @@ import dev.rvbsm.fsit.config.ConfigData;
 import dev.rvbsm.fsit.network.payload.s2c.PoseUpdateS2CPayload;
 import dev.rvbsm.fsit.network.payload.s2c.RidingRequestS2CPayload;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 
@@ -33,6 +34,10 @@ public class FSitModClient implements ClientModInitializer {
     public void onInitializeClient() {
         ClientPlayNetworking.registerGlobalReceiver(PoseUpdateS2CPayload.ID, ClientModNetworkHandler::onPoseUpdate);
         ClientPlayNetworking.registerGlobalReceiver(RidingRequestS2CPayload.ID, ClientModNetworkHandler::onRidingRequest);
+
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
+            ClientModNetworkHandler.sendConfig(this.getConfig());
+        });
     }
 
     public ConfigData getConfig() {
