@@ -1,5 +1,6 @@
 package dev.rvbsm.fsit.entity;
 
+import net.minecraft.entity.Dismounting;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
@@ -14,6 +15,9 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class SeatEntity extends PoseEntity {
 
@@ -82,8 +86,34 @@ public final class SeatEntity extends PoseEntity {
 
     @Override
     public Vec3d updatePassengerForDismount(LivingEntity passenger) {
-        // todo search for dismount position
-        return new Vec3d(this.getX(), this.getY(), this.getZ());
+        final Vec3d offset = getPassengerDismountOffset(passenger.getWidth(), passenger.getWidth(), passenger.getYaw());
+        final double finalX = this.getX() + offset.x;
+        final double finalZ = this.getZ() + offset.z;
+
+        final BlockPos blockPos = BlockPos.ofFloored(finalX, this.getY(), finalZ);
+        final BlockPos blockPos2 = blockPos.down();
+
+        final List<Vec3d> dismountPositions = new ArrayList<>();
+        final double dismountHeight = this.getEntityWorld().getDismountHeight(blockPos);
+        if (Dismounting.canDismountInBlock(dismountHeight)) {
+            dismountPositions.add(new Vec3d(finalX, blockPos.getY() + dismountHeight, finalZ));
+        }
+
+        final double dismountHeight2 = this.getEntityWorld().getDismountHeight(blockPos2);
+        if (Dismounting.canDismountInBlock(dismountHeight2)) {
+            dismountPositions.add(new Vec3d(finalX, blockPos2.getY() + dismountHeight2, finalZ));
+        }
+
+        for (final var passengerPose : passenger.getPoses()) {
+            for (final var dismountPos : dismountPositions) {
+                if (Dismounting.canPlaceEntityAt(this.getEntityWorld(), dismountPos, passenger, passengerPose)) {
+                    passenger.setPose(passengerPose);
+                    return dismountPos;
+                }
+            }
+        }
+
+        return this.getEntityPos();
     }
 
     @Override
