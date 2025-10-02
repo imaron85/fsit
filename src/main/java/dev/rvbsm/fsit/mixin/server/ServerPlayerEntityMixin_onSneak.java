@@ -10,6 +10,7 @@ import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -94,10 +95,14 @@ public abstract class ServerPlayerEntityMixin_onSneak extends PlayerEntityMixin_
         final EntityDimensions crawlingDimensions = this.getDimensions(EntityPose.SWIMMING);
         final EntityDimensions crouchingDimensions = this.getDimensions(EntityPose.CROUCHING);
 
-        final double yawRads = Math.toRadians(this.getYaw());
-        final double offsetX = Math.sin(yawRads) * -.1d;
-        final double offsetZ = Math.cos(yawRads) * 0.1d;
+        final float yawRadians = (float) Math.toRadians(this.getYaw());
+        final float directionX = -MathHelper.sin(yawRadians);
+        final float directionZ = MathHelper.cos(yawRadians);
+        final double magnitude = MathHelper.absMax(directionX, directionZ);
+
+        final double offsetX = directionX * this.getWidth() / magnitude;
         final double offsetY = crouchingDimensions.height();
+        final double offsetZ = directionZ * this.getWidth() / magnitude;
 
         final Vec3d pos = this.getEntityPos();
         final Vec3d expectEmpty = pos.add(offsetX, 0.0d, offsetZ);
