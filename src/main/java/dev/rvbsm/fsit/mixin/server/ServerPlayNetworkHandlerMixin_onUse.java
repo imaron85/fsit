@@ -128,7 +128,10 @@ public abstract class ServerPlayNetworkHandlerMixin_onUse extends ServerCommonNe
 
         // swing main hand
         handRef.set(Hand.MAIN_HAND);
-        return ActionResult.SUCCESS;
+        //? if >=1.21.2 {
+        return ActionResult.SUCCESS_SERVER;
+        //?} else
+        /*return ActionResult.SUCCESS;*/
     }
 
     @Mixin(targets = "net.minecraft.server.network.ServerPlayNetworkHandler$1")
@@ -176,7 +179,10 @@ public abstract class ServerPlayNetworkHandlerMixin_onUse extends ServerCommonNe
             ServerModNetworkHandler.requestRiding(field_28963.player, (ServerPlayerEntity) field_28962);
 
             handRef.set(Hand.MAIN_HAND);
-            return ActionResult.SUCCESS;
+            //? if >=1.21.2 {
+            return ActionResult.SUCCESS_SERVER;
+            //?} else
+            /*return ActionResult.SUCCESS;*/
         }
     }
 }
