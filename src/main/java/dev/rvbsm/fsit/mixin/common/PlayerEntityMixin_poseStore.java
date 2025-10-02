@@ -25,7 +25,7 @@ public abstract class PlayerEntityMixin_poseStore extends LivingEntity implement
 
     @ModifyReturnValue(method = "isSwimming", at = @At("RETURN"))
     private boolean isCrawling(boolean isSwimming) {
-        return isSwimming && this.fsit$getPose() == ModPose.CRAWLING;
+        return isSwimming || this.fsit$getPose() == ModPose.CRAWLING;
     }
 
     @Override
