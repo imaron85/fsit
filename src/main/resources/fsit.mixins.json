@@ -3,11 +3,13 @@
   "package": "dev.rvbsm.fsit.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "common.EntityAccess",
+    "common.LivingEntityMixin_onSneak",
+    "common.PlayerEntityMixin_onSneak",
     "common.PlayerEntityMixin_poseStore",
+    "common.access.EntityAccess",
     "server.ServerPlayerEntityMixin_configStore",
     "server.ServerPlayerEntityMixin_onSneak",
-    "server.ServerPlayerEntityMixin_poseStore",
+    "server.ServerPlayerEntityMixin_poseHandle",
     "server.ServerPlayNetworkHandlerMixin_onUse",
     "server.ServerPlayNetworkHandlerMixin_onUse$PlayerInteractEntityC2SPacket_HandlerMixin"
   ],
