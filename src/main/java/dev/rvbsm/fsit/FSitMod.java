@@ -5,6 +5,7 @@ import dev.rvbsm.fsit.config.ConfigData;
 import dev.rvbsm.fsit.config.ConfigLoader;
 import dev.rvbsm.fsit.network.payload.c2s.ConfigUpdateJsonC2SPayload;
 import dev.rvbsm.fsit.network.payload.c2s.PoseRequestC2SPayload;
+import dev.rvbsm.fsit.network.payload.s2c.PoseUpdateS2CPayload;
 import dev.rvbsm.fsit.network.payload.s2c.RidingRequestS2CPayload;
 import dev.rvbsm.fsit.network.payload.c2s.RidingResponseC2SPayload;
 import dev.rvbsm.fsit.server.command.PoseCommand;
@@ -43,6 +44,7 @@ public final class FSitMod implements ModInitializer {
         PayloadTypeRegistry.playC2S().register(ConfigUpdateJsonC2SPayload.ID, ConfigUpdateJsonC2SPayload.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(ConfigUpdateJsonC2SPayload.ID, ServerModNetworkHandler::onConfigUpdateJson);
 
+        PayloadTypeRegistry.playS2C().register(PoseUpdateS2CPayload.ID, PoseUpdateS2CPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(PoseRequestC2SPayload.ID, PoseRequestC2SPayload.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(PoseRequestC2SPayload.ID, ServerModNetworkHandler::onPoseRequest);
 
