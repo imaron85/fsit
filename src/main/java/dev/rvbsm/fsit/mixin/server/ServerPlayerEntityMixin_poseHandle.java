@@ -8,6 +8,7 @@ import dev.rvbsm.fsit.entity.SeatEntity;
 import dev.rvbsm.fsit.mixin.common.PlayerEntityMixin_poseStore;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
@@ -20,23 +21,29 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayerEntity.class)
-public abstract class ServerPlayerEntityMixin_poseStore extends PlayerEntityMixin_poseStore {
+public abstract class ServerPlayerEntityMixin_poseHandle extends PlayerEntityMixin_poseStore {
 
     @Shadow
     public ServerPlayNetworkHandler networkHandler;
     @Unique
     private CrawlEntity crawlEntity = null;
 
-    private ServerPlayerEntityMixin_poseStore(EntityType<? extends LivingEntity> entityType, World world) {
+    private ServerPlayerEntityMixin_poseHandle(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
     }
 
     @Inject(method = "playerTick", at = @At("TAIL"))
     private void crawlTick(CallbackInfo ci) {
         if (this.crawlEntity != null) {
+            if (this.crawlEntity.isRemoved()) {
+                this.networkHandler.sendPacket(new EntitiesDestroyS2CPacket(this.crawlEntity.getId()));
+                this.crawlEntity = null;
+                return;
+            }
+
             this.crawlEntity.ghostTick();
 
-            if (this.crawlEntity.isDirty()) {
+            if (this.crawlEntity.isAlive() && this.crawlEntity.isDirty()) {
                 this.networkHandler.sendPacket(this.crawlEntity.createSyncPacket());
             }
         }
@@ -48,6 +55,10 @@ public abstract class ServerPlayerEntityMixin_poseStore extends PlayerEntityMixi
             case STANDING -> {
                 if (this.hasVehicle()) {
                     this.stopRiding();
+                }
+
+                if (this.crawlEntity != null) {
+                    this.crawlEntity.discard();
                 }
             }
 
