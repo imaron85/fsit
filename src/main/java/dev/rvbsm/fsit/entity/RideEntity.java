@@ -1,6 +1,6 @@
 package dev.rvbsm.fsit.entity;
 
-import dev.rvbsm.fsit.mixin.common.EntityAccess;
+import dev.rvbsm.fsit.mixin.common.access.EntityAccess;
 import net.minecraft.advancement.criterion.Criteria;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;

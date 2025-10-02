@@ -1,4 +1,4 @@
-package dev.rvbsm.fsit.mixin.common;
+package dev.rvbsm.fsit.mixin.common.access;
 
 import net.minecraft.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
