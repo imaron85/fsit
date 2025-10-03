@@ -1,3 +1,5 @@
+//~ simple_option_id
+
 package dev.rvbsm.fsit.client.compat.yacl3.api;
 
 import com.mojang.logging.LogUtils;

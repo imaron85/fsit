@@ -1,3 +1,5 @@
+//~ keybinding_category
+
 package dev.rvbsm.fsit.client.option;
 
 import net.minecraft.client.option.GameOptions;

@@ -1,3 +1,5 @@
+//~ packet_codec_boolean
+
 package dev.rvbsm.fsit.network.payload.c2s;
 
 import dev.rvbsm.fsit.FSitMod;

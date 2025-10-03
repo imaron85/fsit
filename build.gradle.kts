@@ -131,6 +131,8 @@ java {
 stonecutter {
     val trickyTrials = eval(current.version, ">=1.21")
     val bundlesOfBravery = eval(current.version, ">=1.21.2")
+    val theGardenAwakens = eval(current.version, ">=1.21.4")
+    val springToLife = eval(current.version, ">=1.21.5")
     val chaseTheSkies = eval(current.version, ">=1.21.6")
     val theCopperAge = eval(current.version, ">=1.21.9")
 
@@ -139,22 +141,22 @@ stonecutter {
         to = "Vec3d.PACKET_CODEC"
     }
 
-    replacements.regex(bundlesOfBravery) {
-        replace("PacketCodecs\\.BOOL" + "(?!EAN)", "PacketCodecs\\.BOOLEAN")
-        reverse("PacketCodecs\\.BOOLEAN", "PacketCodecs\\.BOOL")
-    }
-
-    replacements.string(bundlesOfBravery) {
+    replacements.string("entity_position_sync_packet_import", bundlesOfBravery) {
         from = "import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket"
         to = "import net.minecraft.network.packet.s2c.play.EntityPositionSyncS2CPacket"
     }
 
-    replacements.string(bundlesOfBravery) {
+    replacements.string("entity_position_sync_packet_new", bundlesOfBravery) {
         from = "new EntityPositionS2CPacket(this)"
         to = "EntityPositionSyncS2CPacket.create(this)"
     }
 
-    replacements.string(chaseTheSkies) {
+    replacements.regex("packet_codec_boolean", theGardenAwakens) {
+        replace("PacketCodecs\\.BOOL" + "(?!EAN)", "PacketCodecs\\.BOOLEAN")
+        reverse("PacketCodecs\\.BOOLEAN", "PacketCodecs\\.BOOL")
+    }
+
+    replacements.string("create_index_to_value_function",springToLife) {
         from = "ValueLists.createIdToValueFunction"
         to = "ValueLists.createIndexToValueFunction"
     }
@@ -164,12 +166,12 @@ stonecutter {
         reverse("((?:entity|player|this)(?:\\.|::))" + "getEntity(World|Pos)" + "(?!\\w)", "$1get$2")
     }
 
-    replacements.regex(theCopperAge) {
+    replacements.regex("keybinding_category", theCopperAge) {
         replace("KeyBinding\\.(\\w+)_CATEGORY", "KeyBinding.Category.$1")
         reverse("KeyBinding\\.Category.(\\w+)", "KeyBinding.$1_CATEGORY")
     }
 
-    replacements.regex(theCopperAge) {
+    replacements.regex("simple_option_id", theCopperAge) {
         replace("(\\w+Key)\\.getTranslationKey", "$1\\.getId")
         reverse("(\\w+Key)\\.getId", "$1\\.getTranslationKey")
     }

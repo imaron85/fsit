@@ -1,3 +1,6 @@
+//~ entity_position_sync_packet_import
+//~ entity_position_sync_packet_new
+
 package dev.rvbsm.fsit.server.network;
 
 import net.minecraft.entity.EntityType;
