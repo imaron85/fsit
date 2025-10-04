@@ -3,6 +3,7 @@
   "package": "dev.rvbsm.fsit.mixin.client",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "ClientPlayerEntityMixin_poseHandle",
     "KeyBindingMixin_hybridKeyBinding",
     "access.KeyBindingAccess",
     "access.SimpleOptionAccess"

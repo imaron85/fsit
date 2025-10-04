@@ -2,10 +2,12 @@ package dev.rvbsm.fsit.mixin.server;
 
 import dev.rvbsm.fsit.api.access.Configurable;
 import dev.rvbsm.fsit.config.ConfigData;
+import dev.rvbsm.fsit.network.payload.s2c.PoseUpdateS2CPayload;
 import dev.rvbsm.fsit.server.network.CrawlEntity;
 import dev.rvbsm.fsit.entity.ModPose;
 import dev.rvbsm.fsit.entity.SeatEntity;
 import dev.rvbsm.fsit.mixin.common.PlayerEntityMixin_poseStore;
+import dev.rvbsm.fsit.server.network.ServerModNetworkHandler;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket;
@@ -21,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayerEntity.class)
-public abstract class ServerPlayerEntityMixin_poseHandle extends PlayerEntityMixin_poseStore {
+public abstract class ServerPlayerEntityMixin_poseHandle extends PlayerEntityMixin_poseStore implements Configurable {
 
     @Shadow
     public ServerPlayNetworkHandler networkHandler;
@@ -63,7 +65,7 @@ public abstract class ServerPlayerEntityMixin_poseHandle extends PlayerEntityMix
             }
 
             case SITTING -> {
-                final ConfigData config = ((Configurable) this).fsit$configOrDefault();
+                final ConfigData config = this.fsit$configOrDefault();
                 if (config.sitting().shouldCenter()) {
                     pos = new Vec3d(Math.floor(pos.x) + 0.5, pos.y, Math.floor(pos.z) + 0.5);
                 }
@@ -72,13 +74,21 @@ public abstract class ServerPlayerEntityMixin_poseHandle extends PlayerEntityMix
             }
 
             case CRAWLING -> {
-                if (!((Configurable) this).fsit$hasConfig()) {
+                if (!this.fsit$hasConfig()) {
                     this.crawlEntity = new CrawlEntity((ServerPlayerEntity) (Object) this);
                 }
             }
 
             default -> {
+                return;
             }
         }
+
+        final Vec3d finalPos = pos;
+        ServerModNetworkHandler.trySend(
+            (ServerPlayerEntity) (Object) this,
+            PoseUpdateS2CPayload.ID, () -> new PoseUpdateS2CPayload(pose, finalPos),
+            () -> {}
+        );
     }
 }
