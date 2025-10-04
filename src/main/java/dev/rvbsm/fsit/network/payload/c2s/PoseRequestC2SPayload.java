@@ -25,7 +25,7 @@ public record PoseRequestC2SPayload(ModPose pose, Optional<Vec3d> pos) implement
     );
 
     public static final Identifier PAYLOAD_ID_LEGACY = Identifier.of(FSitMod.MOD_ID, "pose_request");
-    public static final Id<PoseRequestC2SPayload> ID_LEGACY = new Id<>(PAYLOAD_ID);
+    public static final Id<PoseRequestC2SPayload> ID_LEGACY = new Id<>(PAYLOAD_ID_LEGACY);
 
     public static final PacketCodec<RegistryByteBuf, PoseRequestC2SPayload> CODEC_LEGACY = PacketCodec.tuple(
         ModPose.PACKET_CODEC, PoseRequestC2SPayload::pose,

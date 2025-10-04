@@ -46,6 +46,7 @@ public final class FSitMod implements ModInitializer {
 
         PayloadTypeRegistry.playS2C().register(PoseUpdateS2CPayload.ID, PoseUpdateS2CPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(PoseRequestC2SPayload.ID, PoseRequestC2SPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(PoseRequestC2SPayload.ID_LEGACY, PoseRequestC2SPayload.CODEC_LEGACY);
         ServerPlayNetworking.registerGlobalReceiver(PoseRequestC2SPayload.ID, ServerModNetworkHandler::onPoseRequest);
 
         PayloadTypeRegistry.playS2C().register(RidingRequestS2CPayload.ID, RidingRequestS2CPayload.CODEC);

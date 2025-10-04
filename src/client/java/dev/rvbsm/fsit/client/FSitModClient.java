@@ -20,14 +20,14 @@ public class FSitModClient implements ClientModInitializer {
     private static FSitModClient instance;
     private final RidingInteractionsManager restrictionsManager;
 
-    public static FSitModClient getInstance() {
-        return Objects.requireNonNull(instance, "too early");
-    }
-
     public FSitModClient() {
         instance = this;
 
         this.restrictionsManager = new RidingInteractionsManager(MinecraftClient.getInstance());
+    }
+
+    public static FSitModClient getInstance() {
+        return Objects.requireNonNull(instance, "too early");
     }
 
     @Override
