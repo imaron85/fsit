@@ -1,18 +1,15 @@
-package dev.rvbsm.fsit.client.compat;
+package dev.rvbsm.fsit.client.compat.modmenu;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
-import com.terraformersmc.modmenu.api.ModMenuApi;
+import dev.rvbsm.fsit.client.compat.ClientModCompat;
 import dev.rvbsm.fsit.client.compat.yacl3.api.YetAnotherConfigLib;
-import net.fabricmc.loader.api.FabricLoader;
 
-public class ModMenu implements ModMenuApi {
-
-    public static final boolean YACL = FabricLoader.getInstance().isModLoaded("yet_another_config_lib_v3");
+public class ModMenuApi implements com.terraformersmc.modmenu.api.ModMenuApi {
 
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
         return (screen) -> {
-            if (YACL) {
+            if (ClientModCompat.YACL.isLoaded()) {
                 return YetAnotherConfigLib.generateScreen(screen);
             }
 

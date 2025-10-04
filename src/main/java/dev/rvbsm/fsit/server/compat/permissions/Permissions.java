@@ -1,20 +1,21 @@
 package dev.rvbsm.fsit.server.compat.permissions;
 
-import net.fabricmc.loader.api.FabricLoader;
+import dev.rvbsm.fsit.server.compat.ServerModCompat;
 import net.minecraft.server.command.ServerCommandSource;
 
 import java.util.function.Predicate;
 
 public final class Permissions {
 
-    private static final boolean PERMISSIONS_API = FabricLoader.getInstance().isModLoaded("fabric-permissions-api-v0");
+    private Permissions() {
+    }
 
     public static Predicate<ServerCommandSource> hasPermissionLevel(final int level) {
         return src -> src.hasPermissionLevel(level);
     }
 
     public static Predicate<ServerCommandSource> require(final String permission, final int defaultRequiredLevel) {
-        if (PERMISSIONS_API) {
+        if (ServerModCompat.PERMISSIONS_API.isLoaded()) {
             return me.lucko.fabric.api.permissions.v0.Permissions.require(permission, defaultRequiredLevel);
         }
 

@@ -17,7 +17,7 @@
   "entrypoints": {
     "main": ["dev.rvbsm.fsit.FSitMod"],
     "client": ["dev.rvbsm.fsit.client.FSitModClient"],
-    "modmenu": ["dev.rvbsm.fsit.client.compat.ModMenu"]
+    "modmenu": ["dev.rvbsm.fsit.client.compat.modmenu.ModMenuApi"]
   },
   "mixins": [
     "fsit.mixins.json",

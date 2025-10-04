@@ -33,8 +33,26 @@ sourceSets.test {
 
 repositories {
     mavenCentral()
-    maven("https://maven.terraformersmc.com/releases")
-    maven("https://maven.isxander.dev/releases")
+
+    maven("https://maven.terraformersmc.com/releases") {
+        content {
+            includeGroup("com.terraformersmc")
+        }
+    }
+
+    maven("https://maven.isxander.dev/releases") {
+        content {
+            includeGroup("dev.isxander")
+            includeGroup("org.quiltmc.parsers")
+        }
+    }
+
+    maven("https://repo.opencollab.dev/main") {
+        content {
+            includeGroupByRegex("org\\.geysermc\\..*")
+            includeGroup("org.cloudburstmc.math")
+        }
+    }
 }
 
 dependencies {
@@ -61,6 +79,8 @@ dependencies {
     modImplementation("me.lucko:fabric-permissions-api:${property("api.fabric-permissions-api")}") {
         exclude("net.fabricmc.fabric-api", "fabric-api")
     }
+
+    compileOnly(libs.geyser.api)
 
     implementation(libs.bundles.configurate)
     shadow(libs.bundles.configurate)
