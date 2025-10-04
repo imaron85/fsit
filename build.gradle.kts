@@ -39,11 +39,11 @@ repositories {
 
 dependencies {
     minecraft("com.minecraft:minecraft:${property("minecraft.version")}")
-    mappings("net.fabricmc:yarn:${property("minecraft.version")}+build.${property("fabric.yarn_build")}:v2")
+    mappings("net.fabricmc:yarn:${property("minecraft.version")}+build.${property("minecraft.yarn_build")}:v2")
 
     modImplementation(libs.fabric.loader)
 
-    val fabricVersion = property("fabric.api").toString()
+    val fabricVersion = property("api.fabric-api").toString()
     setOf(
         "fabric-api-base",
         "fabric-command-api-v2",
@@ -58,7 +58,7 @@ dependencies {
         modRuntimeOnly("net.fabricmc.fabric-api:fabric-api:$fabricVersion")
     }
 
-    modCompileOnly("me.lucko:fabric-permissions-api:${property("api.fabric-permissions")}") {
+    modImplementation("me.lucko:fabric-permissions-api:${property("api.fabric-permissions-api")}") {
         exclude("net.fabricmc.fabric-api", "fabric-api")
     }
 
