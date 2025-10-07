@@ -16,7 +16,6 @@ import dev.isxander.yacl3.api.controller.TickBoxControllerBuilder;
 import dev.rvbsm.fsit.client.FSitModClient;
 import dev.rvbsm.fsit.client.compat.yacl3.api.controller.KeyBindingControllerBuilder;
 import dev.rvbsm.fsit.client.option.HybridKeyBinding;
-import dev.rvbsm.fsit.client.option.ModOptions;
 import dev.rvbsm.fsit.config.ConfigBuilder;
 import dev.rvbsm.fsit.config.ConfigData;
 import dev.rvbsm.fsit.mixin.client.access.KeyBindingAccess;
@@ -142,24 +141,24 @@ public final class YetAnotherConfigLib {
                 .description(defaultDescription("fsit.config.general.keybindings"))
 
                 .option(Option.<InputUtil.Key>createBuilder()
-                    .name(Text.translatable(ModOptions.sitKey.getId()))
-                    .description(defaultDescription(ModOptions.sitKey.getId()))
+                    .name(Text.translatable(FSitModClient.getInstance().getOptions().sitKey.getId()))
+                    .description(defaultDescription(FSitModClient.getInstance().getOptions().sitKey.getId()))
 
                     .binding(
-                        ModOptions.sitKey.getDefaultKey(),
-                        ((KeyBindingAccess) ModOptions.sitKey)::getBoundKey,
-                        ModOptions.sitKey::setBoundKey)
+                        FSitModClient.getInstance().getOptions().sitKey.getDefaultKey(),
+                        ((KeyBindingAccess) FSitModClient.getInstance().getOptions().sitKey)::getBoundKey,
+                        FSitModClient.getInstance().getOptions().sitKey::setBoundKey)
                     .controller(KeyBindingControllerBuilder::create)
                     .build())
 
                 .option(Option.<InputUtil.Key>createBuilder()
-                    .name(Text.translatable(ModOptions.crawlKey.getId()))
-                    .description(defaultDescription(ModOptions.crawlKey.getId()))
+                    .name(Text.translatable(FSitModClient.getInstance().getOptions().crawlKey.getId()))
+                    .description(defaultDescription(FSitModClient.getInstance().getOptions().crawlKey.getId()))
 
                     .binding(
-                        ModOptions.crawlKey.getDefaultKey(),
-                        ((KeyBindingAccess) ModOptions.crawlKey)::getBoundKey,
-                        ModOptions.crawlKey::setBoundKey)
+                        FSitModClient.getInstance().getOptions().crawlKey.getDefaultKey(),
+                        ((KeyBindingAccess) FSitModClient.getInstance().getOptions().crawlKey)::getBoundKey,
+                        FSitModClient.getInstance().getOptions().crawlKey::setBoundKey)
                     .controller(KeyBindingControllerBuilder::create)
                     .build())
                 .build())
@@ -168,14 +167,14 @@ public final class YetAnotherConfigLib {
                 .name(Text.translatable("fsit.config.general.keybindingsBehaviour"))
                 .description(defaultDescription("fsit.config.general.keybindingsBehaviour"))
 
-                .option(simpleOption(ModOptions.sitMode)
+                .option(simpleOption(FSitModClient.getInstance().getOptions().sitMode)
                     .controller(o -> EnumControllerBuilder.create(o).enumClass(HybridKeyBinding.Mode.class))
                     .build())
-                .option(simpleOption(ModOptions.crawlMode)
+                .option(simpleOption(FSitModClient.getInstance().getOptions().crawlMode)
                     .controller(o -> EnumControllerBuilder.create(o).enumClass(HybridKeyBinding.Mode.class))
                     .build())
 
-                .option(simpleOption(ModOptions.hybridModeWindow)
+                .option(simpleOption(FSitModClient.getInstance().getOptions().hybridModeWindow)
                     .controller(o -> IntegerSliderControllerBuilder.create(o).range(0, 10).step(1))
                     .build())
                 .build())

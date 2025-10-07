@@ -2,6 +2,7 @@
 
 package dev.rvbsm.fsit.client.option;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.option.SimpleOption;
@@ -11,7 +12,13 @@ import java.util.Arrays;
 
 public class ModOptions {
 
-    public static final SimpleOption<Integer> hybridModeWindow = new SimpleOption<>(
+    private final MinecraftClient client;
+
+    public ModOptions(MinecraftClient client) {
+        this.client = client;
+    }
+
+    public final SimpleOption<Integer> hybridModeWindow = new SimpleOption<>(
         "key.fsit.hybrid_window",
         SimpleOption.emptyTooltip(),
         GameOptions::getGenericValueOrOffText,
@@ -19,7 +26,7 @@ public class ModOptions {
         7,
         (t) -> {}
     );
-    public static final SimpleOption<HybridKeyBinding.Mode> sitMode = new SimpleOption<>(
+    public final SimpleOption<HybridKeyBinding.Mode> sitMode = new SimpleOption<>(
         "key.fsit.sit",
         SimpleOption.emptyTooltip(),
         SimpleOption.enumValueText(),
@@ -27,7 +34,7 @@ public class ModOptions {
         HybridKeyBinding.Mode.HYBRID,
         (m) -> {}
     );
-    public static final SimpleOption<HybridKeyBinding.Mode> crawlMode = new SimpleOption<>(
+    public final SimpleOption<HybridKeyBinding.Mode> crawlMode = new SimpleOption<>(
         "key.fsit.crawl",
         SimpleOption.emptyTooltip(),
         SimpleOption.enumValueText(),
@@ -36,16 +43,16 @@ public class ModOptions {
         (m) -> {}
     );
 
-    public static final KeyBinding sitKey = new HybridKeyBinding(
+    public final KeyBinding sitKey = new HybridKeyBinding(
         "key.fsit.sit",
         InputUtil.GLFW_KEY_RIGHT_CONTROL,
         KeyBinding.Category.MISC,
         sitMode::getValue,
         hybridModeWindow::getValue
     );
-    public static final KeyBinding crawlKey = new HybridKeyBinding(
+    public final KeyBinding crawlKey = new HybridKeyBinding(
         "key.fsit.crawl",
-        InputUtil.GLFW_KEY_RIGHT_CONTROL,
+        InputUtil.GLFW_KEY_RIGHT_ALT,
         KeyBinding.Category.MISC,
         crawlMode::getValue,
         hybridModeWindow::getValue

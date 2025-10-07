@@ -5,31 +5,41 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.util.TranslatableOption;
-import net.minecraft.util.Util;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.IntFunction;
-import java.util.function.LongSupplier;
+import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 public class HybridKeyBinding extends KeyBinding {
 
+    private static final Set<HybridKeyBinding> HYBRID_KEYS = new HashSet<>();
     private final Supplier<Mode> modeGetter;
-    private final LongSupplier windowGetter;
-    private long lastTimePressed = 0;
+    private final IntSupplier windowGetter;
+    private int stickyTicks = 0;
 
     //? if >=1.21.9 {
-    public HybridKeyBinding(String id, int code, Category category, Supplier<Mode> modeGetter, LongSupplier windowGetter) {
+    public HybridKeyBinding(String id, int code, Category category, Supplier<Mode> modeGetter, IntSupplier windowGetter) {
     //?} else
-    /*public HybridKeyBinding(String id, int code, String category, Supplier<Mode> modeGetter, LongSupplier windowGetter) {*/
+    /*public HybridKeyBinding(String id, int code, String category, Supplier<Mode> modeGetter, IntSupplier windowGetter) {*/
         super(id, InputUtil.Type.KEYSYM, code, category);
         this.modeGetter = modeGetter;
         this.windowGetter = windowGetter;
+        HYBRID_KEYS.add(this);
+    }
+
+    public static void tick() {
+        for (final HybridKeyBinding hybridKey : HYBRID_KEYS) {
+            if (hybridKey.stickyTicks > 0) {
+                hybridKey.stickyTicks -= 1;
+            }
+        }
     }
 
     @Override
     public void setPressed(boolean pressed) {
-        // todo test
         switch (this.modeGetter.get()) {
             case TOGGLE -> {
                 if (pressed) {
@@ -38,24 +48,21 @@ public class HybridKeyBinding extends KeyBinding {
             }
             case HOLD -> super.setPressed(pressed);
             case HYBRID -> {
-                final long timePressed = Util.getMeasuringTimeMs() / 50;
-
-                // TODO test bindings
                 if (pressed) {
                     super.setPressed(!this.isPressed());
 
-                    this.lastTimePressed = timePressed;
+                    if (this.isPressed()) {
+                        this.stickyTicks = this.windowGetter.getAsInt();
+                    }
                 } else {
-                    final boolean isSticky = timePressed - this.lastTimePressed < this.windowGetter.getAsLong();
-                    if (!isSticky) {
+                    if (this.stickyTicks == 0) {
                         super.setPressed(false);
                     }
-
-                    this.lastTimePressed = 0L;
                 }
             }
         }
     }
+
 
     public enum Mode implements TranslatableOption {
         TOGGLE("options.key.toggle"), HOLD("options.key.hold"), HYBRID("fsit.option.key.hybrid");
