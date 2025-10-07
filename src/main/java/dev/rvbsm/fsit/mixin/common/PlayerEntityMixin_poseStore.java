@@ -1,6 +1,6 @@
 package dev.rvbsm.fsit.mixin.common;
 
-import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.rvbsm.fsit.api.access.Poseable;
 import dev.rvbsm.fsit.entity.ModPose;
 import net.minecraft.entity.EntityType;
@@ -23,7 +23,14 @@ public abstract class PlayerEntityMixin_poseStore extends LivingEntity implement
         super(entityType, world);
     }
 
-    @ModifyReturnValue(method = "isSwimming", at = @At("RETURN"))
+    @ModifyExpressionValue(
+        //? if >=1.21.9 {
+        method = "getExpectedPose",
+        //?} else
+        /*method = "updatePose"*/
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/entity/player/PlayerEntity;isSwimming()Z"))
     private boolean isCrawling(boolean isSwimming) {
         return isSwimming || this.fsit$getPose() == ModPose.CRAWLING;
     }
