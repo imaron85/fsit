@@ -73,6 +73,8 @@ dependencies {
     modImplementation("com.terraformersmc:modmenu:${property("api.modmenu")}")
     modImplementation("dev.isxander:yet-another-config-lib:${property("api.yacl")}-fabric") {
         exclude("net.fabricmc.fabric-api", "fabric-api")
+        exclude("net.fabricmc", "fabric-language-kotlin")
+        exclude("org.jetbrains.kotlin")
         modRuntimeOnly("net.fabricmc.fabric-api:fabric-api:$fabricVersion")
     }
 
