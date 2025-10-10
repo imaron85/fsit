@@ -8,6 +8,7 @@ import dev.rvbsm.fsit.api.access.Configurable;
 import dev.rvbsm.fsit.api.access.Poseable;
 import dev.rvbsm.fsit.config.ConfigData;
 import dev.rvbsm.fsit.entity.ModPose;
+import dev.rvbsm.fsit.server.compat.geyser.GeyserApi;
 import dev.rvbsm.fsit.server.network.ServerModNetworkHandler;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.enums.BlockHalf;
@@ -77,8 +78,7 @@ public abstract class ServerPlayNetworkHandlerMixin_onUse extends ServerCommonNe
             return actionResult;
         }
 
-        // TODO Bedrock sends only main hand?
-        if (handRef.get() == Hand.MAIN_HAND && !this.player.getOffHandStack().isEmpty()) {
+        if (handRef.get() == Hand.MAIN_HAND && !GeyserApi.isBedrockPlayer(this.player.getUuid())) {
             return actionResult;
         }
 
@@ -159,7 +159,7 @@ public abstract class ServerPlayNetworkHandlerMixin_onUse extends ServerCommonNe
                 return actionResult;
             }
 
-            if (handRef.get() == Hand.MAIN_HAND && !field_28963.player.getOffHandStack().isEmpty()) {
+            if (handRef.get() == Hand.MAIN_HAND && !GeyserApi.isBedrockPlayer(field_28963.player.getUuid())) {
                 return actionResult;
             }
 
