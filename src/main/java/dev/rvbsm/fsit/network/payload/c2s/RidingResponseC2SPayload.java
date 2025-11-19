@@ -3,29 +3,31 @@
 package dev.rvbsm.fsit.network.payload.c2s;
 
 import dev.rvbsm.fsit.FSitMod;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Uuids;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.UUID;
 
-public record RidingResponseC2SPayload(UUID uuid, boolean isAccepted) implements CustomPayload {
+@NullMarked
+public record RidingResponseC2SPayload(UUID uuid, boolean isAccepted) implements CustomPacketPayload {
 
-    public static final Identifier PAYLOAD_ID = Identifier.of(FSitMod.MOD_ID, "riding_response");
-    public static final Id<RidingResponseC2SPayload> ID = new Id<>(PAYLOAD_ID);
+    public static final ResourceLocation PAYLOAD_ID = ResourceLocation.fromNamespaceAndPath(FSitMod.MOD_ID, "riding_response");
+    public static final Type<RidingResponseC2SPayload> ID = new Type<>(PAYLOAD_ID);
 
-    public static final PacketCodec<RegistryByteBuf, RidingResponseC2SPayload> CODEC = PacketCodec.tuple(
-        Uuids.PACKET_CODEC, RidingResponseC2SPayload::uuid,
-        PacketCodecs.BOOLEAN, RidingResponseC2SPayload::isAccepted, // was var-int 0-1
+    public static final StreamCodec<RegistryFriendlyByteBuf, RidingResponseC2SPayload> CODEC = StreamCodec.composite(
+        UUIDUtil.STREAM_CODEC, RidingResponseC2SPayload::uuid,
+        ByteBufCodecs.BOOL, RidingResponseC2SPayload::isAccepted, // was var-int 0-1
 
         RidingResponseC2SPayload::new
     );
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return ID;
     }
 }

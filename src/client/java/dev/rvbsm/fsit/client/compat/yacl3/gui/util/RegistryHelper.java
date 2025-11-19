@@ -2,17 +2,16 @@ package dev.rvbsm.fsit.client.compat.yacl3.gui.util;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.registry.DefaultedRegistry;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.entry.RegistryEntryList;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.InvalidIdentifierException;
-import net.minecraft.util.math.random.Random;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.ResourceLocationException;
+import net.minecraft.core.DefaultedRegistry;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.ItemLike;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.Locale;
@@ -24,19 +23,19 @@ import java.util.stream.Stream;
 public final class RegistryHelper {
 
     private static final char HASH = '#';
-    private static final Random RANDOM = Random.create();
+    private static final RandomSource RANDOM = RandomSource.create();
 
     private RegistryHelper() {
     }
 
-    public static <T> @Nullable TagKey<T> findTag(Registry<T> registry, final Identifier id) {
-        final Iterable<TagKey<T>> tags = registry.streamTags()
+    public static <T> @Nullable TagKey<T> findTag(Registry<T> registry, final ResourceLocation id) {
+        final Iterable<TagKey<T>> tags = registry.getTags()
             //? if >=1.21.2
-            .map(RegistryEntryList.Named::getTag)
+            .map(HolderSet.Named::key)
             ::iterator;
 
         for (final var tag : tags) {
-            if (tag.id().equals(id)) {
+            if (tag.location().equals(id)) {
                 return tag;
             }
         }
@@ -47,70 +46,70 @@ public final class RegistryHelper {
     public static <T> boolean isRegistered(final Registry<T> registry, final String stringId) {
         final boolean isTag = !stringId.isEmpty() && stringId.charAt(0) == HASH;
 
-        final Identifier id;
+        final ResourceLocation id;
         try {
-            id = Identifier.of(isTag ? stringId.substring(1) : stringId);
-        } catch (InvalidIdentifierException e) {
+            id = ResourceLocation.parse(isTag ? stringId.substring(1) : stringId);
+        } catch (ResourceLocationException e) {
             return false;
         }
 
         if (isTag) {
-            return registry.streamTags()
+            return registry.getTags()
                 //? if >=1.21.2
-                .map(RegistryEntryList.Named::getTag)
-                .anyMatch(tag -> tag.id().equals(id));
+                .map(HolderSet.Named::key)
+                .anyMatch(tag -> tag.location().equals(id));
         } else {
-            return registry.containsId(id);
+            return registry.containsKey(id);
         }
     }
 
     public static <T> T getFromId(Registry<T> registry, String stringId, @Nullable T def) {
         try {
             if (!stringId.isEmpty() && stringId.charAt(0) != HASH) {
-                final Identifier entryId = Identifier.of(stringId);
-                if (registry.containsId(entryId)) {
-                    return registry.get(entryId);
+                final ResourceLocation entryId = ResourceLocation.parse(stringId);
+                if (registry.containsKey(entryId)) {
+                    return registry.getValue(entryId);
                 }
             } else {
-                final Identifier tagId = Identifier.of(stringId.substring(1));
+                final ResourceLocation tagId = ResourceLocation.parse(stringId.substring(1));
                 final TagKey<T> tag = findTag(registry, tagId);
 
                 if (tag != null) {
-                    return registry.getRandomEntry(tag, RANDOM).map(RegistryEntry::value).orElse(def);
+                    return registry.getRandomElementOf(tag, RANDOM).map(Holder::value).orElse(def);
                 }
             }
 
-        } catch (InvalidIdentifierException ignored) {
+        } catch (ResourceLocationException ignored) {
         }
 
         return def;
     }
 
     public static <T> T getFromId(DefaultedRegistry<T> registry, String stringId) {
-        return getFromId(registry, stringId, registry.get(registry.getDefaultId()));
+        return getFromId(registry, stringId, registry.getValue(registry.getDefaultKey()));
     }
 
-    public static <T extends ItemConvertible> Stream<String> getMatchingIdentifiers(final DefaultedRegistry<T> registry, String input) {
+    public static <T extends ItemLike> Stream<String> getMatchingIdentifiers(final DefaultedRegistry<T> registry, String input) {
         if (!input.isEmpty() && input.charAt(0) == HASH) {
             input = input.substring(1);
 
-            return registry.streamTags()
+            return registry.getTags()
                 //? if >=1.21.2
-                .map(RegistryEntryList.Named::getTag)
-                .map(TagKey::id)
+                .map(HolderSet.Named::key)
+                .map(TagKey::location)
                 .filter(getIdentifierPredicate(input))
                 .sorted(compareIds(input))
                 .map(id -> HASH + id.toString());
         } else {
             return Stream.concat(
-                registry.getIds().stream()
+                registry.keySet().stream()
                     .filter(getIdentifierPredicate(input))
                     .sorted(compareIds(input))
-                    .map(Identifier::toString),
-                registry.streamTags()
+                    .map(ResourceLocation::toString),
+                registry.getTags()
                     //? if >=1.21.2
-                    .map(RegistryEntryList.Named::getTag)
-                    .map(TagKey::id)
+                    .map(HolderSet.Named::key)
+                    .map(TagKey::location)
                     .filter(getIdentifierPredicate(input))
                     .sorted(compareIds(input))
                     .map(id -> HASH + id.toString())
@@ -118,8 +117,8 @@ public final class RegistryHelper {
         }
     }
 
-    private static Predicate<Identifier> getIdentifierPredicate(String id) {
-        final int sep = id.indexOf(Identifier.NAMESPACE_SEPARATOR);
+    private static Predicate<ResourceLocation> getIdentifierPredicate(String id) {
+        final int sep = id.indexOf(ResourceLocation.NAMESPACE_SEPARATOR);
 
         if (sep == -1) {
             return idx -> idx.getPath().contains(id);
@@ -131,8 +130,8 @@ public final class RegistryHelper {
         }
     }
 
-    private static Comparator<Identifier> compareIds(final String input) {
-        final int sep = input.indexOf(Identifier.NAMESPACE_SEPARATOR);
+    private static Comparator<ResourceLocation> compareIds(final String input) {
+        final int sep = input.indexOf(ResourceLocation.NAMESPACE_SEPARATOR);
 
         return (left, right) -> {
             final String path = (sep == -1 ? input : input.substring(sep + 1)).toLowerCase(Locale.ROOT);

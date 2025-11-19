@@ -1,27 +1,29 @@
 package dev.rvbsm.fsit.network.payload.s2c;
 
 import dev.rvbsm.fsit.FSitMod;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Uuids;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.UUID;
 
-public record RidingRequestS2CPayload(UUID uuid) implements CustomPayload {
+@NullMarked
+public record RidingRequestS2CPayload(UUID uuid) implements CustomPacketPayload {
 
-    public static final Identifier PAYLOAD_ID = Identifier.of(FSitMod.MOD_ID, "riding_request");
-    public static final Id<RidingRequestS2CPayload> ID = new Id<>(PAYLOAD_ID);
+    public static final ResourceLocation PAYLOAD_ID = ResourceLocation.fromNamespaceAndPath(FSitMod.MOD_ID, "riding_request");
+    public static final Type<RidingRequestS2CPayload> ID = new Type<>(PAYLOAD_ID);
 
-    public static final PacketCodec<RegistryByteBuf, RidingRequestS2CPayload> CODEC = PacketCodec.tuple(
-        Uuids.PACKET_CODEC, RidingRequestS2CPayload::uuid,
+    public static final StreamCodec<RegistryFriendlyByteBuf, RidingRequestS2CPayload> CODEC = StreamCodec.composite(
+        UUIDUtil.STREAM_CODEC, RidingRequestS2CPayload::uuid,
 
         RidingRequestS2CPayload::new
     );
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return ID;
     }
 }

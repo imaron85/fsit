@@ -57,7 +57,8 @@ repositories {
 
 dependencies {
     minecraft("com.minecraft:minecraft:${property("minecraft.version")}")
-    mappings("net.fabricmc:yarn:${property("minecraft.version")}+build.${property("minecraft.yarn_build")}:v2")
+//    mappings("net.fabricmc:yarn:${property("minecraft.version")}+build.${property("minecraft.yarn_build")}:v2")
+    mappings(loom.officialMojangMappings())
 
     modImplementation(libs.fabric.loader)
 

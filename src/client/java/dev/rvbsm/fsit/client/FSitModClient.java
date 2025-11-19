@@ -16,7 +16,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -30,8 +30,8 @@ public class FSitModClient implements ClientModInitializer {
     public FSitModClient() {
         instance = this;
 
-        this.options = new ModOptions(MinecraftClient.getInstance());
-        this.restrictionsManager = new RidingInteractionsManager(MinecraftClient.getInstance());
+        this.options = new ModOptions(Minecraft.getInstance());
+        this.restrictionsManager = new RidingInteractionsManager(Minecraft.getInstance());
     }
 
     public static FSitModClient getInstance() {
@@ -52,12 +52,12 @@ public class FSitModClient implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(this::handleInputEvents);
     }
 
-    private void handleInputEvents(MinecraftClient client) {
-        if (client.player != null && client.getOverlay() == null && client.currentScreen == null) {
-            if (this.getConfig().sitting().behaviour().hasGravity() || client.player.isOnGround()) {
-                if (this.options.sitKey.isPressed()) {
+    private void handleInputEvents(Minecraft client) {
+        if (client.player != null && client.getOverlay() == null && client.screen == null) {
+            if (this.getConfig().sitting().behaviour().hasGravity() || client.player.onGround()) {
+                if (this.options.sitKey.isDown()) {
                     ((Poseable) client.player).fsit$setPose(ModPose.SITTING);
-                } else if (this.options.crawlKey.isPressed()) {
+                } else if (this.options.crawlKey.isDown()) {
                     ((Poseable) client.player).fsit$setPose(ModPose.CRAWLING);
                 } else {
                     ((Poseable) client.player).fsit$setPose(ModPose.STANDING);

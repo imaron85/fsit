@@ -10,8 +10,8 @@ import dev.rvbsm.fsit.network.payload.c2s.RidingResponseC2SPayload;
 import dev.rvbsm.fsit.network.payload.s2c.PoseUpdateS2CPayload;
 import dev.rvbsm.fsit.network.payload.s2c.RidingRequestS2CPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.slf4j.Logger;
 
 import java.util.UUID;
@@ -26,7 +26,7 @@ public final class ClientModNetworkHandler {
     private ClientModNetworkHandler() {
     }
 
-    public static <P extends CustomPayload> void trySend(CustomPayload.Id<P> type, Supplier<P> payloadFn, Runnable fallback) {
+    public static <P extends CustomPacketPayload> void trySend(CustomPacketPayload.Type<P> type, Supplier<P> payloadFn, Runnable fallback) {
         if (ClientPlayNetworking.canSend(type)) {
             fallback.run();
             return;
@@ -36,7 +36,7 @@ public final class ClientModNetworkHandler {
         ClientPlayNetworking.send(payload);
     }
 
-    public static <V, P extends CustomPayload> void trySendFuture(CustomPayload.Id<P> type, Supplier<CompletableFuture<V>> futureFn, Function<? super V, P> payloadFn, Runnable fallback) {
+    public static <V, P extends CustomPacketPayload> void trySendFuture(CustomPacketPayload.Type<P> type, Supplier<CompletableFuture<V>> futureFn, Function<? super V, P> payloadFn, Runnable fallback) {
         if (!ClientPlayNetworking.canSend(type)) {
             fallback.run();
             return;
@@ -62,7 +62,7 @@ public final class ClientModNetworkHandler {
     }
 
     public static void onPoseUpdate(PoseUpdateS2CPayload payload, ClientPlayNetworking.Context ctx) {
-        final ClientPlayerEntity player = ctx.player();
+        final LocalPlayer player = ctx.player();
         ((Poseable) player).fsit$setPose(payload.pose(), payload.pos());
     }
 

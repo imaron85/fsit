@@ -1,10 +1,11 @@
 package dev.rvbsm.fsit.client.option;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.util.TranslatableOption;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.util.OptionEnum;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +14,7 @@ import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
-public class HybridKeyBinding extends KeyBinding {
+public class HybridKeyBinding extends KeyMapping {
 
     private static final Set<HybridKeyBinding> HYBRID_KEYS = new HashSet<>();
     private final Supplier<Mode> modeGetter;
@@ -24,7 +25,7 @@ public class HybridKeyBinding extends KeyBinding {
     public HybridKeyBinding(String id, int code, Category category, Supplier<Mode> modeGetter, IntSupplier windowGetter) {
     //?} else
     /*public HybridKeyBinding(String id, int code, String category, Supplier<Mode> modeGetter, IntSupplier windowGetter) {*/
-        super(id, InputUtil.Type.KEYSYM, code, category);
+        super(id, InputConstants.Type.KEYSYM, code, category);
         this.modeGetter = modeGetter;
         this.windowGetter = windowGetter;
         HYBRID_KEYS.add(this);
@@ -39,32 +40,36 @@ public class HybridKeyBinding extends KeyBinding {
     }
 
     @Override
-    public void setPressed(boolean pressed) {
+    public void setDown(boolean pressed) {
         switch (this.modeGetter.get()) {
             case TOGGLE -> {
                 if (pressed) {
-                    super.setPressed(!this.isPressed());
+                    super.setDown(!this.isDown());
                 }
             }
-            case HOLD -> super.setPressed(pressed);
+            case HOLD -> super.setDown(pressed);
             case HYBRID -> {
                 if (pressed) {
-                    super.setPressed(!this.isPressed());
+                    super.setDown(!this.isDown());
 
-                    if (this.isPressed()) {
+                    if (this.isDown()) {
                         this.stickyTicks = this.windowGetter.getAsInt();
                     }
                 } else {
                     if (this.stickyTicks == 0) {
-                        super.setPressed(false);
+                        super.setDown(false);
                     }
                 }
             }
         }
     }
 
+    public void reset() {
+        super.setDown(false);
+    }
 
-    public enum Mode implements TranslatableOption {
+    @NullMarked
+    public enum Mode implements OptionEnum {
         TOGGLE("options.key.toggle"), HOLD("options.key.hold"), HYBRID("fsit.option.key.hybrid");
 
         private static final IntFunction<Mode> ID_MAPPER = new Int2ObjectArrayMap<>(IntStream.range(0, values().length).toArray(), values());
@@ -81,7 +86,7 @@ public class HybridKeyBinding extends KeyBinding {
         }
 
         @Override
-        public String getTranslationKey() {
+        public String getKey() {
             return this.translationKey;
         }
     }

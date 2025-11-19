@@ -3,38 +3,39 @@
 
 package dev.rvbsm.fsit.server.network;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.mob.ShulkerEntity;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.BundleS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityPositionSyncS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
+import net.minecraft.network.protocol.game.ClientboundEntityPositionSyncPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.monster.Shulker;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public final class CrawlEntity extends ShulkerEntity {
+
+public final class CrawlEntity extends Shulker {
 
     private static final float HEIGHT = 1.49f;
 
-    private final ServerPlayerEntity player;
+    private final ServerPlayer player;
     private boolean positionDirty = true;
     private boolean hidden = true;
 
-    public CrawlEntity(ServerPlayerEntity player) {
-        super(EntityType.SHULKER, player.getEntityWorld());
+    public CrawlEntity(ServerPlayer player) {
+        super(EntityType.SHULKER, player.level());
         this.player = player;
 
-        this.setCustomName(Text.literal("FSit_CrawlEntity"));
+        this.setCustomName(Component.literal("FSit_CrawlEntity"));
 
-        this.setPosition(this.player.getBlockX(), this.player.getY() + HEIGHT, this.player.getBlockZ());
-        this.dataTracker.set(ATTACHED_FACE, Direction.UP);
+        this.setPos(this.player.getBlockX(), this.player.getY() + HEIGHT, this.player.getBlockZ());
+        this.entityData.set(DATA_ATTACH_FACE_ID, Direction.UP);
         this.setInvisible(true);
     }
 
@@ -47,39 +48,39 @@ public final class CrawlEntity extends ShulkerEntity {
 
         if (blockDistance >= 1 || distanceY >= 2) {
             this.positionDirty = true;
-            this.setPosition(this.player.getBlockX(), this.player.getY() + HEIGHT, this.player.getBlockZ());
+            this.setPos(this.player.getBlockX(), this.player.getY() + HEIGHT, this.player.getBlockZ());
         }
 
         final byte peekAmount = (byte) ((1 - distanceY % 1) * 100);
-        this.dataTracker.set(PEEK_AMOUNT, peekAmount > 50 ? 0 : peekAmount, this.positionDirty);
+        this.entityData.set(DATA_PEEK_ID, peekAmount > 50 ? 0 : peekAmount, this.positionDirty);
 
     }
 
     public boolean isDirty() {
-        return this.positionDirty || this.dataTracker.isDirty();
+        return this.positionDirty || this.entityData.isDirty();
     }
 
-    public Packet<ClientPlayPacketListener> createSyncPacket() {
-        final var bundle = new ArrayList<Packet<? super ClientPlayPacketListener>>();
+    public Packet<ClientGamePacketListener> createSyncPacket() {
+        final var bundle = new ArrayList<Packet<? super ClientGamePacketListener>>();
 
         if (this.hidden) {
             this.hidden = false;
-            bundle.add(new EntitySpawnS2CPacket(this, 0, this.getBlockPos()));
+            bundle.add(new ClientboundAddEntityPacket(this, 0, this.blockPosition()));
         }
 
         if (this.positionDirty) {
-            bundle.add(EntityPositionSyncS2CPacket.create(this));
+            bundle.add(ClientboundEntityPositionSyncPacket.of(this));
         }
 
-        if (this.positionDirty || this.dataTracker.isDirty()) {
+        if (this.positionDirty || this.entityData.isDirty()) {
             this.positionDirty = false;
 
-            final List<DataTracker.SerializedEntry<?>> trackedEntries = this.dataTracker.getDirtyEntries();
+            final List<SynchedEntityData.DataValue<?>> trackedEntries = this.entityData.packDirty();
             if (trackedEntries != null) {
-                bundle.add(new EntityTrackerUpdateS2CPacket(this.getId(), trackedEntries));
+                bundle.add(new ClientboundSetEntityDataPacket(this.getId(), trackedEntries));
             }
         }
 
-        return new BundleS2CPacket(bundle);
+        return new ClientboundBundlePacket(bundle);
     }
 }

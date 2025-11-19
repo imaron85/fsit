@@ -3,9 +3,9 @@
 package dev.rvbsm.fsit.entity;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.util.function.ValueLists;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.ByIdMap;
 
 import java.util.function.IntFunction;
 
@@ -18,8 +18,8 @@ public enum ModPose {
     SPINNING,
     ;
 
-    private static final IntFunction<ModPose> ID_MAPPER = ValueLists.createIndexToValueFunction(
-        ModPose::ordinal, values(), ValueLists.OutOfBoundsHandling.ZERO
+    private static final IntFunction<ModPose> ID_MAPPER = ByIdMap.continuous(
+        ModPose::ordinal, values(), ByIdMap.OutOfBoundsStrategy.ZERO
     );
-    public static final PacketCodec<ByteBuf, ModPose> PACKET_CODEC = PacketCodecs.indexed(ID_MAPPER, ModPose::ordinal);
+    public static final StreamCodec<ByteBuf, ModPose> PACKET_CODEC = ByteBufCodecs.idMapper(ID_MAPPER, ModPose::ordinal);
 }

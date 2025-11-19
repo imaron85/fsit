@@ -7,12 +7,11 @@ import dev.isxander.yacl3.gui.YACLScreen;
 import dev.isxander.yacl3.gui.controllers.dropdown.AbstractDropdownController;
 import dev.isxander.yacl3.gui.controllers.dropdown.AbstractDropdownControllerElement;
 import dev.rvbsm.fsit.client.compat.yacl3.gui.util.RegistryHelper;
-import net.minecraft.block.Block;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,19 +30,19 @@ public class BlockController extends AbstractDropdownController<String> {
 
     @Override
     public void setFromString(String input) {
-        if (RegistryHelper.isRegistered(Registries.BLOCK, input)) {
+        if (RegistryHelper.isRegistered(BuiltInRegistries.BLOCK, input)) {
             option.requestSet(input);
         }
     }
 
     @Override
     public boolean isInputValid(String input) {
-        return RegistryHelper.isRegistered(Registries.BLOCK, input);
+        return RegistryHelper.isRegistered(BuiltInRegistries.BLOCK, input);
     }
 
     @Override
     protected String getValidValue(String input, int offset) {
-        return RegistryHelper.getMatchingIdentifiers(Registries.BLOCK, input)
+        return RegistryHelper.getMatchingIdentifiers(BuiltInRegistries.BLOCK, input)
             .skip(Math.max(0, offset)) // fixme im sorry? wdym offset can be negative?
             .findFirst()
             .orElseGet(this::getString);
@@ -67,7 +66,7 @@ public class BlockController extends AbstractDropdownController<String> {
         }
 
         @Override
-        public void render(DrawContext graphics, int mouseX, int mouseY, float delta) {
+        public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
 //            if (!Screen.hasControlDown()) {
 //                this.displayTime += delta;
 //            }
@@ -76,14 +75,14 @@ public class BlockController extends AbstractDropdownController<String> {
         }
 
         @Override
-        protected void drawValueText(DrawContext graphics, int mouseX, int mouseY, float delta) {
+        protected void drawValueText(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
             final Dimension<Integer> dimension = this.getDimension();
             this.setDimension(dimension.withWidth(dimension.width() - this.getDecorationPadding()));
             super.drawValueText(graphics, mouseX, mouseY, delta);
             this.setDimension(dimension);
 
             if (currentBlock != null) {
-                graphics.drawItemWithoutEntity(
+                graphics.renderFakeItem(
                     new ItemStack(currentBlock.asItem()),
                     dimension.xLimit() - this.getXPadding() - this.getDecorationPadding() + 2,
                     dimension.y() + 2
@@ -93,10 +92,10 @@ public class BlockController extends AbstractDropdownController<String> {
 
         @Override
         public List<String> computeMatchingValues() {
-            final List<String> ids = RegistryHelper.getMatchingIdentifiers(Registries.BLOCK, this.inputField).toList();
-            this.currentBlock = RegistryHelper.getFromId(Registries.BLOCK, this.inputField, null);
+            final List<String> ids = RegistryHelper.getMatchingIdentifiers(BuiltInRegistries.BLOCK, this.inputField).toList();
+            this.currentBlock = RegistryHelper.getFromId(BuiltInRegistries.BLOCK, this.inputField, null);
             for (final var id : ids) {
-                final Block block = RegistryHelper.getFromId(Registries.BLOCK, id, null);
+                final Block block = RegistryHelper.getFromId(BuiltInRegistries.BLOCK, id, null);
                 if (block != null) {
                     this.matchingBlocks.put(id, block);
                 }
@@ -105,9 +104,9 @@ public class BlockController extends AbstractDropdownController<String> {
         }
 
         @Override
-        protected void renderDropdownEntry(DrawContext graphics, Dimension<Integer> entryDimension, String identifier) {
+        protected void renderDropdownEntry(GuiGraphics graphics, Dimension<Integer> entryDimension, String identifier) {
             super.renderDropdownEntry(graphics, entryDimension, identifier);
-            graphics.drawItemWithoutEntity(
+            graphics.renderFakeItem(
                 new ItemStack(matchingBlocks.get(identifier)),
                 entryDimension.xLimit() - 2,
                 entryDimension.y() + 1
@@ -135,20 +134,20 @@ public class BlockController extends AbstractDropdownController<String> {
         }
 
         @Override
-        protected Text getValueText() {
+        protected Component getValueText() {
             if (this.inputField.isEmpty() || this.blockController == null) {
                 return super.getValueText();
             }
 
             if (this.inputFieldFocused) {
-                return Text.literal(inputField);
+                return Component.literal(inputField);
             }
 
             if (this.inputField.charAt(0) != '#') {
                 return currentBlock.getName();
             }
 
-            return Text.literal(blockController.option().pendingValue());
+            return Component.literal(blockController.option().pendingValue());
         }
     }
 }

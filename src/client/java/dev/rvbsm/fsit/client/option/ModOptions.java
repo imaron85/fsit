@@ -2,59 +2,58 @@
 
 package dev.rvbsm.fsit.client.option;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.GameOptions;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.option.SimpleOption;
-import net.minecraft.client.util.InputUtil;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.OptionInstance;
+import net.minecraft.client.Options;
 
 import java.util.Arrays;
 
 public class ModOptions {
 
-    private final MinecraftClient client;
-
-    public ModOptions(MinecraftClient client) {
-        this.client = client;
-    }
-
-    public final SimpleOption<Integer> hybridModeWindow = new SimpleOption<>(
+    public final OptionInstance<Integer> hybridModeWindow = new OptionInstance<>(
         "key.fsit.hybrid_window",
-        SimpleOption.emptyTooltip(),
-        GameOptions::getGenericValueOrOffText,
-        new SimpleOption.ValidatingIntSliderCallbacks(0, 10),
+        OptionInstance.noTooltip(),
+        Options::genericValueOrOffLabel,
+        new OptionInstance.IntRange(0, 10),
         7,
         (t) -> {}
     );
-    public final SimpleOption<HybridKeyBinding.Mode> sitMode = new SimpleOption<>(
+    public final OptionInstance<HybridKeyBinding.Mode> sitMode = new OptionInstance<>(
         "key.fsit.sit",
-        SimpleOption.emptyTooltip(),
-        SimpleOption.enumValueText(),
-        new SimpleOption.PotentialValuesBasedCallbacks<>(Arrays.asList(HybridKeyBinding.Mode.values()), HybridKeyBinding.Mode.CODEC),
+        OptionInstance.noTooltip(),
+        OptionInstance.forOptionEnum(),
+        new OptionInstance.Enum<>(Arrays.asList(HybridKeyBinding.Mode.values()), HybridKeyBinding.Mode.CODEC),
         HybridKeyBinding.Mode.HYBRID,
         (m) -> {}
     );
-    public final SimpleOption<HybridKeyBinding.Mode> crawlMode = new SimpleOption<>(
+    public final OptionInstance<HybridKeyBinding.Mode> crawlMode = new OptionInstance<>(
         "key.fsit.crawl",
-        SimpleOption.emptyTooltip(),
-        SimpleOption.enumValueText(),
-        new SimpleOption.PotentialValuesBasedCallbacks<>(Arrays.asList(HybridKeyBinding.Mode.values()), HybridKeyBinding.Mode.CODEC),
+        OptionInstance.noTooltip(),
+        OptionInstance.forOptionEnum(),
+        new OptionInstance.Enum<>(Arrays.asList(HybridKeyBinding.Mode.values()), HybridKeyBinding.Mode.CODEC),
         HybridKeyBinding.Mode.HYBRID,
         (m) -> {}
+    );
+    public final KeyMapping sitKey = new HybridKeyBinding(
+        "key.fsit.sit",
+        InputConstants.KEY_RCONTROL,
+        KeyMapping.Category.MISC,
+        sitMode::get,
+        hybridModeWindow::get
+    );
+    public final KeyMapping crawlKey = new HybridKeyBinding(
+        "key.fsit.crawl",
+        InputConstants.KEY_RALT,
+        KeyMapping.Category.MISC,
+        crawlMode::get,
+        hybridModeWindow::get
     );
 
-    public final KeyBinding sitKey = new HybridKeyBinding(
-        "key.fsit.sit",
-        InputUtil.GLFW_KEY_RIGHT_CONTROL,
-        KeyBinding.Category.MISC,
-        sitMode::getValue,
-        hybridModeWindow::getValue
-    );
-    public final KeyBinding crawlKey = new HybridKeyBinding(
-        "key.fsit.crawl",
-        InputUtil.GLFW_KEY_RIGHT_ALT,
-        KeyBinding.Category.MISC,
-        crawlMode::getValue,
-        hybridModeWindow::getValue
-    );
+    private final Minecraft client;
+
+    public ModOptions(Minecraft client) {
+        this.client = client;
+    }
 }

@@ -3,31 +3,31 @@ package dev.rvbsm.fsit.entity;
 import dev.rvbsm.fsit.api.access.Configurable;
 import dev.rvbsm.fsit.api.access.Poseable;
 import dev.rvbsm.fsit.config.ConfigData;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
 
 public abstract class PoseEntity extends Entity {
 
-    protected final PlayerEntity player;
+    protected final Player player;
 
-    public PoseEntity(EntityType<?> type, PlayerEntity player) {
-        super(type, player.getEntityWorld());
+    public PoseEntity(EntityType<?> type, Player player) {
+        super(type, player.level());
         this.player = player;
     }
 
     @Override
-    protected void initDataTracker(DataTracker.Builder builder) {
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
     }
 
     //? if >=1.21.6 {
     @Override
-    protected void readCustomData(net.minecraft.storage.ReadView view) {
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput view) {
     }
 
     @Override
-    protected void writeCustomData(net.minecraft.storage.WriteView view) {
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput view) {
     }
     //?} else {
     /*@Override
@@ -41,7 +41,7 @@ public abstract class PoseEntity extends Entity {
 
     //? if >=1.21.2 {
     @Override
-    public boolean damage(net.minecraft.server.world.ServerWorld world, net.minecraft.entity.damage.DamageSource source, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel world, net.minecraft.world.damagesource.DamageSource source, float amount) {
         return false;
     }
     //?}
@@ -55,17 +55,17 @@ public abstract class PoseEntity extends Entity {
 
     // prevents from saving to player data
     @Override
-    public boolean hasPlayerRider() {
+    public boolean hasExactlyOnePlayerPassenger() {
         return false;
     }
 
     @Override
-    public float getYaw() {
-        return this.player.getYaw();
+    public float getYRot() {
+        return this.player.getYRot();
     }
 
     @Override
-    public boolean shouldSave() {
+    public boolean shouldBeSaved() {
         return false;
     }
 

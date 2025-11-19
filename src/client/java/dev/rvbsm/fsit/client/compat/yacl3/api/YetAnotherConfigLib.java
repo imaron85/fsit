@@ -2,6 +2,7 @@
 
 package dev.rvbsm.fsit.client.compat.yacl3.api;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.logging.LogUtils;
 import dev.isxander.yacl3.api.ConfigCategory;
 import dev.isxander.yacl3.api.ListOption;
@@ -18,13 +19,12 @@ import dev.rvbsm.fsit.client.compat.yacl3.api.controller.KeyBindingControllerBui
 import dev.rvbsm.fsit.client.option.HybridKeyBinding;
 import dev.rvbsm.fsit.config.ConfigBuilder;
 import dev.rvbsm.fsit.config.ConfigData;
-import dev.rvbsm.fsit.mixin.client.access.KeyBindingAccess;
-import dev.rvbsm.fsit.mixin.client.access.SimpleOptionAccess;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.option.SimpleOption;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.text.Text;
-import net.minecraft.util.Language;
+import dev.rvbsm.fsit.mixin.client.access.KeyMappingAccess;
+import dev.rvbsm.fsit.mixin.client.access.OptionInstanceAccess;
+import net.minecraft.client.OptionInstance;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.locale.Language;
+import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 
@@ -41,7 +41,7 @@ public final class YetAnotherConfigLib {
         final ConfigBuilder configBuilder = FSitModClient.getInstance().getConfig().toBuilder();
 
         return dev.isxander.yacl3.api.YetAnotherConfigLib.createBuilder()
-            .title(Text.translatable("fsit.config.title"))
+            .title(Component.translatable("fsit.config.title"))
 
             .category(categoryGeneral(configBuilder))
             .category(categoryUseInteractions(configBuilder))
@@ -55,29 +55,29 @@ public final class YetAnotherConfigLib {
 
     public static OptionDescription defaultDescription(final String prefix, final int lines) {
         Validate.notBlank(prefix, "`prefix` must be a valid translation key");
-        Validate.inclusiveBetween(0, 99, lines,"`lines` must be in range 1..=99");
+        Validate.inclusiveBetween(0, 99, lines, "`lines` must be in range 1..=99");
 
         final String translationKey = "%s.description".formatted(prefix);
         final var optionDescription = OptionDescription.createBuilder();
         final var language = Language.getInstance();
 
-        if (lines <= 1 && language.hasTranslation(translationKey)) {
-            optionDescription.text(Text.translatable(translationKey));
+        if (lines <= 1 && language.has(translationKey)) {
+            optionDescription.text(Component.translatable(translationKey));
             return optionDescription.build();
         }
 
         if (lines > 0) {
             for (int line = 1; line <= lines; line++) {
                 final String lineKey = "%s.%d".formatted(translationKey, line);
-                optionDescription.text(Text.translatable(lineKey));
+                optionDescription.text(Component.translatable(lineKey));
             }
         } else for (int line = 1; line <= 99; line++) {
             final String lineKey = "%s.%d".formatted(translationKey, line);
-            if (!language.hasTranslation(lineKey)) {
+            if (!language.has(lineKey)) {
                 break;
             }
 
-            optionDescription.text(Text.translatable(lineKey));
+            optionDescription.text(Component.translatable(lineKey));
         }
 
         return optionDescription.build();
@@ -87,21 +87,21 @@ public final class YetAnotherConfigLib {
         return defaultDescription(prefix, 0);
     }
 
-    public static <T> Option.Builder<T> simpleOption(SimpleOption<T> option) {
+    public static <T> Option.Builder<T> simpleOption(OptionInstance<T> option) {
         return Option.<T>createBuilder()
-            .name(((SimpleOptionAccess<T>) (Object) option).getText())
+            .name(((OptionInstanceAccess<T>) (Object) option).getCaption())
             .binding(
-                ((SimpleOptionAccess<T>) (Object) option).getDefaultValue(),
-                option::getValue,
-                option::setValue);
+                ((OptionInstanceAccess<T>) (Object) option).getInitialValue(),
+                option::get,
+                option::set);
     }
 
     private static ConfigCategory categoryGeneral(final ConfigBuilder config) {
         return ConfigCategory.createBuilder()
-            .name(Text.translatable("fsit.config.general"))
+            .name(Component.translatable("fsit.config.general"))
 
             .option(Option.<Boolean>createBuilder()
-                .name(Text.translatable("fsit.config.general.useServer"))
+                .name(Component.translatable("fsit.config.general.useServer"))
                 .description(defaultDescription("fsit.config.general.useServer"))
 
                 .binding(ConfigData.DEFAULT.useServer(), config::useServer, config::useServer)
@@ -109,11 +109,11 @@ public final class YetAnotherConfigLib {
                 .build())
 
             .group(OptionGroup.createBuilder()
-                .name(Text.translatable("fsit.config.general.sitting"))
+                .name(Component.translatable("fsit.config.general.sitting"))
                 .description(defaultDescription("fsit.config.general.sitting"))
 
                 .option(Option.<ConfigData.Sitting.Behaviour>createBuilder()
-                    .name(Text.translatable("fsit.config.general.sitting.behaviour"))
+                    .name(Component.translatable("fsit.config.general.sitting.behaviour"))
                     .description(defaultDescription("fsit.config.general.sitting.behaviour"))
 
                     .binding(
@@ -122,10 +122,10 @@ public final class YetAnotherConfigLib {
                         config::sittingBehaviour)
                     .controller(o -> EnumControllerBuilder.create(o)
                         .enumClass(ConfigData.Sitting.Behaviour.class)
-                        .formatValue((e) -> Text.literal(e.name().toLowerCase(Locale.ROOT)))) // TODO colours
+                        .formatValue((e) -> Component.literal(e.name().toLowerCase(Locale.ROOT)))) // TODO colours
                     .build())
                 .option(Option.<Boolean>createBuilder()
-                    .name(Text.translatable("fsit.config.general.sitting.shouldCenter"))
+                    .name(Component.translatable("fsit.config.general.sitting.shouldCenter"))
                     .description(defaultDescription("fsit.config.general.sitting.shouldCenter"))
 
                     .binding(
@@ -137,34 +137,34 @@ public final class YetAnotherConfigLib {
                 .build())
 
             .group(OptionGroup.createBuilder()
-                .name(Text.translatable("fsit.config.general.keybindings"))
+                .name(Component.translatable("fsit.config.general.keybindings"))
                 .description(defaultDescription("fsit.config.general.keybindings"))
 
-                .option(Option.<InputUtil.Key>createBuilder()
-                    .name(Text.translatable(FSitModClient.getInstance().getOptions().sitKey.getId()))
-                    .description(defaultDescription(FSitModClient.getInstance().getOptions().sitKey.getId()))
+                .option(Option.<InputConstants.Key>createBuilder()
+                    .name(Component.translatable(FSitModClient.getInstance().getOptions().sitKey.getName()))
+                    .description(defaultDescription(FSitModClient.getInstance().getOptions().sitKey.getName()))
 
                     .binding(
                         FSitModClient.getInstance().getOptions().sitKey.getDefaultKey(),
-                        ((KeyBindingAccess) FSitModClient.getInstance().getOptions().sitKey)::getBoundKey,
-                        FSitModClient.getInstance().getOptions().sitKey::setBoundKey)
+                        ((KeyMappingAccess) FSitModClient.getInstance().getOptions().sitKey)::getKey,
+                        FSitModClient.getInstance().getOptions().sitKey::setKey)
                     .controller(KeyBindingControllerBuilder::create)
                     .build())
 
-                .option(Option.<InputUtil.Key>createBuilder()
-                    .name(Text.translatable(FSitModClient.getInstance().getOptions().crawlKey.getId()))
-                    .description(defaultDescription(FSitModClient.getInstance().getOptions().crawlKey.getId()))
+                .option(Option.<InputConstants.Key>createBuilder()
+                    .name(Component.translatable(FSitModClient.getInstance().getOptions().crawlKey.getName()))
+                    .description(defaultDescription(FSitModClient.getInstance().getOptions().crawlKey.getName()))
 
                     .binding(
                         FSitModClient.getInstance().getOptions().crawlKey.getDefaultKey(),
-                        ((KeyBindingAccess) FSitModClient.getInstance().getOptions().crawlKey)::getBoundKey,
-                        FSitModClient.getInstance().getOptions().crawlKey::setBoundKey)
+                        ((KeyMappingAccess) FSitModClient.getInstance().getOptions().crawlKey)::getKey,
+                        FSitModClient.getInstance().getOptions().crawlKey::setKey)
                     .controller(KeyBindingControllerBuilder::create)
                     .build())
                 .build())
 
             .group(OptionGroup.createBuilder()
-                .name(Text.translatable("fsit.config.general.keybindingsBehaviour"))
+                .name(Component.translatable("fsit.config.general.keybindingsBehaviour"))
                 .description(defaultDescription("fsit.config.general.keybindingsBehaviour"))
 
                 .option(simpleOption(FSitModClient.getInstance().getOptions().sitMode)
@@ -183,31 +183,31 @@ public final class YetAnotherConfigLib {
 
     private static ConfigCategory categoryUseInteractions(final ConfigBuilder config) {
         return ConfigCategory.createBuilder()
-            .name(Text.translatable("fsit.config.onUse"))
+            .name(Component.translatable("fsit.config.onUse"))
 
             .option(Option.<Boolean>createBuilder()
-                .name(Text.translatable("fsit.config.onUse.sitting"))
+                .name(Component.translatable("fsit.config.onUse.sitting"))
                 .description(defaultDescription("fsit.config.onUse.sitting"))
 
                 .binding(ConfigData.DEFAULT.onUse().sitting(), config::onUseSitting, config::onUseSitting)
                 .controller(TickBoxControllerBuilder::create)
                 .build())
             .option(Option.<Boolean>createBuilder()
-                .name(Text.translatable("fsit.config.onUse.riding"))
+                .name(Component.translatable("fsit.config.onUse.riding"))
                 .description(defaultDescription("fsit.config.onUse.riding"))
 
                 .binding(ConfigData.DEFAULT.onUse().riding(), config::onUseRiding, config::onUseRiding)
                 .controller(TickBoxControllerBuilder::create)
                 .build())
             .option(Option.<Integer>createBuilder()
-                .name(Text.translatable("fsit.config.onUse.range"))
+                .name(Component.translatable("fsit.config.onUse.range"))
                 .description(defaultDescription("fsit.config.onUse.range"))
 
                 .binding(ConfigData.DEFAULT.onUse().range(), config::onUseRange, config::onUseRange)
                 .controller(o -> IntegerSliderControllerBuilder.create(o).range(1, 4).step(1))
                 .build())
             .option(Option.<Boolean>createBuilder()
-                .name(Text.translatable("fsit.config.onUse.checkSuffocation"))
+                .name(Component.translatable("fsit.config.onUse.checkSuffocation"))
                 .description(defaultDescription("fsit.config.onUse.checkSuffocation"))
 
                 .binding(
@@ -218,7 +218,7 @@ public final class YetAnotherConfigLib {
                 .build())
 
             .group(ListOption.<String>createBuilder()
-                .name(Text.translatable("fsit.config.onUse.blocks"))
+                .name(Component.translatable("fsit.config.onUse.blocks"))
                 .description(defaultDescription("fsit.config.onUse.blocks"))
 
                 .initial("")
@@ -231,59 +231,59 @@ public final class YetAnotherConfigLib {
 
     private static ConfigCategory categorySneakInteractions(final ConfigBuilder config) {
         return ConfigCategory.createBuilder()
-            .name(Text.translatable("fsit.config.onSneak"))
+            .name(Component.translatable("fsit.config.onSneak"))
 
             .option(Option.<Boolean>createBuilder()
-                .name(Text.translatable("fsit.config.onSneak.sitting"))
+                .name(Component.translatable("fsit.config.onSneak.sitting"))
                 .description(defaultDescription("fsit.config.onSneak.sitting"))
 
                 .binding(ConfigData.DEFAULT.onSneak().sitting(), config::onSneakSitting, config::onSneakSitting)
                 .controller(TickBoxControllerBuilder::create)
                 .build())
             .option(Option.<Boolean>createBuilder()
-                .name(Text.translatable("fsit.config.onSneak.crawling"))
+                .name(Component.translatable("fsit.config.onSneak.crawling"))
                 .description(defaultDescription("fsit.config.onSneak.crawling"))
 
                 .binding(ConfigData.DEFAULT.onSneak().crawling(), config::onSneakCrawling, config::onSneakCrawling)
                 .controller(TickBoxControllerBuilder::create)
                 .build())
             .option(Option.<Float>createBuilder()
-                .name(Text.translatable("fsit.config.onSneak.minPitch"))
+                .name(Component.translatable("fsit.config.onSneak.minPitch"))
                 .description(defaultDescription("fsit.config.onSneak.minPitch"))
 
                 .binding(ConfigData.DEFAULT.onSneak().minPitch(), config::onSneakMinPitch, config::onSneakMinPitch)
-                .controller((o) -> FloatSliderControllerBuilder.create(o) .range(-90f, 90f) .step(0.1f))
+                .controller((o) -> FloatSliderControllerBuilder.create(o).range(-90f, 90f).step(0.1f))
                 .build())
             .option(Option.<Integer>createBuilder()
-                .name(Text.translatable("fsit.config.onSneak.window"))
+                .name(Component.translatable("fsit.config.onSneak.window"))
                 .description(defaultDescription("fsit.config.onSneak.window"))
 
                 .binding(ConfigData.DEFAULT.onSneak().window(), config::onSneakWindow, config::onSneakWindow)
-                .controller((o) -> IntegerSliderControllerBuilder.create(o) .range(0, 20) .step(1))
+                .controller((o) -> IntegerSliderControllerBuilder.create(o).range(0, 20).step(1))
                 .build())
             .build();
     }
 
     private static ConfigCategory categoryCommands(final ConfigBuilder config) {
         return ConfigCategory.createBuilder()
-            .name(Text.translatable("fsit.config.commands"))
+            .name(Component.translatable("fsit.config.commands"))
 
             .option(Option.<Boolean>createBuilder()
-                .name(Text.translatable("fsit.config.commands.root"))
+                .name(Component.translatable("fsit.config.commands.root"))
                 .description(defaultDescription("fsit.config.commands.root"))
 
                 .binding(ConfigData.DEFAULT.commands().root(), config::commandsRoot, config::commandsRoot)
                 .controller(TickBoxControllerBuilder::create)
                 .build())
             .option(Option.<Boolean>createBuilder()
-                .name(Text.translatable("fsit.config.commands.sit"))
+                .name(Component.translatable("fsit.config.commands.sit"))
                 .description(defaultDescription("fsit.config.commands.sit"))
 
                 .binding(ConfigData.DEFAULT.commands().sit(), config::commandsSit, config::commandsSit)
                 .controller(TickBoxControllerBuilder::create)
                 .build())
             .option(Option.<Boolean>createBuilder()
-                .name(Text.translatable("fsit.config.commands.crawl"))
+                .name(Component.translatable("fsit.config.commands.crawl"))
                 .description(defaultDescription("fsit.config.commands.crawl"))
 
                 .binding(ConfigData.DEFAULT.commands().crawl(), config::commandsCrawl, config::commandsCrawl)

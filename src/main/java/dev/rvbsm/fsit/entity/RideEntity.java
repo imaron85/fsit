@@ -1,35 +1,35 @@
 package dev.rvbsm.fsit.entity;
 
 import dev.rvbsm.fsit.mixin.common.access.EntityAccess;
-import net.minecraft.advancement.criterion.Criteria;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityPose;
-import net.minecraft.entity.EntityType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.world.event.GameEvent;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.level.gameevent.GameEvent;
 
 public final class RideEntity extends PoseEntity {
 
-    public RideEntity(ServerPlayerEntity player, ServerPlayerEntity other) {
+    public RideEntity(ServerPlayer player, ServerPlayer other) {
         super(EntityType.AREA_EFFECT_CLOUD, player);
-        this.setCustomName(Text.literal("FSit_RideEntity"));
+        this.setCustomName(Component.literal("FSit_RideEntity"));
 
-        this.setPosition(player.getEntityPos());
+        this.setPos(player.position());
         player.startRiding(this);
         this.startRiding(other);
     }
 
     @Override
     public void tick() {
-        if (!this.getEntityWorld().isClient()) {
-            if (!this.hasPassengers() && !this.hasVehicle()) {
+        if (!this.level().isClientSide()) {
+            if (!this.isVehicle() && !this.isPassenger()) {
                 this.discard();
             }
 
             // if either passenger or vehicle missing
-            if (this.hasPassengers() == !this.hasVehicle()) {
-                this.detach();
+            if (this.isVehicle() == !this.isPassenger()) {
+                this.unRide();
             }
         }
     }
@@ -45,18 +45,18 @@ public final class RideEntity extends PoseEntity {
             return false;
         }
 
-        if (entity.hasPassengerDeep(this)) {
+        if (entity.hasIndirectPassenger(this)) {
             return false;
         }
 
-        if (!this.hasVehicle() && !entity.hasPassengers()) {
-            this.setPose(EntityPose.STANDING);
+        if (!this.isPassenger() && !entity.isVehicle()) {
+            this.setPose(Pose.STANDING);
             ((EntityAccess) (Entity) this).setVehicle(entity);
             ((EntityAccess) entity).callAddPassenger(this);
             if (emitEvent) {
-                this.getEntityWorld().emitGameEvent(this, GameEvent.ENTITY_MOUNT, entity.getEntityPos());
-                if (this.player instanceof ServerPlayerEntity serverPlayer) {
-                    Criteria.STARTED_RIDING.trigger(serverPlayer);
+                this.level().gameEvent(this, GameEvent.ENTITY_MOUNT, entity.position());
+                if (this.player instanceof ServerPlayer serverPlayer) {
+                    CriteriaTriggers.START_RIDING_TRIGGER.trigger(serverPlayer);
                 }
             }
 

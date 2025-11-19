@@ -7,14 +7,14 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.api.access.Poseable;
-import dev.rvbsm.fsit.server.compat.permissions.Permissions;
 import dev.rvbsm.fsit.entity.ModPose;
-import net.minecraft.command.argument.BlockPosArgumentType;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.Vec3d;
+import dev.rvbsm.fsit.server.compat.permissions.Permissions;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Locale;
 
@@ -27,7 +27,7 @@ public enum PoseCommand {
     ;
 
     private static final SimpleCommandExceptionType WRONG_DIMENSION_EXCEPTION = new SimpleCommandExceptionType(
-        Text.translatable("commands.ride.mount.failure.wrong_dimension")
+        Component.translatable("commands.ride.mount.failure.wrong_dimension")
     );
 
     private final String command;
@@ -42,18 +42,18 @@ public enum PoseCommand {
         this.permissionLevel = 0;
     }
 
-    public void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-        dispatcher.register(CommandManager.literal(this.command)
+    public void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+        dispatcher.register(Commands.literal(this.command)
             .requires(Permissions.require(this.permission, this.permissionLevel))
             .executes(this::execute)
         );
     }
 
-    private int execute(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        final ServerCommandSource src = ctx.getSource();
-        final ServerPlayerEntity player = src.getPlayerOrThrow();
+    private int execute(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        final CommandSourceStack src = ctx.getSource();
+        final ServerPlayer player = src.getPlayerOrException();
 
-        if (player.getEntityWorld() != src.getWorld()) {
+        if (player.level() != src.getLevel()) {
             throw WRONG_DIMENSION_EXCEPTION.create();
         }
 
@@ -62,11 +62,11 @@ public enum PoseCommand {
             return Command.SINGLE_SUCCESS;
         }
 
-        final Vec3d playerPos = player.getEntityPos();
-        final Vec3d sourcePos = src.getPosition();
-        final double interactionRange = player.getBlockInteractionRange();
+        final Vec3 playerPos = player.position();
+        final Vec3 sourcePos = src.getPosition();
+        final double interactionRange = player.blockInteractionRange();
         if (playerPos.distanceTo(sourcePos) > interactionRange) {
-            throw BlockPosArgumentType.OUT_OF_BOUNDS_EXCEPTION.create();
+            throw BlockPosArgument.ERROR_OUT_OF_BOUNDS.create();
         }
 
         ((Poseable) player).fsit$setPose(this.pose, sourcePos);

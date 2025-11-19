@@ -4,14 +4,14 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "common.LivingEntityMixin_onSneak",
-    "common.PlayerEntityMixin_onSneak",
-    "common.PlayerEntityMixin_poseStore",
+    "common.PlayerMixin_onSneak",
+    "common.PlayerMixin_poseStore",
     "common.access.EntityAccess",
-    "server.ServerPlayerEntityMixin_configStore",
-    "server.ServerPlayerEntityMixin_onSneak",
-    "server.ServerPlayerEntityMixin_poseHandle",
-    "server.ServerPlayNetworkHandlerMixin_onUse",
-    "server.ServerPlayNetworkHandlerMixin_onUse$PlayerInteractEntityC2SPacket_HandlerMixin"
+    "server.ServerGamePacketListenerImplMixin_onUse",
+    "server.ServerGamePacketListenerImplMixin_onUse$ServerboundInteractPacket_HandlerMixin",
+    "server.ServerPlayerMixin_configStore",
+    "server.ServerPlayerMixin_onSneak",
+    "server.ServerPlayerMixin_poseHandle"
   ],
   "injectors": {
     "defaultRequire": 1

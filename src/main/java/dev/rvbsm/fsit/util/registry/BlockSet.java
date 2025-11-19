@@ -1,15 +1,15 @@
 package dev.rvbsm.fsit.util.registry;
 
-import net.minecraft.block.Block;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.block.Block;
 
 import java.util.Collection;
 
 public final class BlockSet extends RegistrySet<Block> {
 
     public BlockSet(Collection<String> ids) {
-        super(Registries.BLOCK, ids);
+        super(BuiltInRegistries.BLOCK, ids);
     }
 
     @Override
@@ -22,7 +22,7 @@ public final class BlockSet extends RegistrySet<Block> {
             return false;
         }
 
-        final RegistryEntry<Block> blockEntry = this.getRegistry().getEntry(block);
-        return blockEntry.streamTags().anyMatch(this.tags::contains);
+        final Holder<Block> blockEntry = this.getRegistry().wrapAsHolder(block);
+        return blockEntry.tags().anyMatch(this.tags::contains);
     }
 }

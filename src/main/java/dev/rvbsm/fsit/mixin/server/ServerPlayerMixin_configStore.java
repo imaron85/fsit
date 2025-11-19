@@ -4,9 +4,9 @@ import com.mojang.authlib.GameProfile;
 import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.api.access.Configurable;
 import dev.rvbsm.fsit.config.ConfigData;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -14,14 +14,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ServerPlayerEntity.class)
-public abstract class ServerPlayerEntityMixin_configStore extends PlayerEntity implements Configurable {
+@Mixin(ServerPlayer.class)
+public abstract class ServerPlayerMixin_configStore extends Player implements Configurable {
 
     @Unique
     private @Nullable ConfigData config;
 
     //? if >=1.21.6 {
-    private ServerPlayerEntityMixin_configStore(World world, GameProfile profile) {
+    private ServerPlayerMixin_configStore(Level world, GameProfile profile) {
         super(world, profile);
     }
     //?} else {
@@ -30,8 +30,8 @@ public abstract class ServerPlayerEntityMixin_configStore extends PlayerEntity i
     }
     *///?}
 
-    @Inject(method = "copyFrom", at = @At("TAIL"))
-    private void copyConfig(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {
+    @Inject(method = "restoreFrom", at = @At("TAIL"))
+    private void copyConfig(ServerPlayer oldPlayer, boolean alive, CallbackInfo ci) {
         final ConfigData oldConfig = ((Configurable) oldPlayer).fsit$getConfig();
         if (oldConfig != null) {
             this.fsit$setConfig(oldConfig);

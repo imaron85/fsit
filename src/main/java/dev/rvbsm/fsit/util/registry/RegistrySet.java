@@ -3,12 +3,12 @@ package dev.rvbsm.fsit.util.registry;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.DoNotCall;
 import com.google.errorprone.annotations.Immutable;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.registry.DefaultedRegistry;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.DefaultedRegistry;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.ItemLike;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 @Immutable
-public abstract class RegistrySet<T extends ItemConvertible> implements Set<String>, Predicate<T> {
+public abstract class RegistrySet<T extends ItemLike> implements Set<String>, Predicate<T> {
 
     protected final Set<T> entries;
     protected final Set<TagKey<T>> tags;
@@ -30,7 +30,7 @@ public abstract class RegistrySet<T extends ItemConvertible> implements Set<Stri
 
         final var entriesBuilder = ImmutableSet.<T>builder();
         final var tagsBuilder = ImmutableSet.<TagKey<T>>builderWithExpectedSize(this.size());
-        final RegistryKey<? extends Registry<T>> registryKey = registry.getKey();
+        final ResourceKey<? extends Registry<T>> registryKey = registry.key();
 
         this.forEach((sid) -> {
             final boolean isTag = sid.charAt(0) == '#';
@@ -38,12 +38,12 @@ public abstract class RegistrySet<T extends ItemConvertible> implements Set<Stri
                 sid = sid.substring(1);
             }
 
-            final var id = Identifier.of(sid);
+            final var id = ResourceLocation.parse(sid);
             if (!isTag) {
-                final T entry = registry.get(id);
+                final T entry = registry.getValue(id);
                 entriesBuilder.add(entry);
             } else {
-                final TagKey<T> tag = TagKey.of(registryKey, id);
+                final TagKey<T> tag = TagKey.create(registryKey, id);
                 tagsBuilder.add(tag);
             }
         });

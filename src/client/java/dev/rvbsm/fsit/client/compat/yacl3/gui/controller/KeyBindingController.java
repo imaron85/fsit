@@ -1,33 +1,33 @@
 package dev.rvbsm.fsit.client.compat.yacl3.gui.controller;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.yacl3.api.Controller;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.utils.Dimension;
 import dev.isxander.yacl3.gui.AbstractWidget;
 import dev.isxander.yacl3.gui.YACLScreen;
 import dev.isxander.yacl3.gui.controllers.ControllerWidget;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
-public final class KeyBindingController implements Controller<InputUtil.Key> {
+public final class KeyBindingController implements Controller<InputConstants.Key> {
 
-    private final Option<InputUtil.Key> option;
+    private final Option<InputConstants.Key> option;
 
-    public KeyBindingController(Option<InputUtil.Key> option) {
+    public KeyBindingController(Option<InputConstants.Key> option) {
         this.option = option;
     }
 
     @Override
-    public Option<InputUtil.Key> option() {
+    public Option<InputConstants.Key> option() {
         return this.option;
     }
 
     @Override
-    public Text formatValue() {
-        return this.option.pendingValue().getLocalizedText();
+    public Component formatValue() {
+        return this.option.pendingValue().getDisplayName();
     }
 
     @Override
@@ -44,7 +44,7 @@ public final class KeyBindingController implements Controller<InputUtil.Key> {
         }
 
         @Override
-        public void render(DrawContext graphics, int mouseX, int mouseY, float delta) {
+        public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
             super.render(graphics, mouseX, mouseY, delta);
         }
 
@@ -54,17 +54,17 @@ public final class KeyBindingController implements Controller<InputUtil.Key> {
         }
 
         @Override
-        protected Text getValueText() {
+        protected Component getValueText() {
             if (this.isFocused()) {
-                return Text.literal("> ")
-                    .append(super.getValueText().copy().formatted(Formatting.WHITE, Formatting.UNDERLINE))
-                    .append(" <").formatted(Formatting.YELLOW);
+                return Component.literal("> ")
+                    .append(super.getValueText().copy().withStyle(ChatFormatting.WHITE, ChatFormatting.UNDERLINE))
+                    .append(" <").withStyle(ChatFormatting.YELLOW);
             }
 
             // TODO check for duplicates somehow
 //            if (this.duplicate) {
-//                return Text.literal("[ ")
-//                    .append(super.getValueText().copy().formatted(Formatting.WHITE))
+//                return Component.literal("[ ")
+//                    .append(super.getValueComponent().copy().formatted(Formatting.WHITE))
 //                    .append(" ]").formatted(Formatting.RED);
 //            }
 
@@ -75,7 +75,7 @@ public final class KeyBindingController implements Controller<InputUtil.Key> {
         public boolean onMouseClicked(double mouseX, double mouseY, int button) {
             if (this.isMouseOver(mouseX, mouseY)) {
                 if (this.isFocused()) {
-                    this.control.option.requestSet(InputUtil.Type.MOUSE.createFromCode(button));
+                    this.control.option.requestSet(InputConstants.Type.MOUSE.getOrCreate(button));
                 }
 
                 this.setFocused(!this.isFocused());
@@ -86,19 +86,19 @@ public final class KeyBindingController implements Controller<InputUtil.Key> {
         }
 
         @Override
-        //? if >=1.21.9 {
-        public boolean keyPressed(net.minecraft.client.input.KeyInput input) {
+            //? if >=1.21.9 {
+        public boolean keyPressed(net.minecraft.client.input.KeyEvent input) {
             final int keyCode = input.key();
-        //?} else
-        /*public boolean keyPressed(int keyCode, int scanCode, int modifiers) {*/
+            //?} else
+            /*public boolean keyPressed(int keyCode, int scanCode, int modifiers) {*/
             if (this.isFocused()) {
                 if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
-                    this.control.option.requestSet(InputUtil.UNKNOWN_KEY);
+                    this.control.option.requestSet(InputConstants.UNKNOWN);
                 } else {
                     //? if >=1.21.9 {
-                    this.control.option.requestSet(InputUtil.fromKeyCode(input));
+                    this.control.option.requestSet(InputConstants.getKey(input));
                     //?} else
-                    /*this.control.option.requestSet(InputUtil.fromKeyCode(keyCode, scanCode));*/
+                    /*this.control.option.requestSet(InputConstants.getKey(keyCode, scanCode));*/
                 }
 
                 this.setFocused(false);

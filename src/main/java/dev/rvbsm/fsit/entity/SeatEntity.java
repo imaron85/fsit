@@ -1,168 +1,171 @@
 package dev.rvbsm.fsit.entity;
 
-import net.minecraft.entity.Dismounting;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityPose;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MovementType;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.DismountHelper;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@NullMarked
 public final class SeatEntity extends PoseEntity {
 
     private static final float VELOCITY_BAND = 0.003f;
     private static final float VELOCITY_IN_WATER_MULTIPLIER = 0.8f;
     private static final float VELOCITY_AFFECTIVE_MULTIPLIER = 0.91f;
 
-    public SeatEntity(PlayerEntity player, Vec3d pos) {
+    public SeatEntity(Player player, Vec3 pos) {
         // todo geyser
         super(EntityType.BLOCK_DISPLAY, player);
-        this.setCustomName(Text.literal("FSit_SeatEntity"));
+        this.setCustomName(Component.literal("FSit_SeatEntity"));
 
-        this.calculateDimensions();
-        this.setPosition(pos);
-        this.setVelocity(this.player.getVelocity());
+        this.refreshDimensions();
+        this.setPos(pos);
+        this.setDeltaMovement(this.player.getDeltaMovement());
 
         this.player.startRiding(this);
     }
 
     @Override
     public void tick() {
-        if (!this.getEntityWorld().isClient()) {
-            if (!this.hasPassengers()) {
+        if (!this.level().isClientSide()) {
+            if (!this.isVehicle()) {
                 this.discard();
             }
 
-            if (this.hasPassengers() && this.shouldRemovePassengers()) {
-                this.removeAllPassengers();
+            if (this.isVehicle() && this.shouldRemovePassengers()) {
+                this.ejectPassengers();
             }
 
-            if (!this.isRemoved() && this.canMoveVoluntarily()) {
-                super.updateWaterState();
+            if (!this.isRemoved() && this.canSimulateMovement()) {
+                super.updateInWaterStateAndDoFluidPushing();
                 this.tickMovement();
             }
         }
     }
 
     @Override
-    public boolean hasNoGravity() {
+    public boolean isNoGravity() {
         return !this.getConfig().sitting().behaviour().hasGravity();
     }
 
     @Override
-    protected double getGravity() {
-        return this.player.getFinalGravity();
+    protected double getDefaultGravity() {
+        return this.player.getGravity();
     }
 
     private double getEffectiveGravity() {
-        if (this.getVelocity().y <= 0.0 && this.hasStatusEffect(StatusEffects.SLOW_FALLING)) {
-            return Math.min(0.01, this.getFinalGravity());
+        if (this.getDeltaMovement().y <= 0.0 && this.hasStatusEffect(MobEffects.SLOW_FALLING)) {
+            return Math.min(0.01, this.getGravity());
         }
 
-        return this.getFinalGravity();
+        return this.getGravity();
     }
 
     // TODO pushable by other players?
     @Override
     public boolean isPushable() {
-        return this.canMoveVoluntarily();
+        return this.canSimulateMovement();
     }
 
     @Override
-    public boolean canMoveVoluntarily() {
+    public boolean canSimulateMovement() {
         return this.getConfig().sitting().behaviour().hasGravity();
     }
 
     @Override
-    public Vec3d updatePassengerForDismount(LivingEntity passenger) {
-        final Vec3d offset = getPassengerDismountOffset(passenger.getWidth(), passenger.getWidth(), passenger.getYaw());
+    public Vec3 getDismountLocationForPassenger(LivingEntity passenger) {
+        final Vec3 offset = getCollisionHorizontalEscapeVector(passenger.getBbWidth(), passenger.getBbWidth(), passenger.getYRot());
         final double finalX = this.getX() + offset.x;
         final double finalZ = this.getZ() + offset.z;
 
-        final BlockPos blockPos = BlockPos.ofFloored(finalX, this.getY(), finalZ);
-        final BlockPos blockPos2 = blockPos.down();
+        final BlockPos blockPos = BlockPos.containing(finalX, this.getY(), finalZ);
+        final BlockPos blockPos2 = blockPos.below();
 
-        final List<Vec3d> dismountPositions = new ArrayList<>();
-        final double dismountHeight = this.getEntityWorld().getDismountHeight(blockPos);
-        if (Dismounting.canDismountInBlock(dismountHeight)) {
-            dismountPositions.add(new Vec3d(finalX, blockPos.getY() + dismountHeight, finalZ));
+        final List<Vec3> dismountPositions = new ArrayList<>();
+        final double dismountHeight = this.level().getBlockFloorHeight(blockPos);
+        if (DismountHelper.isBlockFloorValid(dismountHeight)) {
+            dismountPositions.add(new Vec3(finalX, blockPos.getY() + dismountHeight, finalZ));
         }
 
-        final double dismountHeight2 = this.getEntityWorld().getDismountHeight(blockPos2);
-        if (Dismounting.canDismountInBlock(dismountHeight2)) {
-            dismountPositions.add(new Vec3d(finalX, blockPos2.getY() + dismountHeight2, finalZ));
+        final double dismountHeight2 = this.level().getBlockFloorHeight(blockPos2);
+        if (DismountHelper.isBlockFloorValid(dismountHeight2)) {
+            dismountPositions.add(new Vec3(finalX, blockPos2.getY() + dismountHeight2, finalZ));
         }
 
-        for (final var passengerPose : passenger.getPoses()) {
+        for (final var passengerPose : passenger.getDismountPoses()) {
             for (final var dismountPos : dismountPositions) {
-                if (Dismounting.canPlaceEntityAt(this.getEntityWorld(), dismountPos, passenger, passengerPose)) {
+                if (DismountHelper.canDismountTo(this.level(), dismountPos, passenger, passengerPose)) {
                     passenger.setPose(passengerPose);
                     return dismountPos;
                 }
             }
         }
 
-        return this.getEntityPos();
+        return this.position();
     }
 
     @Override
-    public EntityDimensions getDimensions(EntityPose pose) {
+    public EntityDimensions getDimensions(Pose pose) {
         return this.player.getDimensions(player.getPose());
     }
 
-    public boolean hasStatusEffect(RegistryEntry<StatusEffect> effect) {
-        return this.player.hasStatusEffect(effect);
+    public boolean hasStatusEffect(Holder<MobEffect> effect) {
+        return this.player.hasEffect(effect);
     }
 
-    public StatusEffectInstance getStatusEffect(RegistryEntry<StatusEffect> effect) {
-        return this.player.getStatusEffect(effect);
+    public @Nullable MobEffectInstance getStatusEffect(Holder<MobEffect> effect) {
+        return this.player.getEffect(effect);
     }
 
     private void tickMovement() {
-        final Vec3d unbandedVelocity = this.getVelocity();
-        this.setVelocity(
+        final Vec3 unbandedVelocity = this.getDeltaMovement();
+        this.setDeltaMovement(
             Math.abs(unbandedVelocity.x) < VELOCITY_BAND ? 0.0 : unbandedVelocity.x,
             Math.abs(unbandedVelocity.y) < VELOCITY_BAND ? 0.0 : unbandedVelocity.y,
             Math.abs(unbandedVelocity.z) < VELOCITY_BAND ? 0.0 : unbandedVelocity.z
         );
 
-        if (!this.getEntityWorld().isClient()) {
-            this.move(MovementType.SELF, this.getVelocity());
+        if (!this.level().isClientSide()) {
+            this.move(MoverType.SELF, this.getDeltaMovement());
 
-            final Vec3d velocity = this.getVelocity();
-            if (this.isTouchingWater()) {
-                this.setVelocity(
+            final Vec3 velocity = this.getDeltaMovement();
+            if (this.isInWater()) {
+                this.setDeltaMovement(
                     velocity.x * VELOCITY_IN_WATER_MULTIPLIER,
                     velocity.y * VELOCITY_IN_WATER_MULTIPLIER - this.getEffectiveGravity() / 16.0,
                     velocity.z * VELOCITY_IN_WATER_MULTIPLIER
                 );
             } else {
                 final double velocityY;
-                if (this.hasStatusEffect(StatusEffects.LEVITATION)) {
-                    final int effectAmplifier = this.getStatusEffect(StatusEffects.LEVITATION).getAmplifier() + 1;
+                if (this.hasStatusEffect(MobEffects.LEVITATION)) {
+                    final int effectAmplifier = this.getStatusEffect(MobEffects.LEVITATION).getAmplifier() + 1;
                     velocityY = velocity.y * 0.8 + effectAmplifier * 0.01;
                 } else {
                     velocityY = velocity.y - this.getEffectiveGravity();
                 }
 
-                final BlockPos affectivePos = this.getVelocityAffectingPos();
-                final float affectiveSlipperiness = this.isOnGround()
-                    ? this.getEntityWorld().getBlockState(affectivePos).getBlock().getSlipperiness()
+                final BlockPos affectivePos = this.getBlockPosBelowThatAffectsMyMovement();
+                final float affectiveSlipperiness = this.onGround()
+                    ? this.level().getBlockState(affectivePos).getBlock().getFriction()
                     : 1.0f;
                 final float velocityMultiplier = affectiveSlipperiness * VELOCITY_AFFECTIVE_MULTIPLIER;
 
-                this.setVelocity(
+                this.setDeltaMovement(
                     velocity.x * velocityMultiplier,
                     velocityY * velocityMultiplier,
                     velocity.z * velocityMultiplier
@@ -178,8 +181,8 @@ public final class SeatEntity extends PoseEntity {
         }
 
         if (this.getConfig().sitting().behaviour().requireSupport()) {
-            final Box groundCollisionBox = Box.of(this.getEntityPos(), this.getWidth(), 1.0e-3, this.getWidth());
-            for (var shape : this.getEntityWorld().getCollisions(this, groundCollisionBox)) {
+            final AABB groundCollisionBox = AABB.ofSize(this.position(), this.getBbWidth(), 1.0e-3, this.getBbWidth());
+            for (var shape : this.level().getCollisions(this, groundCollisionBox)) {
                 if (shape.isEmpty()) {
                     return true;
                 }

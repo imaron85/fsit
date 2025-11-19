@@ -1,12 +1,12 @@
 package dev.rvbsm.fsit.api.access;
 
 import dev.rvbsm.fsit.entity.ModPose;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 public interface Poseable {
 
-    void fsit$setPose(ModPose pose, @Nullable Vec3d pos);
+    void fsit$setPose(ModPose pose, @Nullable Vec3 pos);
 
     ModPose fsit$getPose();
 

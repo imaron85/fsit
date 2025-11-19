@@ -1,6 +1,6 @@
 package dev.rvbsm.fsit.client.network;
 
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -9,10 +9,10 @@ import java.util.UUID;
 // todo: persistent
 public final class RidingInteractionsManager {
 
-    private final MinecraftClient client;
+    private final Minecraft client;
     private final Set<UUID> restrictedPlayers = new HashSet<>();
 
-    public RidingInteractionsManager(MinecraftClient client) {
+    public RidingInteractionsManager(Minecraft client) {
         this.client = client;
     }
 
@@ -25,6 +25,6 @@ public final class RidingInteractionsManager {
     }
 
     public boolean isRestricted(UUID uuid) {
-        return this.restrictedPlayers.contains(uuid) || this.client.getSocialInteractionsManager().isPlayerMuted(uuid);
+        return this.restrictedPlayers.contains(uuid) || this.client.getPlayerSocialManager().shouldHideMessageFrom(uuid);
     }
 }

@@ -1,7 +1,7 @@
 package dev.rvbsm.fsit.util.serialize;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullMarked;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
 
+@NullMarked
 public final class EnumSerializer implements TypeSerializer<Enum<?>> {
 
     public static final EnumSerializer INSTANCE = new EnumSerializer();
@@ -21,7 +22,7 @@ public final class EnumSerializer implements TypeSerializer<Enum<?>> {
     }
 
     @Override
-    public Enum<?> deserialize(final @NonNull Type type, final ConfigurationNode node) throws SerializationException {
+    public Enum<?> deserialize(final Type type, final ConfigurationNode node) throws SerializationException {
         final String enumName = Objects.requireNonNull(node.getString());
         final Enum<?> enumConstant = EnumLookup.lookupEnum(((Class<?>) type).asSubclass(Enum.class), enumName);
         if (enumConstant == null) {
@@ -33,7 +34,7 @@ public final class EnumSerializer implements TypeSerializer<Enum<?>> {
     }
 
     @Override
-    public void serialize(final @NonNull Type type, final @Nullable Enum<?> obj, final @NonNull ConfigurationNode node) throws SerializationException {
+    public void serialize(final Type type, final @Nullable Enum<?> obj, final ConfigurationNode node) throws SerializationException {
         if (obj == null) {
             throw new SerializationException(type, "Enum constant cannot be null");
         }

@@ -8,7 +8,7 @@ import dev.rvbsm.fsit.util.serialize.BlockSetSerializer;
 import dev.rvbsm.fsit.util.serialize.EnumSerializer;
 import io.leangen.geantyref.TypeToken;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.util.Util;
+import net.minecraft.Util;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.spongepowered.configurate.ConfigurateException;
@@ -89,7 +89,7 @@ public final class ConfigLoader {
                 LOGGER.warn("Could not load a configuration file", e);
                 return ConfigData.DEFAULT; // TODO or rethrow as a runtime exception?
             }
-        }, Util.getIoWorkerExecutor());
+        }, Util.ioPool());
     }
 
     @CanIgnoreReturnValue
@@ -103,7 +103,7 @@ public final class ConfigLoader {
             } catch (ConfigurateException e) {
                 LOGGER.warn("Could not save a configuration file", e);
             }
-        }, Util.getIoWorkerExecutor());
+        }, Util.ioPool());
     }
 
     public static CompletableFuture<ConfigData> loadJson(final String input) {
