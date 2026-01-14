@@ -1,9 +1,9 @@
 package dev.rvbsm.fsit.mixin.client;
 
-import dev.rvbsm.fsit.client.network.ClientModNetworkHandler;
-import dev.rvbsm.fsit.entity.ModPose;
+import dev.rvbsm.fsit.client.network.ClientModNetworkListener;
 import dev.rvbsm.fsit.mixin.common.PlayerMixin_poseStore;
-import dev.rvbsm.fsit.network.payload.c2s.PoseRequestC2SPayload;
+import dev.rvbsm.fsit.network.protocol.game.ServerboundPoseRequestPayload;
+import dev.rvbsm.fsit.world.entity.ModPose;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -21,9 +21,9 @@ public abstract class LocalPlayerMixin_poseHandle extends PlayerMixin_poseStore 
     }
 
     @Override
-    protected void onPoseUpdate(ModPose pose, Vec3 pos) {
-        ClientModNetworkHandler.trySend(
-            PoseRequestC2SPayload.ID, () -> new PoseRequestC2SPayload(pose, Optional.of(pos)),
+    protected void onPoseUpdate(final ModPose pose, final Vec3 pos) {
+        ClientModNetworkListener.trySend(
+            ServerboundPoseRequestPayload.ID, () -> new ServerboundPoseRequestPayload(pose, Optional.of(pos)),
             () -> {}
         );
     }

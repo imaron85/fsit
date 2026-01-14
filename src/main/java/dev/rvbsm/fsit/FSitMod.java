@@ -3,55 +3,57 @@ package dev.rvbsm.fsit;
 import com.mojang.logging.LogUtils;
 import dev.rvbsm.fsit.config.ConfigData;
 import dev.rvbsm.fsit.config.ConfigLoader;
-import dev.rvbsm.fsit.network.payload.c2s.ConfigUpdateJsonC2SPayload;
-import dev.rvbsm.fsit.network.payload.c2s.PoseRequestC2SPayload;
-import dev.rvbsm.fsit.network.payload.s2c.PoseUpdateS2CPayload;
-import dev.rvbsm.fsit.network.payload.s2c.RidingRequestS2CPayload;
-import dev.rvbsm.fsit.network.payload.c2s.RidingResponseC2SPayload;
-import dev.rvbsm.fsit.server.command.PoseCommand;
+import dev.rvbsm.fsit.network.protocol.game.ClientboundPoseUpdatePayload;
+import dev.rvbsm.fsit.network.protocol.game.ClientboundRidingRequestPayload;
+import dev.rvbsm.fsit.network.protocol.game.ServerboundConfigJsonUpdatePayload;
+import dev.rvbsm.fsit.network.protocol.game.ServerboundPoseRequestPayload;
+import dev.rvbsm.fsit.network.protocol.game.ServerboundRidingResponsePayload;
 import dev.rvbsm.fsit.server.command.FSitCommand;
-import dev.rvbsm.fsit.server.network.ServerModNetworkHandler;
+import dev.rvbsm.fsit.server.command.PoseCommand;
+import dev.rvbsm.fsit.server.network.ServerModNetworkListener;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.slf4j.Logger;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
 
 public final class FSitMod implements ModInitializer {
 
     public static final String MOD_ID = "fsit";
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static FSitMod instance = null;
-    private ConfigData config = ConfigData.DEFAULT;
-
-    public static FSitMod getInstance() {
-        return Objects.requireNonNull(instance, "too early");
-    }
+    private static @MonotonicNonNull FSitMod instance = null;
+    private final AtomicReference<ConfigData> configRef = new AtomicReference<>(ConfigData.DEFAULT);
 
     public FSitMod() {
         instance = this;
     }
 
+    public static FSitMod getInstance() {
+        return Objects.requireNonNull(instance, "too early");
+    }
+
     @Override
     public void onInitialize() {
-        final CompletableFuture<Void> configLoader = loadConfig();
+        final var configLoader = this.loadConfig();
 
-        PayloadTypeRegistry.playC2S().register(ConfigUpdateJsonC2SPayload.ID, ConfigUpdateJsonC2SPayload.CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(ConfigUpdateJsonC2SPayload.ID, ServerModNetworkHandler::onConfigUpdateJson);
+        PayloadTypeRegistry.serverboundPlay().register(ServerboundConfigJsonUpdatePayload.TYPE, ServerboundConfigJsonUpdatePayload.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(ServerboundConfigJsonUpdatePayload.TYPE, ServerModNetworkListener::handleConfigJsonUpdate);
 
-        PayloadTypeRegistry.playS2C().register(PoseUpdateS2CPayload.ID, PoseUpdateS2CPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(PoseRequestC2SPayload.ID, PoseRequestC2SPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(PoseRequestC2SPayload.ID_LEGACY, PoseRequestC2SPayload.CODEC_LEGACY);
-        ServerPlayNetworking.registerGlobalReceiver(PoseRequestC2SPayload.ID, ServerModNetworkHandler::onPoseRequest);
+        PayloadTypeRegistry.clientboundPlay().register(ClientboundPoseUpdatePayload.ID, ClientboundPoseUpdatePayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(ServerboundPoseRequestPayload.ID, ServerboundPoseRequestPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(ServerboundPoseRequestPayload.ID_LEGACY, ServerboundPoseRequestPayload.CODEC_LEGACY);
+        ServerPlayNetworking.registerGlobalReceiver(ServerboundPoseRequestPayload.ID, ServerModNetworkListener::handleRequestPose);
 
-        PayloadTypeRegistry.playS2C().register(RidingRequestS2CPayload.ID, RidingRequestS2CPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(RidingResponseC2SPayload.ID, RidingResponseC2SPayload.CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(RidingResponseC2SPayload.ID, ServerModNetworkHandler::onRidingResponse);
+        PayloadTypeRegistry.clientboundPlay().register(ClientboundRidingRequestPayload.ID, ClientboundRidingRequestPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(ServerboundRidingResponsePayload.ID, ServerboundRidingResponsePayload.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(ServerboundRidingResponsePayload.ID, ServerModNetworkListener::handleRespondRiding);
 
         try {
             configLoader.get();
@@ -59,7 +61,7 @@ public final class FSitMod implements ModInitializer {
             LOGGER.warn("Error when loading configuration", e);
         }
 
-        CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, env) -> {
+        CommandRegistrationCallback.EVENT.register(((dispatcher, _, _) -> {
             if (this.getConfig().commands().root()) {
                 FSitCommand.register(dispatcher);
             }
@@ -75,11 +77,11 @@ public final class FSitMod implements ModInitializer {
     }
 
     public ConfigData getConfig() {
-        return this.config;
+        return this.configRef.get();
     }
 
-    public CompletableFuture<Void> setConfig(ConfigData config) {
-        this.config = config;
+    public CompletableFuture<Void> setConfig(final ConfigData config) {
+        this.configRef.set(config);
         return ConfigLoader.saveYaml(config);
     }
 

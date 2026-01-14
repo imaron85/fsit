@@ -11,6 +11,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.permissions.PermissionLevel;
 import org.slf4j.Logger;
 
 public final class FSitCommand {
@@ -21,16 +22,16 @@ public final class FSitCommand {
     private static final String PERMISSION_RELOAD = "fsit.command.root.reload";
     private static final String PERMISSION_GET = "fsit.command.root.get";
     private static final String PERMISSION_SET = "fsit.command.root.set";
-    private static final int PERMISSION_ROOT_LEVEL = 2;
-    private static final int PERMISSION_RELOAD_LEVEL = 2;
-    private static final int PERMISSION_GET_LEVEL = 2;
-    private static final int PERMISSION_SET_LEVEL = 2;
+    private static final PermissionLevel PERMISSION_ROOT_LEVEL = PermissionLevel.GAMEMASTERS;
+    private static final PermissionLevel PERMISSION_RELOAD_LEVEL = PermissionLevel.GAMEMASTERS;
+    private static final PermissionLevel PERMISSION_GET_LEVEL = PermissionLevel.GAMEMASTERS;
+    private static final PermissionLevel PERMISSION_SET_LEVEL = PermissionLevel.GAMEMASTERS;
 
     private static final Component PREFIX = Component.literal("[/fsit] ");
     private static final Component RELOAD_SUCCESS_MESSAGE = PREFIX.copy().append(Component.translatable("commands.reload.success"));
     private static final Component RELOAD_FAILURE_MESSAGE = PREFIX.copy().append(Component.translatable("commands.reload.failure"));
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+    public static void register(final CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("fsit")
             .requires(Permissions.require(PERMISSION_ROOT, PERMISSION_ROOT_LEVEL))
             .then(Commands.literal("reload")
@@ -52,7 +53,7 @@ public final class FSitCommand {
         );
     }
 
-    private static int executeReload(CommandContext<CommandSourceStack> ctx) {
+    private static int executeReload(final CommandContext<CommandSourceStack> ctx) {
         ctx.getSource().sendSuccess(() -> RELOAD_SUCCESS_MESSAGE, true);
         FSitMod.getInstance().loadConfig().exceptionally(e -> {
             LOGGER.warn("Failed to execute configuration reload", e);
@@ -65,7 +66,7 @@ public final class FSitCommand {
     }
 
     // todo some syntax highlighting would be nice
-    private static int executeConfig(CommandContext<CommandSourceStack> ctx) {
+    private static int executeConfig(final CommandContext<CommandSourceStack> ctx) {
         ConfigLoader.saveJson(FSitMod.getInstance().getConfig()).thenAccept(configJson -> {
             ctx.getSource().sendSuccess(() -> Component.nullToEmpty(configJson), false);
         });
@@ -73,7 +74,7 @@ public final class FSitCommand {
         return 0;
     }
 
-    private static int executeGet(CommandContext<CommandSourceStack> ctx) {
+    private static int executeGet(final CommandContext<CommandSourceStack> ctx) {
         final String key = ctx.getArgument("key", String.class);
 
         ConfigLoader.getJson(FSitMod.getInstance().getConfig(), key).thenAccept(value -> {
@@ -89,7 +90,7 @@ public final class FSitCommand {
     }
 
     // todo appending/removing for lists? sounds like overengineering for one field lol
-    private static int executeSet(CommandContext<CommandSourceStack> ctx) {
+    private static int executeSet(final CommandContext<CommandSourceStack> ctx) {
         final String key = ctx.getArgument("key", String.class);
         final String value = ctx.getArgument("value", String.class);
 

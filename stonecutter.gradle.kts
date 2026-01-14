@@ -6,4 +6,4 @@ plugins {
     alias(libs.plugins.shadow) apply false
 }
 
-stonecutter active "1.21.9" /* [SC] DO NOT EDIT */
+stonecutter active "26.1" /* [SC] DO NOT EDIT */

@@ -2,12 +2,12 @@ package dev.rvbsm.fsit.mixin.server;
 
 import dev.rvbsm.fsit.api.access.Configurable;
 import dev.rvbsm.fsit.config.ConfigData;
-import dev.rvbsm.fsit.entity.ModPose;
-import dev.rvbsm.fsit.entity.SeatEntity;
 import dev.rvbsm.fsit.mixin.common.PlayerMixin_poseStore;
-import dev.rvbsm.fsit.network.payload.s2c.PoseUpdateS2CPayload;
-import dev.rvbsm.fsit.server.network.CrawlEntity;
-import dev.rvbsm.fsit.server.network.ServerModNetworkHandler;
+import dev.rvbsm.fsit.network.protocol.game.ClientboundPoseUpdatePayload;
+import dev.rvbsm.fsit.server.level.CrawlEntity;
+import dev.rvbsm.fsit.server.network.ServerModNetworkListener;
+import dev.rvbsm.fsit.world.entity.ModPose;
+import dev.rvbsm.fsit.world.entity.SeatEntity;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -15,6 +15,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -28,14 +29,14 @@ public abstract class ServerPlayerMixin_poseHandle extends PlayerMixin_poseStore
     @Shadow
     public ServerGamePacketListenerImpl connection;
     @Unique
-    private CrawlEntity crawlEntity = null;
+    private @Nullable CrawlEntity crawlEntity = null;
 
     private ServerPlayerMixin_poseHandle(EntityType<? extends LivingEntity> entityType, Level world) {
         super(entityType, world);
     }
 
     @Inject(method = "doTick", at = @At("TAIL"))
-    private void crawlTick(CallbackInfo ci) {
+    private void crawlTick(final CallbackInfo ci) {
         if (this.crawlEntity != null) {
             if (this.crawlEntity.isRemoved()) {
                 this.connection.send(new ClientboundRemoveEntitiesPacket(this.crawlEntity.getId()));
@@ -52,7 +53,7 @@ public abstract class ServerPlayerMixin_poseHandle extends PlayerMixin_poseStore
     }
 
     @Override
-    protected void onPoseUpdate(ModPose pose, Vec3 pos) {
+    protected void onPoseUpdate(final ModPose pose, final Vec3 pos) {
         switch (pose) {
             case STANDING -> {
                 if (this.isPassenger()) {
@@ -85,10 +86,11 @@ public abstract class ServerPlayerMixin_poseHandle extends PlayerMixin_poseStore
         }
 
         final Vec3 finalPos = pos;
-        ServerModNetworkHandler.trySend(
+        ServerModNetworkListener.trySend(
             (ServerPlayer) (Object) this,
-            PoseUpdateS2CPayload.ID, () -> new PoseUpdateS2CPayload(pose, finalPos),
-            () -> {}
+            ClientboundPoseUpdatePayload.ID, () -> new ClientboundPoseUpdatePayload(pose, finalPos),
+            () -> {
+            }
         );
     }
 }

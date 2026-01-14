@@ -1,11 +1,11 @@
 package dev.rvbsm.fsit.api.access;
 
 import dev.rvbsm.fsit.config.ConfigData;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public interface Configurable {
 
-    void fsit$setConfig(ConfigData config);
+    void fsit$setConfig(final ConfigData config);
 
     @Nullable ConfigData fsit$getConfig();
 

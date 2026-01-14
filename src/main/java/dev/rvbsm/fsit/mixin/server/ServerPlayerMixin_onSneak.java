@@ -3,8 +3,8 @@ package dev.rvbsm.fsit.mixin.server;
 import dev.rvbsm.fsit.api.access.Configurable;
 import dev.rvbsm.fsit.api.access.Poseable;
 import dev.rvbsm.fsit.config.ConfigData;
-import dev.rvbsm.fsit.entity.ModPose;
 import dev.rvbsm.fsit.mixin.common.PlayerMixin_onSneak;
+import dev.rvbsm.fsit.world.entity.ModPose;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -32,7 +32,7 @@ public abstract class ServerPlayerMixin_onSneak extends PlayerMixin_onSneak impl
     }
 
     @Inject(method = "doTick", at = @At("TAIL"))
-    private void sneakTick(CallbackInfo ci) {
+    private void sneakTick(final CallbackInfo ci) {
         if (this.ticksLeftToDoubleTapPose > 0) {
             this.ticksLeftToDoubleTapPose--;
         }
@@ -43,7 +43,7 @@ public abstract class ServerPlayerMixin_onSneak extends PlayerMixin_onSneak impl
     }
 
     @Override
-    protected void onTrackedDataSet(EntityDataAccessor<?> data, CallbackInfo ci) {
+    protected void onTrackedDataSet(final EntityDataAccessor<?> data, final CallbackInfo ci) {
         if (DATA_SHARED_FLAGS_ID.equals(data) && this.lastSneaking != this.isShiftKeyDown()) {
             if (this.isShiftKeyDown()) {
                 if (this.fsit$getPose() != ModPose.STANDING) {

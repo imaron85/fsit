@@ -22,6 +22,6 @@ public abstract class LivingEntityMixin_onSneak extends Entity {
     public abstract boolean isUsingItem();
 
     @Inject(method = "onSyncedDataUpdated(Lnet/minecraft/network/syncher/EntityDataAccessor;)V", at = @At("TAIL"))
-    protected void onTrackedDataSet(EntityDataAccessor<?> data, CallbackInfo ci) {
+    protected void onTrackedDataSet(final EntityDataAccessor<?> data, final CallbackInfo ci) {
     }
 }

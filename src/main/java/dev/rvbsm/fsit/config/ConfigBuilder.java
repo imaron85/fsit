@@ -1,8 +1,8 @@
 package dev.rvbsm.fsit.config;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import dev.rvbsm.fsit.util.registry.BlockSet;
-import dev.rvbsm.fsit.util.registry.RegistrySet;
+import dev.rvbsm.fsit.core.registry.BlockSet;
+import dev.rvbsm.fsit.core.registry.RegistrySet;
 
 import java.util.Collection;
 import java.util.List;
@@ -32,7 +32,7 @@ public final class ConfigBuilder {
     ConfigBuilder() {
     }
 
-    ConfigBuilder(ConfigData config) {
+    ConfigBuilder(final ConfigData config) {
         this.useServer = config.useServer();
 
         this.sittingBehaviour = config.sitting().behaviour();
@@ -68,7 +68,7 @@ public final class ConfigBuilder {
     }
 
     @CanIgnoreReturnValue
-    public ConfigBuilder useServer(boolean useServer) {
+    public ConfigBuilder useServer(final boolean useServer) {
         this.useServer = useServer;
         return this;
     }
@@ -78,7 +78,7 @@ public final class ConfigBuilder {
     }
 
     @CanIgnoreReturnValue
-    public ConfigBuilder sittingBehaviour(ConfigData.Sitting.Behaviour sittingBehaviour) {
+    public ConfigBuilder sittingBehaviour(final ConfigData.Sitting.Behaviour sittingBehaviour) {
         this.sittingBehaviour = sittingBehaviour;
         return this;
     }
@@ -88,7 +88,7 @@ public final class ConfigBuilder {
     }
 
     @CanIgnoreReturnValue
-    public ConfigBuilder sittingShouldCenter(boolean sittingShouldCenter) {
+    public ConfigBuilder sittingShouldCenter(final boolean sittingShouldCenter) {
         this.sittingShouldCenter = sittingShouldCenter;
         return this;
     }
@@ -98,7 +98,7 @@ public final class ConfigBuilder {
     }
 
     @CanIgnoreReturnValue
-    public ConfigBuilder onUseSitting(boolean onUseSitting) {
+    public ConfigBuilder onUseSitting(final boolean onUseSitting) {
         this.onUseSitting = onUseSitting;
         return this;
     }
@@ -108,7 +108,7 @@ public final class ConfigBuilder {
     }
 
     @CanIgnoreReturnValue
-    public ConfigBuilder onUseRiding(boolean onUseRiding) {
+    public ConfigBuilder onUseRiding(final boolean onUseRiding) {
         this.onUseRiding = onUseRiding;
         return this;
     }
@@ -118,7 +118,7 @@ public final class ConfigBuilder {
     }
 
     @CanIgnoreReturnValue
-    public ConfigBuilder onUseRange(int onUseRange) {
+    public ConfigBuilder onUseRange(final int onUseRange) {
         this.onUseRange = onUseRange;
         return this;
     }
@@ -128,7 +128,7 @@ public final class ConfigBuilder {
     }
 
     @CanIgnoreReturnValue
-    public ConfigBuilder onUseCheckSuffocation(boolean onUseCheckSuffocation) {
+    public ConfigBuilder onUseCheckSuffocation(final boolean onUseCheckSuffocation) {
         this.onUseCheckSuffocation = onUseCheckSuffocation;
         return this;
     }
@@ -142,7 +142,7 @@ public final class ConfigBuilder {
     }
 
     @CanIgnoreReturnValue
-    public ConfigBuilder onUseBlocks(Collection<String> onUseBlocks) {
+    public ConfigBuilder onUseBlocks(final Collection<String> onUseBlocks) {
         this.onUseBlocks = BlockSet.ofBlocks(onUseBlocks);
         return this;
     }
@@ -152,7 +152,7 @@ public final class ConfigBuilder {
     }
 
     @CanIgnoreReturnValue
-    public ConfigBuilder onSneakSitting(boolean onSneakSitting) {
+    public ConfigBuilder onSneakSitting(final boolean onSneakSitting) {
         this.onSneakSitting = onSneakSitting;
         return this;
     }
@@ -162,7 +162,7 @@ public final class ConfigBuilder {
     }
 
     @CanIgnoreReturnValue
-    public ConfigBuilder onSneakCrawling(boolean onSneakCrawling) {
+    public ConfigBuilder onSneakCrawling(final boolean onSneakCrawling) {
         this.onSneakCrawling = onSneakCrawling;
         return this;
     }
@@ -172,7 +172,7 @@ public final class ConfigBuilder {
     }
 
     @CanIgnoreReturnValue
-    public ConfigBuilder onSneakMinPitch(float onSneakMinPitch) {
+    public ConfigBuilder onSneakMinPitch(final float onSneakMinPitch) {
         this.onSneakMinPitch = onSneakMinPitch;
         return this;
     }
@@ -182,7 +182,7 @@ public final class ConfigBuilder {
     }
 
     @CanIgnoreReturnValue
-    public ConfigBuilder onSneakWindow(int onSneakWindow) {
+    public ConfigBuilder onSneakWindow(final int onSneakWindow) {
         this.onSneakWindow = onSneakWindow;
         return this;
     }
@@ -192,7 +192,7 @@ public final class ConfigBuilder {
     }
 
     @CanIgnoreReturnValue
-    public ConfigBuilder commandsRoot(boolean commandsRoot) {
+    public ConfigBuilder commandsRoot(final boolean commandsRoot) {
         this.commandsRoot = commandsRoot;
         return this;
     }
@@ -202,7 +202,7 @@ public final class ConfigBuilder {
     }
 
     @CanIgnoreReturnValue
-    public ConfigBuilder commandsSit(boolean commandsSit) {
+    public ConfigBuilder commandsSit(final boolean commandsSit) {
         this.commandsSit = commandsSit;
         return this;
     }
@@ -212,7 +212,7 @@ public final class ConfigBuilder {
     }
 
     @CanIgnoreReturnValue
-    public ConfigBuilder commandsCrawl(boolean commandsCrawl) {
+    public ConfigBuilder commandsCrawl(final boolean commandsCrawl) {
         this.commandsCrawl = commandsCrawl;
         return this;
     }

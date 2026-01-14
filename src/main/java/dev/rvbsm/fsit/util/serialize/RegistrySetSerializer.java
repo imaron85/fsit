@@ -1,8 +1,7 @@
 package dev.rvbsm.fsit.util.serialize;
 
-import dev.rvbsm.fsit.util.registry.RegistrySet;
+import dev.rvbsm.fsit.core.registry.RegistrySet;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.jspecify.annotations.NullMarked;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
@@ -10,7 +9,6 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 import java.lang.reflect.Type;
 import java.util.List;
 
-@NullMarked
 public abstract class RegistrySetSerializer<S extends RegistrySet<?>> implements TypeSerializer<S> {
 
     protected RegistrySetSerializer() {

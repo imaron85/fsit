@@ -12,19 +12,19 @@ public final class RidingInteractionsManager {
     private final Minecraft client;
     private final Set<UUID> restrictedPlayers = new HashSet<>();
 
-    public RidingInteractionsManager(Minecraft client) {
+    public RidingInteractionsManager(final Minecraft client) {
         this.client = client;
     }
 
-    public void restrictPlayer(UUID uuid) {
+    public void restrictPlayer(final UUID uuid) {
         this.restrictedPlayers.add(uuid);
     }
 
-    public void allowPlayer(UUID uuid) {
+    public void allowPlayer(final UUID uuid) {
         this.restrictedPlayers.remove(uuid);
     }
 
-    public boolean isRestricted(UUID uuid) {
+    public boolean isRestricted(final UUID uuid) {
         return this.restrictedPlayers.contains(uuid) || this.client.getPlayerSocialManager().shouldHideMessageFrom(uuid);
     }
 }

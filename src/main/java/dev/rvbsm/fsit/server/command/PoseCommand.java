@@ -7,13 +7,14 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.api.access.Poseable;
-import dev.rvbsm.fsit.entity.ModPose;
 import dev.rvbsm.fsit.server.compat.permissions.Permissions;
+import dev.rvbsm.fsit.world.entity.ModPose;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.PermissionLevel;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Locale;
@@ -33,23 +34,23 @@ public enum PoseCommand {
     private final String command;
     private final ModPose pose;
     private final String permission;
-    private final int permissionLevel;
+    private final PermissionLevel permissionLevel;
 
-    PoseCommand(ModPose pose) {
+    PoseCommand(final ModPose pose) {
         this.command = this.name().toLowerCase(Locale.ROOT);
         this.pose = pose;
         this.permission = "%s.command.%s".formatted(FSitMod.MOD_ID, this.command);
-        this.permissionLevel = 0;
+        this.permissionLevel = PermissionLevel.ALL;
     }
 
-    public void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+    public void register(final CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal(this.command)
             .requires(Permissions.require(this.permission, this.permissionLevel))
             .executes(this::execute)
         );
     }
 
-    private int execute(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+    private int execute(final CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         final CommandSourceStack src = ctx.getSource();
         final ServerPlayer player = src.getPlayerOrException();
 

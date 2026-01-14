@@ -57,32 +57,25 @@ repositories {
 
 dependencies {
     minecraft("com.minecraft:minecraft:${property("minecraft.version")}")
-//    mappings("net.fabricmc:yarn:${property("minecraft.version")}+build.${property("minecraft.yarn_build")}:v2")
-    mappings(loom.officialMojangMappings())
 
-    modImplementation(libs.fabric.loader)
+    implementation(libs.fabric.loader)
 
     val fabricVersion = property("api.fabric-api").toString()
     setOf(
         "fabric-api-base",
         "fabric-command-api-v2",
-        "fabric-key-binding-api-v1",
+        "fabric-key-mapping-api-v1",
         "fabric-lifecycle-events-v1",
         "fabric-networking-api-v1",
-    ).map { fabricApi.module(it, fabricVersion) }.forEach(::modImplementation)
+    ).map { fabricApi.module(it, fabricVersion) }.forEach(::implementation)
 
-    modImplementation("com.terraformersmc:modmenu:${property("api.modmenu")}")
-    modImplementation("dev.isxander:yet-another-config-lib:${property("api.yacl")}-fabric") {
-        exclude("net.fabricmc.fabric-api", "fabric-api")
-        exclude("net.fabricmc", "fabric-language-kotlin")
-        exclude("org.jetbrains.kotlin")
-        modRuntimeOnly("net.fabricmc.fabric-api:fabric-api:$fabricVersion")
+    implementation("com.terraformersmc:modmenu:${property("api.modmenu")}")
+    //implementation("me.lucko:fabric-permissions-api:${property("api.fabric-permissions-api")}")
+    implementation("me.lucko:fabric-permissions-api") {
+        version {
+            branch = "master"
+        }
     }
-
-    modImplementation("me.lucko:fabric-permissions-api:${property("api.fabric-permissions-api")}") {
-        exclude("net.fabricmc.fabric-api", "fabric-api")
-    }
-
     compileOnly(libs.geyser.api)
 
     implementation(libs.bundles.configurate)
@@ -106,7 +99,7 @@ tasks {
     }
 
     withType<JavaCompile> {
-        options.release.set(project.property("java.version").toString().toInt())
+        options.release = project.property("java.version").toString().toInt()
     }
 
     shadowJar {
@@ -116,6 +109,7 @@ tasks {
         enableAutoRelocation = true
         relocationPrefix = "dev.rvbsm.fsit.lib"
 
+        exclude("META-INF")
         dependencies {
             exclude(dependency(":gson:.*"))
         }
@@ -123,20 +117,15 @@ tasks {
         minimize()
     }
 
-    remapJar {
-        dependsOn(shadowJar)
-        inputFile.set(shadowJar.flatMap { it.archiveFile })
-    }
-
     jar {
+        dependsOn(shadowJar)
+        mustRunAfter(shadowJar)
+        from(zipTree(shadowJar.flatMap { it.archiveFile }))
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
         from(rootProject.file("LICENSE")) {
             into("META-INF")
         }
-    }
-
-    if (stonecutter.current.isActive) register("buildActive") {
-        group = "project"
-        dependsOn(build)
     }
 
     test {
@@ -151,58 +140,11 @@ java {
     targetCompatibility = JavaVersion.toVersion(project.property("java.version")!!)
 }
 
-stonecutter {
-    val trickyTrials = eval(current.version, ">=1.21")
-    val bundlesOfBravery = eval(current.version, ">=1.21.2")
-    val theGardenAwakens = eval(current.version, ">=1.21.4")
-    val springToLife = eval(current.version, ">=1.21.5")
-    val chaseTheSkies = eval(current.version, ">=1.21.6")
-    val theCopperAge = eval(current.version, ">=1.21.9")
-
-    replacements.string(bundlesOfBravery) {
-        from = "PacketCodec.tuple(PacketCodecs.DOUBLE, Vec3d::getX, PacketCodecs.DOUBLE, Vec3d::getY, PacketCodecs.DOUBLE, Vec3d::getZ, Vec3d::new)"
-        to = "Vec3d.PACKET_CODEC"
-    }
-
-    replacements.string("entity_position_sync_packet_import", bundlesOfBravery) {
-        from = "import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket"
-        to = "import net.minecraft.network.packet.s2c.play.EntityPositionSyncS2CPacket"
-    }
-
-    replacements.string("entity_position_sync_packet_new", bundlesOfBravery) {
-        from = "new EntityPositionS2CPacket(this)"
-        to = "EntityPositionSyncS2CPacket.create(this)"
-    }
-
-    replacements.regex("packet_codec_boolean", theGardenAwakens) {
-        replace("PacketCodecs\\.BOOL" + "(?!EAN)", "PacketCodecs\\.BOOLEAN")
-        reverse("PacketCodecs\\.BOOLEAN", "PacketCodecs\\.BOOL")
-    }
-
-    replacements.string("create_index_to_value_function",springToLife) {
-        from = "ValueLists.createIdToValueFunction"
-        to = "ValueLists.createIndexToValueFunction"
-    }
-
-    replacements.regex(theCopperAge) {
-        replace("((?:entity|player|this)(?:\\.|::))" + "get(World|Pos)" + "(?!\\w)", "$1getEntity$2")
-        reverse("((?:entity|player|this)(?:\\.|::))" + "getEntity(World|Pos)" + "(?!\\w)", "$1get$2")
-    }
-
-    replacements.regex("keybinding_category", theCopperAge) {
-        replace("KeyBinding\\.(\\w+)_CATEGORY", "KeyBinding.Category.$1")
-        reverse("KeyBinding\\.Category.(\\w+)", "KeyBinding.$1_CATEGORY")
-    }
-
-    replacements.regex("simple_option_id", theCopperAge) {
-        replace("(\\w+Key)\\.getTranslationKey", "$1\\.getId")
-        reverse("(\\w+Key)\\.getId", "$1\\.getTranslationKey")
-    }
-}
+stonecutter {}
 
 publishMods {
-    file = tasks.remapJar.map { it.archiveFile }.get()
-    additionalFiles.from(tasks.remapSourcesJar.map { it.archiveFile })
+    file = tasks.jar.map { it.archiveFile }.get()
+    // additionalFiles.from(tasks.remapSourcesJar.map { it.archiveFile })
     changelog = providers.environmentVariable("CHANGELOG")
     type = when {
         "alpha" in gitVersion -> ALPHA

@@ -2,7 +2,7 @@ package dev.rvbsm.fsit.mixin.common;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.rvbsm.fsit.api.access.Poseable;
-import dev.rvbsm.fsit.entity.ModPose;
+import dev.rvbsm.fsit.world.entity.ModPose;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -28,12 +28,12 @@ public abstract class PlayerMixin_poseStore extends LivingEntity implements Pose
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/world/entity/player/Player;isSwimming()Z"))
-    private boolean isCrawling(boolean isSwimming) {
+    private boolean isCrawling(final boolean isSwimming) {
         return isSwimming || this.fsit$getPose() == ModPose.CRAWLING;
     }
 
     @Override
-    public void fsit$setPose(ModPose pose, @Nullable Vec3 pos) {
+    public void fsit$setPose(final ModPose pose, final @Nullable Vec3 pos) {
         final var prevPose = this.currentPose;
         this.currentPose = pose;
 
@@ -48,6 +48,6 @@ public abstract class PlayerMixin_poseStore extends LivingEntity implements Pose
     }
 
     @Unique
-    protected void onPoseUpdate(ModPose pose, Vec3 pos) {
+    protected void onPoseUpdate(final ModPose pose, final Vec3 pos) {
     }
 }

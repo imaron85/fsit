@@ -1,5 +1,3 @@
-//~ keybinding_category
-
 package dev.rvbsm.fsit.client.option;
 
 import com.mojang.blaze3d.platform.InputConstants;
@@ -7,6 +5,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
+import net.minecraft.network.chat.Component;
 
 import java.util.Arrays;
 
@@ -20,30 +19,30 @@ public class ModOptions {
         7,
         (t) -> {}
     );
-    public final OptionInstance<HybridKeyBinding.Mode> sitMode = new OptionInstance<>(
+    public final OptionInstance<HybridKeyMapping.Mode> sitMode = new OptionInstance<>(
         "key.fsit.sit",
         OptionInstance.noTooltip(),
-        OptionInstance.forOptionEnum(),
-        new OptionInstance.Enum<>(Arrays.asList(HybridKeyBinding.Mode.values()), HybridKeyBinding.Mode.CODEC),
-        HybridKeyBinding.Mode.HYBRID,
+        (caption, value) -> Options.genericValueLabel(caption, Component.translatable(value.getKey())),
+        new OptionInstance.Enum<>(Arrays.asList(HybridKeyMapping.Mode.values()), HybridKeyMapping.Mode.CODEC),
+        HybridKeyMapping.Mode.HYBRID,
         (m) -> {}
     );
-    public final OptionInstance<HybridKeyBinding.Mode> crawlMode = new OptionInstance<>(
+    public final OptionInstance<HybridKeyMapping.Mode> crawlMode = new OptionInstance<>(
         "key.fsit.crawl",
         OptionInstance.noTooltip(),
-        OptionInstance.forOptionEnum(),
-        new OptionInstance.Enum<>(Arrays.asList(HybridKeyBinding.Mode.values()), HybridKeyBinding.Mode.CODEC),
-        HybridKeyBinding.Mode.HYBRID,
+        (caption, value) -> Options.genericValueLabel(caption, Component.translatable(value.getKey())),
+        new OptionInstance.Enum<>(Arrays.asList(HybridKeyMapping.Mode.values()), HybridKeyMapping.Mode.CODEC),
+        HybridKeyMapping.Mode.HYBRID,
         (m) -> {}
     );
-    public final KeyMapping sitKey = new HybridKeyBinding(
+    public final KeyMapping sitKey = new HybridKeyMapping(
         "key.fsit.sit",
         InputConstants.KEY_RCONTROL,
         KeyMapping.Category.MISC,
         sitMode::get,
         hybridModeWindow::get
     );
-    public final KeyMapping crawlKey = new HybridKeyBinding(
+    public final KeyMapping crawlKey = new HybridKeyMapping(
         "key.fsit.crawl",
         InputConstants.KEY_RALT,
         KeyMapping.Category.MISC,
@@ -53,7 +52,7 @@ public class ModOptions {
 
     private final Minecraft client;
 
-    public ModOptions(Minecraft client) {
+    public ModOptions(final Minecraft client) {
         this.client = client;
     }
 }

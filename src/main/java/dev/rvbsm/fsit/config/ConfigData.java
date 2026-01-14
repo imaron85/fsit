@@ -1,6 +1,6 @@
 package dev.rvbsm.fsit.config;
 
-import dev.rvbsm.fsit.util.registry.BlockSet;
+import dev.rvbsm.fsit.core.registry.BlockSet;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
@@ -24,7 +24,7 @@ public record ConfigData(
         return new ConfigBuilder();
     }
 
-    public static ConfigBuilder builder(ConfigData config) {
+    public static ConfigBuilder builder(final ConfigData config) {
         return new ConfigBuilder(config);
     }
 

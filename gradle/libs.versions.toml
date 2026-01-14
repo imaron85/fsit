@@ -1,16 +1,16 @@
 [versions]
-fabric-loom = "1.13-SNAPSHOT"
-fabric-loader = "0.17.2"
+fabric-loom = "1.14-SNAPSHOT"
+fabric-loader = "0.18.2"
 
 configurate = "4.2.0"
 
-mod-publish = "1.0.0"
-shadow = "9.2.2"
+mod-publish = "1.1.0"
+shadow = "9.3.0"
 
 geyser-api = "2.8.3-SNAPSHOT"
 
 [plugins]
-fabric-loom = { id = "fabric-loom", version.ref = "fabric-loom" }
+fabric-loom = { id = "net.fabricmc.fabric-loom", version.ref = "fabric-loom" }
 mod-publish = { id = "me.modmuss50.mod-publish-plugin", version.ref = "mod-publish" }
 
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

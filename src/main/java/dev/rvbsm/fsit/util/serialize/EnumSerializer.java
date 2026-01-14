@@ -1,7 +1,6 @@
 package dev.rvbsm.fsit.util.serialize;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.jspecify.annotations.NullMarked;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
@@ -12,12 +11,11 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
 
-@NullMarked
 public final class EnumSerializer implements TypeSerializer<Enum<?>> {
 
     public static final EnumSerializer INSTANCE = new EnumSerializer();
 
-    private static <T extends Enum<T>> String getAvailableConstants(Class<T> enumClass) {
+    private static <T extends Enum<T>> String getAvailableConstants(final Class<T> enumClass) {
         return Arrays.toString(enumClass.getEnumConstants()).toLowerCase(Locale.ROOT);
     }
 

@@ -3,27 +3,29 @@ package dev.rvbsm.fsit.client;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.api.access.Poseable;
-import dev.rvbsm.fsit.client.network.ClientModNetworkHandler;
+import dev.rvbsm.fsit.client.network.ClientModNetworkListener;
 import dev.rvbsm.fsit.client.network.RidingInteractionsManager;
-import dev.rvbsm.fsit.client.option.HybridKeyBinding;
+import dev.rvbsm.fsit.client.option.HybridKeyMapping;
 import dev.rvbsm.fsit.client.option.ModOptions;
 import dev.rvbsm.fsit.config.ConfigData;
-import dev.rvbsm.fsit.entity.ModPose;
-import dev.rvbsm.fsit.network.payload.s2c.PoseUpdateS2CPayload;
-import dev.rvbsm.fsit.network.payload.s2c.RidingRequestS2CPayload;
+import dev.rvbsm.fsit.network.protocol.game.ClientboundPoseUpdatePayload;
+import dev.rvbsm.fsit.network.protocol.game.ClientboundRidingRequestPayload;
+import dev.rvbsm.fsit.network.protocol.game.ServerboundConfigJsonUpdatePayload;
+import dev.rvbsm.fsit.world.entity.ModPose;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 public class FSitModClient implements ClientModInitializer {
 
-    private static FSitModClient instance;
+    private static @MonotonicNonNull FSitModClient instance = null;
     private final ModOptions options;
     private final RidingInteractionsManager restrictionsManager;
 
@@ -40,19 +42,19 @@ public class FSitModClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        ClientPlayNetworking.registerGlobalReceiver(PoseUpdateS2CPayload.ID, ClientModNetworkHandler::onPoseUpdate);
-        ClientPlayNetworking.registerGlobalReceiver(RidingRequestS2CPayload.ID, ClientModNetworkHandler::onRidingRequest);
+        ClientPlayNetworking.registerGlobalReceiver(ClientboundPoseUpdatePayload.ID, ClientModNetworkListener::onPoseUpdate);
+        ClientPlayNetworking.registerGlobalReceiver(ClientboundRidingRequestPayload.ID, ClientModNetworkListener::onRidingRequest);
 
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-            ClientModNetworkHandler.sendConfig(this.getConfig());
+            ClientModNetworkListener.sendConfig(this.getConfig());
         });
 
-        KeyBindingHelper.registerKeyBinding(this.options.sitKey);
-        KeyBindingHelper.registerKeyBinding(this.options.crawlKey);
-        ClientTickEvents.END_CLIENT_TICK.register(this::handleInputEvents);
+        KeyMappingHelper.registerKeyMapping(this.options.sitKey);
+        KeyMappingHelper.registerKeyMapping(this.options.crawlKey);
+        ClientTickEvents.END_CLIENT_TICK.register(this::handleKeybinds);
     }
 
-    private void handleInputEvents(Minecraft client) {
+    private void handleKeybinds(final Minecraft client) {
         if (client.player != null && client.getOverlay() == null && client.screen == null) {
             if (this.getConfig().sitting().behaviour().hasGravity() || client.player.onGround()) {
                 if (this.options.sitKey.isDown()) {
@@ -64,7 +66,7 @@ public class FSitModClient implements ClientModInitializer {
                 }
             }
 
-            HybridKeyBinding.tick();
+            HybridKeyMapping.tick();
         }
     }
 
@@ -73,8 +75,8 @@ public class FSitModClient implements ClientModInitializer {
     }
 
     @CanIgnoreReturnValue
-    public CompletableFuture<Void> setConfig(ConfigData config) {
-        return FSitMod.getInstance().setConfig(config).thenRun(() -> ClientModNetworkHandler.sendConfig(config));
+    public CompletableFuture<Void> setConfig(final ConfigData config) {
+        return FSitMod.getInstance().setConfig(config).thenRun(() -> ClientModNetworkListener.sendConfig(config));
     }
 
     public RidingInteractionsManager getRestrictionsManager() {

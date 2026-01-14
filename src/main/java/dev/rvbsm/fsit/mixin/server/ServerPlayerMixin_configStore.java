@@ -20,18 +20,12 @@ public abstract class ServerPlayerMixin_configStore extends Player implements Co
     @Unique
     private @Nullable ConfigData config;
 
-    //? if >=1.21.6 {
     private ServerPlayerMixin_configStore(Level world, GameProfile profile) {
         super(world, profile);
     }
-    //?} else {
-    /*private ServerPlayerEntityMixin_configStore(World world, net.minecraft.util.math.BlockPos pos, float yaw, GameProfile gameProfile) {
-        super(world, pos, yaw, gameProfile);
-    }
-    *///?}
 
     @Inject(method = "restoreFrom", at = @At("TAIL"))
-    private void copyConfig(ServerPlayer oldPlayer, boolean alive, CallbackInfo ci) {
+    private void copyConfig(final ServerPlayer oldPlayer, CallbackInfo ci) {
         final ConfigData oldConfig = ((Configurable) oldPlayer).fsit$getConfig();
         if (oldConfig != null) {
             this.fsit$setConfig(oldConfig);

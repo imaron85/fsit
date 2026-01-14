@@ -38,7 +38,7 @@ public final class ConfigTransformation {
         return finalVersion > startVersion;
     }
 
-    private static TransformAction move(Object... path) {
+    private static TransformAction move(final Object... path) {
         return (p, v) -> path;
     }
 

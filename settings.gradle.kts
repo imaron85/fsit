@@ -1,3 +1,5 @@
+import java.net.URI
+
 rootProject.name = "fsit"
 
 pluginManagement {
@@ -7,13 +9,19 @@ pluginManagement {
     }
 }
 
+sourceControl {
+    gitRepository(URI("https://github.com/reusteur73/fabric-permissions-api.git")) {
+        producesModule("me.lucko:fabric-permissions-api")
+    }
+}
+
 plugins {
     id("dev.kikugie.stonecutter") version "0.8.2"
 }
 
 stonecutter {
     create(rootProject) {
-        versions("1.21", "1.21.2", "1.21.4", "1.21.5", "1.21.6", "1.21.9")
-        vcsVersion = "1.21.9"
+        versions("26.1")
+        vcsVersion = "26.1"
     }
 }

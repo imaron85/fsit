@@ -1,10 +1,11 @@
 {
   "required": true,
   "package": "dev.rvbsm.fsit.mixin.client",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_25",
   "client": [
+    "KeyMappingMixin_hybridKeyMapping",
     "LocalPlayerMixin_poseHandle",
-    "KeyMappingMixin_hybridKeyBinding",
+    "PlayerEntryMixin_ridingManager",
     "access.KeyMappingAccess",
     "access.OptionInstanceAccess"
   ],
