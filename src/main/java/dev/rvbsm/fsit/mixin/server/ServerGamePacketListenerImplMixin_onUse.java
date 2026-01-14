@@ -8,6 +8,7 @@ import dev.rvbsm.fsit.api.access.Configurable;
 import dev.rvbsm.fsit.api.access.Poseable;
 import dev.rvbsm.fsit.config.ConfigData;
 import dev.rvbsm.fsit.server.compat.geyser.GeyserApi;
+import dev.rvbsm.fsit.server.network.ServerModNetworkListener;
 import dev.rvbsm.fsit.world.entity.ModPose;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,6 +21,7 @@ import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -128,52 +130,41 @@ public abstract class ServerGamePacketListenerImplMixin_onUse extends ServerComm
         return InteractionResult.SUCCESS_SERVER;
     }
 
-    @Mixin(targets = "net.minecraft.server.network.ServerGamePacketListenerImpl$1")
-    public static abstract class ServerboundInteractPacket_HandlerMixin {
+    @ModifyVariable(method = "handleInteract", at = @At("STORE"), name = "result")
+    private InteractionResult onInteractEntity(
+        final InteractionResult interactionResult,
+        @Local(name = "target") final Entity target,
+        @Local(name = "hand") final LocalRef<InteractionHand> handRef,
+        @Local(name = "tool") final ItemStack tool
+    ) {
+        if (!target.isAlwaysTicking()) {
+            return interactionResult;
+        }
 
-//        @Shadow
-//        @Final
-//        ServerGamePacketListenerImpl field_28963;
-//
-//        @Shadow
-//        @Final
-//        Entity val$target;
-//
-//        @ModifyVariable(method = "performInteraction", at = @At("STORE"))
-//        private InteractionResult onInteractEntity(
-//            final InteractionResult actionResult,
-//            final @Local(argsOnly = true) LocalRef<InteractionHand> handRef,
-//            final @Local(ordinal = 0) ItemStack stack
-//        ) {
-//            if (!val$target.isAlwaysTicking()) {
-//                return actionResult;
-//            }
-//
-//            if (actionResult != InteractionResult.PASS || stack.getUseAnimation().ordinal() > 0) {
-//                return actionResult;
-//            }
-//
-//            if (handRef.get() == InteractionHand.MAIN_HAND && !GeyserApi.isBedrockPlayer(field_28963.player.getUUID())) {
-//                return actionResult;
-//            }
-//
-//            if (field_28963.player.equals(val$target) || field_28963.player.getUUID().equals(val$target.getUUID())) {
-//                return actionResult;
-//            }
-//
-//            final ConfigData config = ((Configurable) field_28963.player).fsit$configOrDefault();
-//            if (!config.onUse().riding()) {
-//                return actionResult;
-//            }
-//
-//            if (!field_28963.player.closerThan(val$target, config.onUse().range(), 2.0)) {
-//                return actionResult;
-//            }
-//
-//            ServerModNetworkListener.requestRiding(field_28963.player, (ServerPlayer) val$target);
-//
-//            handRef.set(InteractionHand.MAIN_HAND);
-//            return InteractionResult.SUCCESS_SERVER;
-//        }
+        if (interactionResult != InteractionResult.PASS || tool.getUseAnimation().ordinal() > 0) {
+            return interactionResult;
+        }
+
+        if (handRef.get() == InteractionHand.MAIN_HAND && !GeyserApi.isBedrockPlayer(this.player.getUUID())) {
+            return interactionResult;
+        }
+
+        if (player.equals(target) || this.player.getUUID().equals(target.getUUID())) {
+            return interactionResult;
+        }
+
+        final ConfigData config = ((Configurable) this.player).fsit$configOrDefault();
+        if (!config.onUse().riding()) {
+            return interactionResult;
+        }
+
+        if (!this.player.closerThan(target, config.onUse().range(), 2.0)) {
+            return interactionResult;
+        }
+
+        ServerModNetworkListener.requestRiding(this.player, (ServerPlayer) target);
+
+        handRef.set(InteractionHand.MAIN_HAND);
+        return InteractionResult.SUCCESS_SERVER;
     }
 }
