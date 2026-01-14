@@ -59,15 +59,7 @@ dependencies {
     minecraft("com.minecraft:minecraft:${property("minecraft.version")}")
 
     implementation(libs.fabric.loader)
-
-    val fabricVersion = property("api.fabric-api").toString()
-    setOf(
-        "fabric-api-base",
-        "fabric-command-api-v2",
-        "fabric-key-mapping-api-v1",
-        "fabric-lifecycle-events-v1",
-        "fabric-networking-api-v1",
-    ).map { fabricApi.module(it, fabricVersion) }.forEach(::implementation)
+    implementation("net.fabricmc.fabric-api:fabric-api:${property("api.fabric-api")}")
 
     implementation("com.terraformersmc:modmenu:${property("api.modmenu")}")
     //implementation("me.lucko:fabric-permissions-api:${property("api.fabric-permissions-api")}")
