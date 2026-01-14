@@ -8,8 +8,8 @@
     "rvbsm"
   ],
   "contact": {
-    "sources": "https://github.com/rvbsm/fsit",
-    "issues": "https://github.com/rvbsm/fsit/issues"
+    "sources": "https://codeberg.org/rvbsm/fsit",
+    "issues": "https://codeberg.org/rvbsm/fsit/issues"
   },
   "license": "MIT",
   "icon": "assets/fsit/icon.png",
