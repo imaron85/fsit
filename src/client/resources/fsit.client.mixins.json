@@ -5,7 +5,6 @@
   "client": [
     "KeyMappingMixin_hybridKeyMapping",
     "LocalPlayerMixin_poseHandle",
-    "PlayerEntryMixin_ridingManager",
     "access.KeyMappingAccess",
     "access.OptionInstanceAccess"
   ],

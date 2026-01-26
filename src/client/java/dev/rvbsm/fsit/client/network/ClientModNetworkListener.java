@@ -2,19 +2,15 @@ package dev.rvbsm.fsit.client.network;
 
 import com.mojang.logging.LogUtils;
 import dev.rvbsm.fsit.api.access.Poseable;
-import dev.rvbsm.fsit.client.FSitModClient;
 import dev.rvbsm.fsit.config.ConfigData;
 import dev.rvbsm.fsit.config.ConfigLoader;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPoseUpdatePayload;
-import dev.rvbsm.fsit.network.protocol.game.ClientboundRidingRequestPayload;
 import dev.rvbsm.fsit.network.protocol.game.ServerboundConfigJsonUpdatePayload;
-import dev.rvbsm.fsit.network.protocol.game.ServerboundRidingResponsePayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.slf4j.Logger;
 
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -65,12 +61,5 @@ public final class ClientModNetworkListener {
     public static void onPoseUpdate(final ClientboundPoseUpdatePayload payload, final ClientPlayNetworking.Context ctx) {
         final LocalPlayer player = ctx.player();
         ((Poseable) player).fsit$setPose(payload.pose(), payload.pos());
-    }
-
-    public static void onRidingRequest(final ClientboundRidingRequestPayload payload, final ClientPlayNetworking.Context ctx) {
-        final UUID targetUuid = payload.uuid();
-        final boolean isBlocked = FSitModClient.getInstance().getRestrictionsManager().isRestricted(targetUuid);
-
-        ctx.responseSender().sendPacket(new ServerboundRidingResponsePayload(targetUuid, !isBlocked));
     }
 }

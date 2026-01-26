@@ -4,12 +4,10 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.api.access.Poseable;
 import dev.rvbsm.fsit.client.network.ClientModNetworkListener;
-import dev.rvbsm.fsit.client.network.RidingInteractionsManager;
 import dev.rvbsm.fsit.client.option.HybridKeyMapping;
 import dev.rvbsm.fsit.client.option.ModOptions;
 import dev.rvbsm.fsit.config.ConfigData;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPoseUpdatePayload;
-import dev.rvbsm.fsit.network.protocol.game.ClientboundRidingRequestPayload;
 import dev.rvbsm.fsit.network.protocol.game.ServerboundConfigJsonUpdatePayload;
 import dev.rvbsm.fsit.world.entity.ModPose;
 import net.fabricmc.api.ClientModInitializer;
@@ -27,13 +25,11 @@ public class FSitModClient implements ClientModInitializer {
 
     private static @MonotonicNonNull FSitModClient instance = null;
     private final ModOptions options;
-    private final RidingInteractionsManager restrictionsManager;
 
     public FSitModClient() {
         instance = this;
 
         this.options = new ModOptions(Minecraft.getInstance());
-        this.restrictionsManager = new RidingInteractionsManager(Minecraft.getInstance());
     }
 
     public static FSitModClient getInstance() {
@@ -43,7 +39,6 @@ public class FSitModClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ClientPlayNetworking.registerGlobalReceiver(ClientboundPoseUpdatePayload.ID, ClientModNetworkListener::onPoseUpdate);
-        ClientPlayNetworking.registerGlobalReceiver(ClientboundRidingRequestPayload.ID, ClientModNetworkListener::onRidingRequest);
 
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             ClientModNetworkListener.sendConfig(this.getConfig());
@@ -77,10 +72,6 @@ public class FSitModClient implements ClientModInitializer {
     @CanIgnoreReturnValue
     public CompletableFuture<Void> setConfig(final ConfigData config) {
         return FSitMod.getInstance().setConfig(config).thenRun(() -> ClientModNetworkListener.sendConfig(config));
-    }
-
-    public RidingInteractionsManager getRestrictionsManager() {
-        return this.restrictionsManager;
     }
 
     public ModOptions getOptions() {

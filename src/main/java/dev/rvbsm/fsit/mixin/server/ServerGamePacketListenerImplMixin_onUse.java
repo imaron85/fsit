@@ -8,8 +8,8 @@ import dev.rvbsm.fsit.api.access.Configurable;
 import dev.rvbsm.fsit.api.access.Poseable;
 import dev.rvbsm.fsit.config.ConfigData;
 import dev.rvbsm.fsit.server.compat.geyser.GeyserApi;
-import dev.rvbsm.fsit.server.network.ServerModNetworkListener;
 import dev.rvbsm.fsit.world.entity.ModPose;
+import dev.rvbsm.fsit.world.entity.RideEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.Connection;
@@ -153,6 +153,10 @@ public abstract class ServerGamePacketListenerImplMixin_onUse extends ServerComm
             return interactionResult;
         }
 
+        if (player.hasIndirectPassenger(target)) {
+            return interactionResult;
+        }
+
         final ConfigData config = ((Configurable) this.player).fsit$configOrDefault();
         if (!config.onUse().riding()) {
             return interactionResult;
@@ -162,8 +166,7 @@ public abstract class ServerGamePacketListenerImplMixin_onUse extends ServerComm
             return interactionResult;
         }
 
-        ServerModNetworkListener.requestRiding(this.player, (ServerPlayer) target);
-
+        player.level().addFreshEntity(new RideEntity(player, (ServerPlayer) target));
         handRef.set(InteractionHand.MAIN_HAND);
         return InteractionResult.SUCCESS_SERVER;
     }

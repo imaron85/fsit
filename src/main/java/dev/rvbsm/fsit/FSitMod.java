@@ -4,10 +4,8 @@ import com.mojang.logging.LogUtils;
 import dev.rvbsm.fsit.config.ConfigData;
 import dev.rvbsm.fsit.config.ConfigLoader;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPoseUpdatePayload;
-import dev.rvbsm.fsit.network.protocol.game.ClientboundRidingRequestPayload;
 import dev.rvbsm.fsit.network.protocol.game.ServerboundConfigJsonUpdatePayload;
 import dev.rvbsm.fsit.network.protocol.game.ServerboundPoseRequestPayload;
-import dev.rvbsm.fsit.network.protocol.game.ServerboundRidingResponsePayload;
 import dev.rvbsm.fsit.server.command.FSitCommand;
 import dev.rvbsm.fsit.server.command.PoseCommand;
 import dev.rvbsm.fsit.server.network.ServerModNetworkListener;
@@ -50,10 +48,6 @@ public final class FSitMod implements ModInitializer {
         PayloadTypeRegistry.serverboundPlay().register(ServerboundPoseRequestPayload.ID, ServerboundPoseRequestPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(ServerboundPoseRequestPayload.ID_LEGACY, ServerboundPoseRequestPayload.CODEC_LEGACY);
         ServerPlayNetworking.registerGlobalReceiver(ServerboundPoseRequestPayload.ID, ServerModNetworkListener::handleRequestPose);
-
-        PayloadTypeRegistry.clientboundPlay().register(ClientboundRidingRequestPayload.ID, ClientboundRidingRequestPayload.CODEC);
-        PayloadTypeRegistry.serverboundPlay().register(ServerboundRidingResponsePayload.ID, ServerboundRidingResponsePayload.CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(ServerboundRidingResponsePayload.ID, ServerModNetworkListener::handleRespondRiding);
 
         try {
             configLoader.get();
