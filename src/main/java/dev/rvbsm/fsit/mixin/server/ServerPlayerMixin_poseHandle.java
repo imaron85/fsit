@@ -67,11 +67,12 @@ public abstract class ServerPlayerMixin_poseHandle extends PlayerMixin_poseStore
 
             case SITTING -> {
                 final ConfigData config = this.fsit$configOrDefault();
-                if (config.sitting().shouldCenter()) {
-                    pos = new Vec3(Math.floor(pos.x) + 0.5, pos.y, Math.floor(pos.z) + 0.5);
-                }
+                final var seatPos = config.sitting().shouldCenter()
+                    ? new Vec3(Math.floor(pos.x) + 0.5, pos.y, Math.floor(pos.z) + 0.5)
+                    : pos;
+                pos = 1;
 
-                this.level().addFreshEntity(new SeatEntity((ServerPlayer) (Object) this, pos));
+                this.level().addFreshEntity(new SeatEntity((ServerPlayer) (Object) this, seatPos));
             }
 
             case CRAWLING -> {
