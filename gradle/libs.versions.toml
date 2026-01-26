@@ -1,5 +1,5 @@
 [versions]
-fabric-loom = "1.14-SNAPSHOT"
+fabric-loom = "1.15-SNAPSHOT"
 fabric-loader = "0.18.2"
 
 configurate = "4.2.0"
