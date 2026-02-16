@@ -1,7 +1,7 @@
 name: 🛠 Feature Request
-description: File a suggestion or feature request
+about: File a suggestion or feature request
 title: "feat: "
-labels: [✨ feature]
+labels: [enhancement]
 assignees: rvbsm
 
 body:
@@ -15,19 +15,8 @@ body:
       description: Please describe the feature as clear and concise as possible. Remember to add context as to why you believe this feature is needed.
     validations:
       required: true
-  - type: textarea
-    attributes:
-      label: 💡 Describe the solution you'd like to see
-      description: Please describe the solution you would like to see. Adding example usage is a good way to provide context.
 
   - type: textarea
     attributes:
       label: ℹ️ Additional information
       description: Add any other information related to the feature here. If your feature request is related to any issues or discussions, link them here.
-
-  - type: checkboxes
-    attributes:
-      label: 👨‍👧‍👦 Contributing
-      description: We love contributors in any shape or form. Would you be willing to implement this feature?
-      options:
-        - label: 🙋‍♂️ Yes, I'd be down to file a PR implementing this feature!
