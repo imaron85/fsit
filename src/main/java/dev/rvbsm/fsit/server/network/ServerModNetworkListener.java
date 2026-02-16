@@ -1,8 +1,8 @@
 package dev.rvbsm.fsit.server.network;
 
 import com.mojang.logging.LogUtils;
-import dev.rvbsm.fsit.api.access.Configurable;
-import dev.rvbsm.fsit.api.access.Poseable;
+import dev.rvbsm.fsit.api.ConfigHolder;
+import dev.rvbsm.fsit.api.PoseHolder;
 import dev.rvbsm.fsit.config.ConfigLoader;
 import dev.rvbsm.fsit.network.protocol.game.ServerboundConfigJsonUpdatePayload;
 import dev.rvbsm.fsit.network.protocol.game.ServerboundPoseRequestPayload;
@@ -60,7 +60,7 @@ public final class ServerModNetworkListener {
                 return;
             }
 
-            ((Configurable) player).fsit$setConfig(config);
+            ConfigHolder.set(player, config);
         });
     }
 
@@ -69,7 +69,7 @@ public final class ServerModNetworkListener {
         final Vec3 pos = payload.pos().orElseGet(player::position);
 
         if (player.isWithinBlockInteractionRange(BlockPos.containing(pos), 1.0)) {
-            ((Poseable) player).fsit$setPose(payload.pose(), pos);
+            PoseHolder.set(player, payload.pose(), pos);
         }
     }
 }

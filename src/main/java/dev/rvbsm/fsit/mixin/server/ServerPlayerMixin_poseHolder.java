@@ -1,8 +1,8 @@
 package dev.rvbsm.fsit.mixin.server;
 
-import dev.rvbsm.fsit.api.access.Configurable;
+import dev.rvbsm.fsit.api.ConfigHolder;
 import dev.rvbsm.fsit.config.ConfigData;
-import dev.rvbsm.fsit.mixin.common.PlayerMixin_poseStore;
+import dev.rvbsm.fsit.mixin.PlayerMixin_poseHolder;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPoseUpdatePayload;
 import dev.rvbsm.fsit.server.level.CrawlEntity;
 import dev.rvbsm.fsit.server.network.ServerModNetworkListener;
@@ -24,14 +24,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayer.class)
-public abstract class ServerPlayerMixin_poseHandle extends PlayerMixin_poseStore implements Configurable {
+public abstract class ServerPlayerMixin_poseHolder extends PlayerMixin_poseHolder implements ConfigHolder {
 
     @Shadow
     public ServerGamePacketListenerImpl connection;
     @Unique
     private @Nullable CrawlEntity crawlEntity = null;
 
-    private ServerPlayerMixin_poseHandle(EntityType<? extends LivingEntity> entityType, Level world) {
+    private ServerPlayerMixin_poseHolder(EntityType<? extends LivingEntity> entityType, Level world) {
         super(entityType, world);
     }
 
@@ -66,11 +66,10 @@ public abstract class ServerPlayerMixin_poseHandle extends PlayerMixin_poseStore
             }
 
             case SITTING -> {
-                final ConfigData config = this.fsit$configOrDefault();
+                final ConfigData config = this.fsit$getConfigOrServer();
                 final var seatPos = config.sitting().shouldCenter()
                     ? new Vec3(Math.floor(pos.x) + 0.5, pos.y, Math.floor(pos.z) + 0.5)
                     : pos;
-                pos = 1;
 
                 this.level().addFreshEntity(new SeatEntity((ServerPlayer) (Object) this, seatPos));
             }

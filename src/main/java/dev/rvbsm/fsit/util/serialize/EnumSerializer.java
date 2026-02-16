@@ -19,6 +19,7 @@ public final class EnumSerializer implements TypeSerializer<Enum<?>> {
         return Arrays.toString(enumClass.getEnumConstants()).toLowerCase(Locale.ROOT);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Enum<?> deserialize(final Type type, final ConfigurationNode node) throws SerializationException {
         final String enumName = Objects.requireNonNull(node.getString());

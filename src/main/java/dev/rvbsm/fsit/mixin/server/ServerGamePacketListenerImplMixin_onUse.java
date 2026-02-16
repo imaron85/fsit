@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
-import dev.rvbsm.fsit.api.access.Configurable;
-import dev.rvbsm.fsit.api.access.Poseable;
+import dev.rvbsm.fsit.api.ConfigHolder;
+import dev.rvbsm.fsit.api.PoseHolder;
 import dev.rvbsm.fsit.config.ConfigData;
 import dev.rvbsm.fsit.server.compat.geyser.GeyserApi;
 import dev.rvbsm.fsit.world.entity.ModPose;
@@ -81,13 +81,13 @@ public abstract class ServerGamePacketListenerImplMixin_onUse extends ServerComm
             return interactionResult;
         }
 
-        final ConfigData config = ((Configurable) this.player).fsit$configOrDefault();
+        final ConfigData config = ConfigHolder.getOrServer(this.player);
         if (!config.onUse().sitting() || !location.closerThan(location, config.onUse().range(), 2.0)) {
             return interactionResult;
         }
 
         if (config.onUse().checkSuffocation()) {
-            final Vec3 eyePos = this.player.position().add(0.0, this.player.getEyeHeight() - 0.5, 0.0);
+            final Vec3 eyePos = location.add(0.0, this.player.getEyeHeight() - 0.5, 0.0);
             final double width = this.player.getBbWidth() * 0.8;
             final AABB collisionsBox = AABB.ofSize(eyePos, width, 1.0e-6, width);
 
@@ -123,7 +123,7 @@ public abstract class ServerGamePacketListenerImplMixin_onUse extends ServerComm
             return interactionResult;
         }
 
-        ((Poseable) this.player).fsit$setPose(ModPose.SITTING, location);
+        PoseHolder.set(this.player, ModPose.SITTING, location);
 
         // swing main hand
         handRef.set(InteractionHand.MAIN_HAND);
@@ -157,7 +157,7 @@ public abstract class ServerGamePacketListenerImplMixin_onUse extends ServerComm
             return interactionResult;
         }
 
-        final ConfigData config = ((Configurable) this.player).fsit$configOrDefault();
+        final ConfigData config = ConfigHolder.getOrServer(this.player);
         if (!config.onUse().riding()) {
             return interactionResult;
         }

@@ -6,7 +6,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import dev.rvbsm.fsit.FSitMod;
-import dev.rvbsm.fsit.api.access.Poseable;
+import dev.rvbsm.fsit.api.PoseHolder;
 import dev.rvbsm.fsit.server.compat.permissions.Permissions;
 import dev.rvbsm.fsit.world.entity.ModPose;
 import net.minecraft.commands.CommandSourceStack;
@@ -58,8 +58,8 @@ public enum PoseCommand {
             throw WRONG_DIMENSION_EXCEPTION.create();
         }
 
-        if (((Poseable) player).fsit$getPose() != ModPose.STANDING) {
-            ((Poseable) player).fsit$setPose(ModPose.STANDING);
+        if (PoseHolder.get(player) != ModPose.STANDING) {
+            PoseHolder.set(player, ModPose.STANDING);
             return Command.SINGLE_SUCCESS;
         }
 
@@ -70,7 +70,7 @@ public enum PoseCommand {
             throw BlockPosArgument.ERROR_OUT_OF_BOUNDS.create();
         }
 
-        ((Poseable) player).fsit$setPose(this.pose, sourcePos);
+        PoseHolder.set(player, this.pose, sourcePos);
         return Command.SINGLE_SUCCESS;
     }
 }

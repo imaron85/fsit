@@ -1,7 +1,7 @@
-package dev.rvbsm.fsit.mixin.common;
+package dev.rvbsm.fsit.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.rvbsm.fsit.api.access.Poseable;
+import dev.rvbsm.fsit.api.PoseHolder;
 import dev.rvbsm.fsit.world.entity.ModPose;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -14,12 +14,12 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(Player.class)
-public abstract class PlayerMixin_poseStore extends LivingEntity implements Poseable {
+public abstract class PlayerMixin_poseHolder extends LivingEntity implements PoseHolder {
 
     @Unique
     private ModPose currentPose = ModPose.STANDING;
 
-    protected PlayerMixin_poseStore(EntityType<? extends LivingEntity> entityType, Level world) {
+    protected PlayerMixin_poseHolder(EntityType<? extends LivingEntity> entityType, Level world) {
         super(entityType, world);
     }
 

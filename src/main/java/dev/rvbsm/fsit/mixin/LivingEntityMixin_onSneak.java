@@ -1,4 +1,4 @@
-package dev.rvbsm.fsit.mixin.common;
+package dev.rvbsm.fsit.mixin;
 
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.world.entity.Entity;
@@ -22,6 +22,6 @@ public abstract class LivingEntityMixin_onSneak extends Entity {
     public abstract boolean isUsingItem();
 
     @Inject(method = "onSyncedDataUpdated(Lnet/minecraft/network/syncher/EntityDataAccessor;)V", at = @At("TAIL"))
-    protected void onTrackedDataSet(final EntityDataAccessor<?> data, final CallbackInfo ci) {
+    protected void onSyncedDataSet(final EntityDataAccessor<?> data, final CallbackInfo ci) {
     }
 }

@@ -3,15 +3,14 @@
   "package": "dev.rvbsm.fsit.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "common.LivingEntityMixin_onSneak",
-    "common.PlayerMixin_onSneak",
-    "common.PlayerMixin_poseStore",
-    "common.access.EntityAccess",
+    "LivingEntityMixin_onSneak",
+    "PlayerMixin_onSneak",
+    "PlayerMixin_poseHolder",
+    "EntityAccessor",
     "server.ServerGamePacketListenerImplMixin_onUse",
-    "server.ServerGamePacketListenerImplMixin_onUse$ServerboundInteractPacket_HandlerMixin",
-    "server.ServerPlayerMixin_configStore",
+    "server.ServerPlayerMixin_configHolder",
     "server.ServerPlayerMixin_onSneak",
-    "server.ServerPlayerMixin_poseHandle"
+    "server.ServerPlayerMixin_poseHolder"
   ],
   "injectors": {
     "defaultRequire": 1

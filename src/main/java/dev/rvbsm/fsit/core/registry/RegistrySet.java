@@ -29,10 +29,10 @@ public abstract class RegistrySet<T extends ItemLike> implements Set<String>, Pr
         this.ids = ImmutableSet.copyOf(ids);
 
         final var entriesBuilder = ImmutableSet.<T>builder();
-        final var tagsBuilder = ImmutableSet.<TagKey<T>>builderWithExpectedSize(this.size());
+        final var tagsBuilder = ImmutableSet.<TagKey<T>>builderWithExpectedSize(ids.size());
         final ResourceKey<? extends Registry<T>> registryKey = registry.key();
 
-        this.forEach((sid) -> {
+        ids.forEach((sid) -> {
             final boolean isTag = sid.charAt(0) == '#';
             if (isTag) {
                 sid = sid.substring(1);

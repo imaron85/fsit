@@ -1,6 +1,6 @@
 package dev.rvbsm.fsit.world.entity;
 
-import dev.rvbsm.fsit.mixin.common.access.EntityAccess;
+import dev.rvbsm.fsit.mixin.EntityAccessor;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -46,8 +46,8 @@ public final class RideEntity extends PoseEntity {
 
         if (!this.isPassenger() && !entity.isVehicle()) {
             this.setPose(Pose.STANDING);
-            ((EntityAccess) (Entity) this).setVehicle(entity);
-            ((EntityAccess) entity).callAddPassenger(this);
+            ((EntityAccessor) (Entity) this).setVehicle(entity);
+            ((EntityAccessor) entity).callAddPassenger(this);
             if (emitEvent) {
                 this.level().gameEvent(this, GameEvent.ENTITY_MOUNT, entity.position());
                 if (this.player instanceof ServerPlayer serverPlayer) {

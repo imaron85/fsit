@@ -1,4 +1,4 @@
-package dev.rvbsm.fsit.mixin.common;
+package dev.rvbsm.fsit.mixin;
 
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Abilities;

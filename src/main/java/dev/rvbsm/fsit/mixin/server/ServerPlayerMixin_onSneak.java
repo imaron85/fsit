@@ -1,9 +1,9 @@
 package dev.rvbsm.fsit.mixin.server;
 
-import dev.rvbsm.fsit.api.access.Configurable;
-import dev.rvbsm.fsit.api.access.Poseable;
+import dev.rvbsm.fsit.api.ConfigHolder;
+import dev.rvbsm.fsit.api.PoseHolder;
 import dev.rvbsm.fsit.config.ConfigData;
-import dev.rvbsm.fsit.mixin.common.PlayerMixin_onSneak;
+import dev.rvbsm.fsit.mixin.PlayerMixin_onSneak;
 import dev.rvbsm.fsit.world.entity.ModPose;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayer.class)
-public abstract class ServerPlayerMixin_onSneak extends PlayerMixin_onSneak implements Configurable, Poseable {
+public abstract class ServerPlayerMixin_onSneak extends PlayerMixin_onSneak implements ConfigHolder, PoseHolder {
 
     @Unique
     private boolean lastSneaking;
@@ -43,7 +43,7 @@ public abstract class ServerPlayerMixin_onSneak extends PlayerMixin_onSneak impl
     }
 
     @Override
-    protected void onTrackedDataSet(final EntityDataAccessor<?> data, final CallbackInfo ci) {
+    protected void onSyncedDataSet(final EntityDataAccessor<?> data, final CallbackInfo ci) {
         if (DATA_SHARED_FLAGS_ID.equals(data) && this.lastSneaking != this.isShiftKeyDown()) {
             if (this.isShiftKeyDown()) {
                 if (this.fsit$getPose() != ModPose.STANDING) {
@@ -57,7 +57,7 @@ public abstract class ServerPlayerMixin_onSneak extends PlayerMixin_onSneak impl
                 }
             }
 
-            final ConfigData config = this.fsit$configOrDefault();
+            final ConfigData config = this.fsit$getConfigOrServer();
             if (!config.onSneak().sitting() && !config.onSneak().crawling()) {
                 return;
             } else if (this.getXRot() <= config.onSneak().minPitch()) {

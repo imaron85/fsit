@@ -2,13 +2,12 @@ package dev.rvbsm.fsit.client;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import dev.rvbsm.fsit.FSitMod;
-import dev.rvbsm.fsit.api.access.Poseable;
+import dev.rvbsm.fsit.api.PoseHolder;
 import dev.rvbsm.fsit.client.network.ClientModNetworkListener;
 import dev.rvbsm.fsit.client.option.HybridKeyMapping;
 import dev.rvbsm.fsit.client.option.ModOptions;
 import dev.rvbsm.fsit.config.ConfigData;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPoseUpdatePayload;
-import dev.rvbsm.fsit.network.protocol.game.ServerboundConfigJsonUpdatePayload;
 import dev.rvbsm.fsit.world.entity.ModPose;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -53,11 +52,11 @@ public class FSitModClient implements ClientModInitializer {
         if (client.player != null && client.getOverlay() == null && client.screen == null) {
             if (this.getConfig().sitting().behaviour().hasGravity() || client.player.onGround()) {
                 if (this.options.sitKey.isDown()) {
-                    ((Poseable) client.player).fsit$setPose(ModPose.SITTING);
+                    PoseHolder.set(client.player, ModPose.SITTING);
                 } else if (this.options.crawlKey.isDown()) {
-                    ((Poseable) client.player).fsit$setPose(ModPose.CRAWLING);
+                    PoseHolder.set(client.player, ModPose.CRAWLING);
                 } else {
-                    ((Poseable) client.player).fsit$setPose(ModPose.STANDING);
+                    PoseHolder.set(client.player, ModPose.STANDING);
                 }
             }
 

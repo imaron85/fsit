@@ -4,9 +4,9 @@
   "compatibilityLevel": "JAVA_25",
   "client": [
     "KeyMappingMixin_hybridKeyMapping",
-    "LocalPlayerMixin_poseHandle",
-    "access.KeyMappingAccess",
-    "access.OptionInstanceAccess"
+    "LocalPlayerMixin_poseHolder",
+    "KeyMappingAccessor",
+    "OptionInstanceAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,7 +1,7 @@
 package dev.rvbsm.fsit.client.network;
 
 import com.mojang.logging.LogUtils;
-import dev.rvbsm.fsit.api.access.Poseable;
+import dev.rvbsm.fsit.api.PoseHolder;
 import dev.rvbsm.fsit.config.ConfigData;
 import dev.rvbsm.fsit.config.ConfigLoader;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPoseUpdatePayload;
@@ -60,6 +60,6 @@ public final class ClientModNetworkListener {
 
     public static void onPoseUpdate(final ClientboundPoseUpdatePayload payload, final ClientPlayNetworking.Context ctx) {
         final LocalPlayer player = ctx.player();
-        ((Poseable) player).fsit$setPose(payload.pose(), payload.pos());
+        PoseHolder.set(player, payload.pose(), payload.pos());
     }
 }

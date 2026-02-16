@@ -1,4 +1,4 @@
 @NullMarked
-package dev.rvbsm.fsit.mixin.client.access;
+package dev.rvbsm.fsit.api;
 
 import org.jspecify.annotations.NullMarked;
