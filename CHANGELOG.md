@@ -1,5 +1,34 @@
 # Changelog
 
+## v2.9.0
+
+### Features
+
+- New config option `require_empty_main_hand`. Thanks [#6](https://codeberg.org/rvbsm/fsit/issues/6)
+  and [#8](https://codeberg.org/rvbsm/fsit/issues/8)!
+
+## v2.8.3
+
+**Mounts of Mayhem** drop
+
+### Fixed
+
+- Offset the restrict button on Social Interactions Screen based on the amount of **visible** buttons.
+
+## v2.8.2
+
+### Fixed
+
+- [1.21.9]: Opening Social Interactions Screen caused a game crash.
+  Thanks [#5](https://codeberg.org/rvbsm/fsit/issues/5)!
+
+## v2.8.1
+
+### Changed
+
+- Make /sit and /crawl executable as a server (datapacks).
+  The command source is expected to be a player (`/execute as @p run sit`).
+
 ## v2.8.0
 
 ### Added
@@ -8,7 +37,8 @@
 
 ### Fixed
 
-- Bedrock Edition players (Geyser) couldn't use use-to-sit feature. Thanks [#4](https://codeberg.org/rvbsm/fsit/issues/4)!
+- Bedrock Edition players (Geyser) couldn't use use-to-sit feature.
+  Thanks [#4](https://codeberg.org/rvbsm/fsit/issues/4)!
 
 ## v2.7.12
 
@@ -34,13 +64,14 @@ Now with real 1.21.7 support
 
 ### Fixed
 
-- (maybe) Improper crawling behaviour on non-full blocks for non-modded clients 
+- (maybe) Improper crawling behaviour on non-full blocks for non-modded clients
 
 ## v2.7.7
 
 ### Fixed
 
-- Crash when trying to open Social Interactions Screen on servers without FSit installed. Thanks [#51](https://github.com/rvbsm/fsit/issues/51)
+- Crash when trying to open Social Interactions Screen on servers without FSit installed.
+  Thanks [#51](https://github.com/rvbsm/fsit/issues/51)
 
 ## v2.7.6
 
@@ -56,14 +87,16 @@ No behaviour changes; internal changes only
 
 ### Changed
 
-- (1.20–1.21.1) Use barrier block to enforce crawling for non-modded players. Thanks [#49](https://github.com/rvbsm/fsit/issues/49)
+- [1.20..1.21.1] Use barrier block to enforce crawling for non-modded players.
+  Thanks [#49](https://github.com/rvbsm/fsit/issues/49)
 - Do not try to load the configuration screen if YACL is not loaded
 
 ## v2.7.5-beta.1
 
 ### Changed
 
-- (1.20–1.21.1) Use barrier block to enforce crawling for non-modded players. Thanks [#49](https://github.com/rvbsm/fsit/issues/49)
+- [1.20..1.21.1] Use barrier block to enforce crawling for non-modded players.
+  Thanks [#49](https://github.com/rvbsm/fsit/issues/49)
 
 ## v2.7.4
 
