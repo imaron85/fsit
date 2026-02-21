@@ -56,16 +56,20 @@ dependencies {
     minecraft("com.minecraft:minecraft:${property("version.minecraft")}")
 
     implementation("net.fabricmc:fabric-loader:${property("version.fabric-loader")}")
-    implementation("net.fabricmc.fabric-api:fabric-api:${property("version.fabric-api")}")
+    setOf(
+        "fabric-api-base",
+        "fabric-command-api-v2",
+        "fabric-events-interaction-v0",
+        "fabric-key-mapping-api-v1",
+        "fabric-lifecycle-events-v1",
+        "fabric-networking-api-v1",
+    ).map { fabricApi.module(it, property("version.fabric-api").toString()) }.forEach(::implementation)
 
-    shadow("org.spongepowered:configurate-core:${property("version.configurate")}")
-    shadow("org.spongepowered:configurate-gson:${property("version.configurate")}")
-    shadow("org.spongepowered:configurate-yaml:${property("version.configurate")}")
+    shadow("org.snakeyaml:snakeyaml-engine:${property("version.snakeyaml")}")
 
     implementation("com.terraformersmc:modmenu:${property("version.modmenu")}")
     //implementation("me.lucko:fabric-permissions-api:${property("version.fabric-permissions-api")}")
     implementation("me.lucko:fabric-permissions-api") { version { branch = "master" } }
-    compileOnly("org.geysermc.geyser:api:${property("version.geyser-api")}")
 
     testImplementation("net.fabricmc:fabric-loader-junit:${property("version.fabric-loader")}")
 }
@@ -88,11 +92,6 @@ tasks.shadowJar {
 
     enableAutoRelocation = true
     relocationPrefix = "dev.rvbsm.fsit.lib"
-
-
-    dependencies {
-        exclude(dependency(":gson:.*"))
-    }
 
     minimize()
 }

@@ -1,112 +1,87 @@
 package dev.rvbsm.fsit.config;
 
-import dev.rvbsm.fsit.core.registry.BlockSet;
-import org.spongepowered.configurate.objectmapping.ConfigSerializable;
-import org.spongepowered.configurate.objectmapping.meta.Comment;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.world.level.block.Block;
+import org.slf4j.Logger;
 
-// TODO configurate does not support snakeyaml comments yet 🫩
-@ConfigSerializable
+import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
 public record ConfigData(
-    @Comment("Configuration version. DO NOT EDIT") int version,
-    @Comment("Enforce server configuration") boolean useServer,
-    Sitting sitting, OnUse onUse, OnSneak onSneak, Commands commands
+    boolean useServer,
+
+    SeatTrait seatsTrait,
+    boolean seatsCentered,
+
+    int blockInteractionDistance,
+    int playerInteractionDistance,
+    // not HolderSet<Block> because we unwrap multiple tags into single HolderSet.Direct
+    // todo: list of BlockPredicate?
+    List<ExtraCodecs.TagOrElementLocation> blockInteractionIds,
+
+    int sneakWindow,
+    int sneakMinimumPitch,
+    boolean sneakCrawlingDetection,
+
+    CommandConfig commands
 ) {
 
-    public static final String VERSION_KEY = "version";
-    public static final int LATEST_VERSION = 4;
-    public static final ConfigData DEFAULT = builder().build();
+    public static final Codec<ConfigData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+        Codec.BOOL.fieldOf("use-server").forGetter(ConfigData::useServer),
 
-    public ConfigData {
-        version = Math.clamp(version, 0, LATEST_VERSION);
-    }
+        SeatTrait.CODEC.fieldOf("seats-trait").forGetter(ConfigData::seatsTrait),
+        Codec.BOOL.fieldOf("seats-centered").forGetter(ConfigData::seatsCentered),
 
-    public static ConfigBuilder builder() {
-        return new ConfigBuilder();
-    }
+        Codec.intRange(0, 5).fieldOf("block-interaction-distance").forGetter(ConfigData::blockInteractionDistance),
+        Codec.intRange(0, 5).fieldOf("player-interaction-distance").forGetter(ConfigData::blockInteractionDistance),
+        ExtraCodecs.TAG_OR_ELEMENT_ID.listOf().fieldOf("block-interaction-ids").forGetter(ConfigData::blockInteractionIds),
 
-    public static ConfigBuilder builder(final ConfigData config) {
-        return new ConfigBuilder(config);
-    }
+        Codec.intRange(0, 20).fieldOf("sneak-window").forGetter(ConfigData::sneakWindow),
+        Codec.intRange(-90, 90).fieldOf("sneak-minimum-pitch").forGetter(ConfigData::sneakMinimumPitch),
+        Codec.BOOL.fieldOf("sneak-crawling-detection").forGetter(ConfigData::sneakCrawlingDetection),
 
-    public ConfigBuilder toBuilder() {
-        return builder(this);
-    }
+        CommandConfig.CODEC.fieldOf("commands").forGetter(ConfigData::commands)
+    ).apply(instance, ConfigData::new));
 
-    @ConfigSerializable
-    public record Sitting(
-        @Comment("""
-            Specifies seats' behaviour.
-            
-            Possible values: nothing, discard, gravity (case-insensitive).
-            nothing: does nothing.
-            discard: removes seats if block underneath was removed.
-            gravity: makes seats movable by external sources, e.g. gravity, liquids, pistons, other entities.""")
-        Behaviour behaviour,
-        @Comment("Adjust seats position to be in the centre of the block.")
-        boolean shouldCenter
-    ) {
+    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Cache<ConfigData, HolderSet<Block>> INTERACTABLE_BLOCKS_CACHE = CacheBuilder.newBuilder()
+        .weakKeys()
+        .build();
 
-        public enum Behaviour {
-            NOTHING, DISCARD, GRAVITY;
+    public HolderSet<Block> collectInteractableBlocks(RegistryAccess registry) {
+        try {
+            return INTERACTABLE_BLOCKS_CACHE.get(
+                this, () -> {
+                    var blockRegistry = registry.lookupOrThrow(Registries.BLOCK);
+                    var blockList = new HashSet<Holder<Block>>();
+                    for (var location : this.blockInteractionIds) {
+                        if (location.tag()) {
+                            blockRegistry.getOrThrow(TagKey.create(Registries.BLOCK, location.id())).forEach(
+                                blockList::add);
+                        } else {
+                            blockList.add(
+                                blockRegistry.getOrThrow(ResourceKey.create(Registries.BLOCK, location.id())));
+                        }
+                    }
 
-            public boolean hasGravity() {
-                return this == GRAVITY;
-            }
-
-            public boolean requireSupport() {
-                return this == DISCARD;
-            }
+                    return HolderSet.direct(List.copyOf(blockList));
+                }
+            );
+        } catch (ExecutionException e) {
+            LOGGER.warn("rip", e);
+            return HolderSet.empty();
         }
-    }
-
-    @ConfigSerializable
-    public record OnUse(
-        @Comment("Initiate sitting by interaction with blocks.")
-        boolean sitting,
-        @Comment("Initiate riding by interaction with players.")
-        boolean riding,
-        @Comment("Maximum distance to an interaction target.")
-        int range,
-        @Comment("Prevents sitting and riding in places that will result in suffocation.")
-        boolean checkSuffocation,
-        @Comment("""
-            List of blocks and block types available for interaction.
-            Identifiers only. Tags are prepended with hash (#) symbol.
-            Vanilla identifiers can omit a namespace (e.g, #minecraft:stairs -> #stairs).
-            
-            Examples: minecraft:oak_slab, minecraft:amethyst_cluster, acacia_fence, #minecraft:logs, #stairs.""")
-        BlockSet blocks
-    ) {
-        public OnUse {
-            range = Math.clamp(range, 1, 4);
-        }
-    }
-
-    @ConfigSerializable
-    public record OnSneak(
-        @Comment("Initiate sitting by double sneaking.")
-        boolean sitting,
-        @Comment("Initiate crawling by double sneaking near a one-block gap.")
-        boolean crawling,
-        @Comment("Minimum pitch angle for double sneak detection.")
-        float minPitch,
-        @Comment("The window between sneaks (in ticks).")
-        int window
-    ) {
-        public OnSneak {
-            minPitch = Math.clamp(minPitch, -90.0f, 90.0f);
-            window = Math.clamp(window, 0, 20);
-        }
-    }
-
-    @ConfigSerializable
-    public record Commands(
-        @Comment("/fsit and /fsit:client")
-        boolean root,
-        @Comment("/sit")
-        boolean sit,
-        @Comment("/crawl")
-        boolean crawl
-    ) {
     }
 }

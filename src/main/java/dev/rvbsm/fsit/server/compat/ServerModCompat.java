@@ -4,12 +4,11 @@ import net.fabricmc.loader.api.FabricLoader;
 
 public enum ServerModCompat {
 
-    PERMISSIONS_API("fabric-permissions-api-v0"),
-    GEYSER("geyser-fabric");
+    PERMISSIONS_API("fabric-permissions-api-v0");
 
     private final boolean isLoaded;
 
-    ServerModCompat(final String id) {
+    ServerModCompat(String id) {
         this.isLoaded = FabricLoader.getInstance().isModLoaded(id);
     }
 

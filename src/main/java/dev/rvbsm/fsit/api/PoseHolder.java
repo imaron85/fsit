@@ -7,23 +7,19 @@ import org.jspecify.annotations.Nullable;
 
 public interface PoseHolder {
 
-    static void set(final Player player, final ModPose pose, final @Nullable Vec3 pos) {
+    static void set(Player player, ModPose pose, @Nullable Vec3 pos) {
         ((PoseHolder) player).fsit$setPose(pose, pos);
     }
 
-    static void set(final Player player, final ModPose pose) {
+    static void set(Player player, ModPose pose) {
         set(player, pose, null);
     }
 
-    static ModPose get(final Player player) {
+    static ModPose get(Player player) {
         return ((PoseHolder) player).fsit$getPose();
     }
 
-    void fsit$setPose(final ModPose pose, final @Nullable Vec3 pos);
+    void fsit$setPose(ModPose pose, @Nullable Vec3 pos);
 
     ModPose fsit$getPose();
-
-    default void fsit$setPose(final ModPose pose) {
-        this.fsit$setPose(pose, null);
-    }
 }

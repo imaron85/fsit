@@ -12,7 +12,7 @@ public final class Permissions {
     private Permissions() {
     }
 
-    public static Predicate<CommandSourceStack> require(final String permission, final PermissionLevel defaultRequiredLevel) {
+    public static Predicate<CommandSourceStack> require(String permission, PermissionLevel defaultRequiredLevel) {
         if (ServerModCompat.PERMISSIONS_API.isLoaded()) {
             return me.lucko.fabric.api.permissions.v0.Permissions.require(permission, defaultRequiredLevel);
         }

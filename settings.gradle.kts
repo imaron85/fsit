@@ -3,9 +3,7 @@ rootProject.name = "fsit"
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        maven("https://maven.fabricmc.net") {
-            name = "FabricMC"
-        }
+        maven("https://maven.fabricmc.net") { name = "FabricMC" }
     }
 
     plugins {
@@ -27,7 +25,7 @@ stonecutter {
 }
 
 sourceControl {
-    gitRepository(uri("https://github.com/reusteur73/fabric-permissions-api.git")) {
+    gitRepository(uri("https://github.com/rvbsm/fabric-permissions-api.git")) {
         producesModule("me.lucko:fabric-permissions-api")
     }
 }

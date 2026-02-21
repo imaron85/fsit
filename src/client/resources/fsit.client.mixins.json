@@ -3,12 +3,15 @@
   "package": "dev.rvbsm.fsit.mixin.client",
   "compatibilityLevel": "JAVA_25",
   "client": [
-    "KeyMappingMixin_hybridKeyMapping",
-    "LocalPlayerMixin_poseHolder",
-    "KeyMappingAccessor",
-    "OptionInstanceAccessor"
+    "AbstractClientPlayerMixin",
+    "GameNarratorMixin_DONOTFORGETTOREMOVEPLEASE",
+    "KeyMappingMixin",
+    "LocalPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
+  },
+  "mixinextras": {
+    "minVersion": "0.5.0"
   }
 }

@@ -1,9 +1,0 @@
--libraryjars <java.home>/jmods/java.base.jmod(!**.jar;!module-info.class)
-
--dontwarn
--dontobfuscate
-
--keep class !dev.rvbsm.fsit.lib.** { *; }
-
--keepattributes
--keepparameternames
