@@ -5,7 +5,7 @@ import dev.rvbsm.fsit.api.event.ChangePoseCallback;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundChangePosePayload;
 import dev.rvbsm.fsit.server.network.ServerModPacketListener;
 import dev.rvbsm.fsit.world.entity.ModPose;
-import dev.rvbsm.fsit.world.entity.vehicle.Seat;
+import dev.rvbsm.fsit.world.entity.Seat;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
@@ -46,7 +46,7 @@ public final class ServerChangePoseListener implements ChangePoseCallback {
                         return ModPose.STANDING;
                     }
 
-                    var seat = Seat.create(player.level());
+                    var seat = new Seat(player.level());
                     seat.setPos(pos);
 
                     player.startRiding(seat, true, true);

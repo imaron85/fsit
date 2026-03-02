@@ -1,50 +1,90 @@
-package dev.rvbsm.fsit.world.entity.vehicle;
+package dev.rvbsm.fsit.world.entity;
 
 import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.api.PoseHolder;
-import dev.rvbsm.fsit.world.entity.ModPose;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.DismountHelper;
-import net.minecraft.world.entity.vehicle.VehicleEntity;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 
-public class Seat extends VehicleEntity {
+public class Seat extends ArmorStand {
 
     private static final int TICKS_TO_DISCARD = 20;
     private int noRiderTicks = 0;
 
-    public Seat(EntityType<? extends Entity> type, Level level) {
+    public Seat(EntityType<? extends ArmorStand> type, Level level) {
         super(type, level);
     }
 
-    public static Seat create(Level level) {
-        return new Seat(EntityType.BLOCK_DISPLAY, level);
+    public Seat(Level level) {
+        this(EntityType.ARMOR_STAND, level);
+        this.entityData.set(DATA_CLIENT_FLAGS, (byte) 0b10000); // marker
+        this.setInvisible(true);
     }
 
     @Override
-    protected void readAdditionalSaveData(ValueInput input) {
+    protected boolean hasPhysics() {
+        return FSitMod.getInstance().getConfig().seatsTrait().canMove();
     }
 
     @Override
-    protected void addAdditionalSaveData(ValueOutput output) {
+    public boolean isEffectiveAi() {
+        return this.hasPhysics();
+    }
+
+    @Override
+    public boolean isPushable() {
+        return this.hasPhysics();
+    }
+
+    @Override
+    protected void doPush(Entity entity) {
+        entity.push(this);
+    }
+
+    @Override
+    public InteractionResult interact(Player player, InteractionHand hand, Vec3 location) {
+        return InteractionResult.PASS;
+    }
+
+    @Override
+    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+        this.ejectPassengers();
+        return false;
+    }
+
+    @Override
+    public boolean isPickable() {
+        return false;
+    }
+
+    @Override
+    public EntityDimensions getDefaultDimensions(Pose pose) {
+        if (this.getFirstPassenger() instanceof Player passenger) {
+            return passenger.getDimensions(pose);
+        }
+
+        return super.getDefaultDimensions(pose);
+    }
+
+    @Override
+    public boolean canBeSeenByAnyone() {
+        return false;
     }
 
     @Override
@@ -74,14 +114,6 @@ public class Seat extends VehicleEntity {
         }
 
         super.tick();
-
-        if (!this.level().isClientSide()) {
-            if (this.canSimulateMovement()) {
-                this.tickMovement();
-
-                this.move(MoverType.SELF, this.getDeltaMovement());
-            }
-        }
     }
 
     @Override
@@ -91,27 +123,6 @@ public class Seat extends VehicleEntity {
         }
 
         super.removePassenger(passenger);
-    }
-
-    private void tickMovement() {
-        var friction = 0.91;
-        var dy = -this.getGravity();
-        if (this.getFirstPassenger() instanceof Player passenger && passenger.hasEffect(MobEffects.LEVITATION)) {
-            //noinspection DataFlowIssue
-            var levitationLevel = passenger.getEffect(MobEffects.LEVITATION).getAmplifier() + 1;
-            dy = dy * 0.8 + levitationLevel * 0.01;
-        } else if (this.isInWater()) {
-            friction = 0.8;
-            dy /= 8;
-        } else if (this.onGround()) {
-            friction *= this.level()
-                .getBlockState(this.getBlockPosBelowThatAffectsMyMovement())
-                .getBlock()
-                .getFriction();
-        }
-
-        var movement = this.getDeltaMovement();
-        this.setDeltaMovement(movement.x * friction, movement.y * friction + dy, movement.z * friction);
     }
 
     @Override
@@ -165,41 +176,7 @@ public class Seat extends VehicleEntity {
     }
 
     @Override
-    protected double getDefaultGravity() {
-        return 0.04;
-    }
-
-    @Override
     public boolean canSimulateMovement() {
         return FSitMod.getInstance().getConfig().seatsTrait().canMove();
-    }
-
-    @Override
-    public boolean canBeCollidedWith(@Nullable Entity other) {
-        return true;
-    }
-
-    @Override
-    public boolean isPushable() {
-        return FSitMod.getInstance().getConfig().seatsTrait().canMove();
-    }
-
-    @Override
-    public boolean isPushedByFluid() {
-        return FSitMod.getInstance().getConfig().seatsTrait().canMove();
-    }
-
-    @Override
-    public EntityDimensions getDimensions(Pose pose) {
-        if (this.getFirstPassenger() instanceof Player passenger) {
-            return passenger.getDimensions(pose);
-        }
-
-        return super.getDimensions(pose);
-    }
-
-    @Override
-    protected Item getDropItem() {
-        return Items.AIR;
     }
 }
