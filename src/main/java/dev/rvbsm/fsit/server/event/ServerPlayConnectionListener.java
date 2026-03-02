@@ -1,7 +1,7 @@
 package dev.rvbsm.fsit.server.event;
 
 import dev.rvbsm.fsit.FSitMod;
-import dev.rvbsm.fsit.network.protocol.game.ClientboundChangePosePayload;
+import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
 import dev.rvbsm.fsit.server.network.ServerModPacketListener;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -18,7 +18,7 @@ public final class ServerPlayConnectionListener
     @Override
     public void onPlayReady(ServerGamePacketListenerImpl listener, PacketSender sender, MinecraftServer server) {
         var player = listener.getPlayer();
-        if (ServerModPacketListener.canSend(player, ClientboundChangePosePayload.TYPE)) {
+        if (ServerModPacketListener.canSend(player, ClientboundPlayerPosePayload.TYPE)) {
             FSitMod.getInstance().addClient(player);
         }
     }

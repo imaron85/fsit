@@ -1,10 +1,11 @@
 package dev.rvbsm.fsit.server.event;
 
 import com.mojang.logging.LogUtils;
+import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.api.event.ChangePoseCallback;
-import dev.rvbsm.fsit.network.protocol.game.ClientboundChangePosePayload;
+import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
 import dev.rvbsm.fsit.server.network.ServerModPacketListener;
-import dev.rvbsm.fsit.world.entity.ModPose;
+import dev.rvbsm.fsit.world.entity.FSitPose;
 import dev.rvbsm.fsit.world.entity.Seat;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Pose;
@@ -22,32 +23,40 @@ public final class ServerChangePoseListener implements ChangePoseCallback {
     private ServerChangePoseListener() {}
 
     @Override
-    public @Nullable ModPose changePose(Player player, ModPose pose, Vec3 pos) {
+    public @Nullable FSitPose changePose(Player player, FSitPose pose, FSitPose.@Nullable Context ctx) {
         if (!player.level().isClientSide()) {
-            LOGGER.debug("ss pose change {}[{}] {}", player, pose, pos);
+            LOGGER.debug("ss pose change {}[{}] {}", player, pose, ctx);
 
-            // todo: cleanup last state
-            player.stopRiding();
+            var config = FSitMod.getInstance().getConfig();
 
-            boolean isCloseEnough = pos.closerThan(player.getEyePosition(), 5.0);
+            var position = ctx != null ? ctx.position() : player.position();
+            boolean isCloseEnough = position.closerThan(player.getEyePosition(), 5.0);
             if (!isCloseEnough) {
-                return ModPose.STANDING;
+                return FSitPose.STANDING;
             }
 
             switch (pose) {
+                case STANDING -> {
+                    player.stopRiding();
+                }
+
                 case SITTING -> {
+                    if (!FSitMod.getInstance().handledByClient(player.getUUID()) && config.seatsCentered()) {
+                        position = new Vec3(Math.floor(position.x) + 0.5, position.y, Math.floor(position.z) + 0.5);
+                    }
+
                     var dimensions = player.getDimensions(Pose.STANDING);
                     float checkWidth = dimensions.width() * 0.8f;
                     float eyeHeight = dimensions.eyeHeight() * 0.8f;
-                    var eyeBb = AABB.ofSize(pos.add(0.0, eyeHeight, 0.0), checkWidth, 1.0e-6, checkWidth);
+                    var eyeBb = AABB.ofSize(position.add(0.0, eyeHeight, 0.0), checkWidth, 1.0e-6, checkWidth);
                     boolean wouldSuffocate = !player.level().noBlockCollision(player, eyeBb);
 
                     if (wouldSuffocate) {
-                        return ModPose.STANDING;
+                        return FSitPose.STANDING;
                     }
 
                     var seat = new Seat(player.level());
-                    seat.setPos(pos);
+                    seat.setPos(position);
 
                     player.startRiding(seat, true, true);
                     player.level().addFreshEntity(seat);
@@ -64,10 +73,11 @@ public final class ServerChangePoseListener implements ChangePoseCallback {
                 default -> {}
             }
 
+            // todo: move to ServerPlayer#tick?
             ServerModPacketListener.send(
                     (ServerPlayer) player,
-                    ClientboundChangePosePayload.TYPE,
-                    () -> new ClientboundChangePosePayload(pose, pos));
+                    ClientboundPlayerPosePayload.TYPE,
+                    () -> new ClientboundPlayerPosePayload(pose));
         }
 
         return null;

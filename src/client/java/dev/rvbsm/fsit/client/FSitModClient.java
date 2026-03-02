@@ -6,7 +6,7 @@ import dev.rvbsm.fsit.client.event.ClientChangePoseListener;
 import dev.rvbsm.fsit.client.network.ClientModPacketListener;
 import dev.rvbsm.fsit.client.option.ModOptions;
 import dev.rvbsm.fsit.config.ConfigData;
-import dev.rvbsm.fsit.network.protocol.game.ClientboundChangePosePayload;
+import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -34,7 +34,7 @@ public final class FSitModClient implements ClientModInitializer {
     public void onInitializeClient() {
         this.options.load();
 
-        ClientPlayNetworking.registerGlobalReceiver(ClientboundChangePosePayload.TYPE, ClientModPacketListener::handleChangePose);
+        ClientPlayNetworking.registerGlobalReceiver(ClientboundPlayerPosePayload.TYPE, ClientModPacketListener::handleChangePose);
 
         ChangePoseCallback.EVENT.register(ClientChangePoseListener.INSTANCE);
 

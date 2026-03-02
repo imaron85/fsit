@@ -1,10 +1,9 @@
 package dev.rvbsm.fsit.api.event;
 
-import dev.rvbsm.fsit.world.entity.ModPose;
+import dev.rvbsm.fsit.world.entity.FSitPose;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 @FunctionalInterface
@@ -24,5 +23,5 @@ public interface ChangePoseCallback {
             });
 
     @Nullable
-    ModPose changePose(Player player, ModPose pose, Vec3 pos);
+    FSitPose changePose(Player player, FSitPose pose, FSitPose.@Nullable Context ctx);
 }

@@ -1,8 +1,8 @@
 package dev.rvbsm.fsit.client.network;
 
 import com.mojang.logging.LogUtils;
-import dev.rvbsm.fsit.api.PoseHolder;
-import dev.rvbsm.fsit.network.protocol.game.ClientboundChangePosePayload;
+import dev.rvbsm.fsit.api.FSitPoseHolder;
+import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ public final class ClientModPacketListener {
         return true;
     }
 
-    public static void handleChangePose(ClientboundChangePosePayload payload, ClientPlayNetworking.Context ctx) {
-        PoseHolder.set(ctx.player(), payload.pose(), payload.pos());
+    public static void handleChangePose(ClientboundPlayerPosePayload payload, ClientPlayNetworking.Context ctx) {
+        FSitPoseHolder.set(ctx.player(), payload.pose());
     }
 }

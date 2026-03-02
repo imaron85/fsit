@@ -1,10 +1,12 @@
 package dev.rvbsm.fsit.mixin;
 
+import com.llamalad7.mixinextras.expression.Definition;
+import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.rvbsm.fsit.FSitMod;
-import dev.rvbsm.fsit.api.PoseHolder;
+import dev.rvbsm.fsit.api.FSitPoseHolder;
 import dev.rvbsm.fsit.api.event.ChangePoseCallback;
-import dev.rvbsm.fsit.world.entity.ModPose;
+import dev.rvbsm.fsit.world.entity.FSitPose;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.Pose;
@@ -16,13 +18,11 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
-import java.util.Objects;
-
 @Mixin(Player.class)
-public abstract class PlayerMixin extends Avatar implements PoseHolder {
+public abstract class PlayerMixin extends Avatar implements FSitPoseHolder {
 
     @Unique
-    private ModPose modPose = ModPose.STANDING;
+    private FSitPose fsit$pose = FSitPose.STANDING;
 
     protected PlayerMixin() {
         //noinspection DataFlowIssue
@@ -32,62 +32,70 @@ public abstract class PlayerMixin extends Avatar implements PoseHolder {
     @Shadow
     protected abstract boolean wantsToStopRiding();
 
-    @ModifyExpressionValue(method = "getDesiredPose", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;isSwimming()Z"))
+    @Definition(id = "isSwimming", method = "Lnet/minecraft/world/entity/player/Player;isSwimming()Z")
+    @Expression("this.isSwimming()")
+    @ModifyExpressionValue(method = "getDesiredPose", at = @At("MIXINEXTRAS:EXPRESSION"))
     private boolean isCrawling(boolean isSwimming) {
-        return isSwimming || this.fsit$getPose() == ModPose.CRAWLING;
+        return isSwimming || this.fsit$getPose() == FSitPose.CRAWLING;
     }
 
     @Override
-    public void fsit$setPose(ModPose pose, @Nullable Vec3 pos) {
-        if (this.modPose != pose) {
-            var newPose = ChangePoseCallback.EVENT.invoker().changePose((Player) (Object) this, pose, Objects.requireNonNullElseGet(pos, this::position));
-            this.modPose = newPose != null ? newPose : pose;
+    public void fsit$setPose(FSitPose pose, FSitPose.@Nullable Context ctx, boolean emitEvent) {
+        if (this.fsit$pose != pose) {
+            this.fsit$pose = pose;
+
+            if (emitEvent) {
+                var newPose = ChangePoseCallback.EVENT.invoker().changePose((Player) (Object) this, pose, ctx);
+                if (newPose != null) {
+                    this.fsit$pose = newPose;
+                }
+            }
         }
     }
 
     @Override
-    public ModPose fsit$getPose() {
-        return this.modPose;
+    public FSitPose fsit$getPose() {
+        return this.fsit$pose;
     }
 
     @Unique
-    protected boolean canStartPosing() {
-        return this.fsit$getPose() == ModPose.STANDING
-            && !this.isPassenger()
-            && (!this.isFallFlying() || this.isUnderWater());
+    protected boolean fsit$canStartPosing() {
+        return this.fsit$getPose() == FSitPose.STANDING
+                && !this.isPassenger()
+                && (!this.isFallFlying() || this.isUnderWater());
     }
 
     @Unique
     // fixme: triggered on dismount
-    protected boolean canStartPosingBySneaking() {
-        return this.canStartPosing()
-            && !this.isShiftKeyDown()
-            && this.onGround()
-            && this.getXRot() > FSitMod.getInstance().getConfig().sneakMinimumPitch();
+    protected boolean fsit$canStartPosingBySneaking() {
+        return this.fsit$canStartPosing()
+                && !this.isShiftKeyDown()
+                && this.onGround()
+                && this.getXRot() > FSitMod.getInstance().getConfig().sneakMinimumPitch();
     }
 
     @Unique
-    protected boolean canPlayerFitWithinBlocksAndEntitiesWhen(Pose newPose, Vec3 pos) {
+    protected boolean fsit$canPlayerFitWithinBlocksAndEntitiesWhen(Pose newPose, Vec3 pos) {
         return this.level()
-            .noCollision(
-                this, this.getDimensions(newPose).makeBoundingBox(pos).deflate(1.0e-7));
+                .noCollision(
+                        this, this.getDimensions(newPose).makeBoundingBox(pos).deflate(1.0e-7));
     }
 
     @Unique
-    protected void startPosingBySneaking() {
-        var desiredPose = ModPose.SITTING;
+    protected void fsit$startPosingBySneaking() {
+        var desiredPose = FSitPose.SITTING;
         if (FSitMod.getInstance().getConfig().sneakCrawlingDetection()) {
             var offset = getCollisionHorizontalEscapeVector(
-                this.getBbWidth() * Mth.SQRT_OF_TWO, this.getBbWidth(), this.getYRot());
+                    this.getBbWidth() * Mth.SQRT_OF_TWO, this.getBbWidth(), this.getYRot());
             var offsetPos = this.position().add(offset);
 
-            var canFitStanding = this.canPlayerFitWithinBlocksAndEntitiesWhen(Pose.STANDING, offsetPos);
-            var canFitSwimming = this.canPlayerFitWithinBlocksAndEntitiesWhen(Pose.SWIMMING, offsetPos);
+            var canFitStanding = this.fsit$canPlayerFitWithinBlocksAndEntitiesWhen(Pose.STANDING, offsetPos);
+            var canFitSwimming = this.fsit$canPlayerFitWithinBlocksAndEntitiesWhen(Pose.SWIMMING, offsetPos);
             if (!canFitStanding && canFitSwimming) {
-                desiredPose = ModPose.CRAWLING;
+                desiredPose = FSitPose.CRAWLING;
             }
         }
 
-        this.fsit$setPose(desiredPose, this.position());
+        this.fsit$setPose(desiredPose, new FSitPose.Context.Vec3(this.position()), true);
     }
 }

@@ -11,6 +11,7 @@ base {
 
 loom {
     splitEnvironmentSourceSets()
+    accessWidenerPath = rootProject.file("src/main/resources/fsit.classtweaker")
 
     mods.register(rootProject.name) {
         sourceSet("main")

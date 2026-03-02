@@ -6,8 +6,8 @@ import dev.rvbsm.fsit.config.ConfigData;
 import dev.rvbsm.fsit.config.ConfigLoader;
 import dev.rvbsm.fsit.event.BlockListener;
 import dev.rvbsm.fsit.event.CommandRegistrationListener;
-import dev.rvbsm.fsit.network.protocol.game.ClientboundChangePosePayload;
-import dev.rvbsm.fsit.network.protocol.game.ServerboundChangePosePayload;
+import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
+import dev.rvbsm.fsit.network.protocol.game.ServerboundPlayerPosePayload;
 import dev.rvbsm.fsit.server.event.ServerChangePoseListener;
 import dev.rvbsm.fsit.server.event.ServerPlayConnectionListener;
 import dev.rvbsm.fsit.server.network.ServerModPacketListener;
@@ -18,6 +18,7 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Util;
 import org.jspecify.annotations.Nullable;
@@ -52,13 +53,17 @@ public final class FSitMod implements ModInitializer {
         return Objects.requireNonNull(instance, "too early");
     }
 
+    public static Identifier withDefaultNamespace(String path) {
+        return Identifier.fromNamespaceAndPath(MOD_ID, path);
+    }
+
     @Override
     public void onInitialize() {
         var configLoader = this.reloadConfig();
 
-        PayloadTypeRegistry.clientboundPlay().register(ClientboundChangePosePayload.TYPE, ClientboundChangePosePayload.CODEC);
-        PayloadTypeRegistry.serverboundPlay().register(ServerboundChangePosePayload.TYPE, ServerboundChangePosePayload.CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(ServerboundChangePosePayload.TYPE, ServerModPacketListener::handleChangePose);
+        PayloadTypeRegistry.clientboundPlay().register(ClientboundPlayerPosePayload.TYPE, ClientboundPlayerPosePayload.STREAM_CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(ServerboundPlayerPosePayload.TYPE, ServerboundPlayerPosePayload.STREAM_CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(ServerboundPlayerPosePayload.TYPE, ServerModPacketListener::handleChangePose);
 
         BlockEvents.USE_WITHOUT_ITEM.register(BlockListener.INSTANCE);
 

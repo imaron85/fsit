@@ -1,0 +1,3 @@
+classTweaker v1 official
+
+extendable method net/minecraft/world/entity/decoration/ArmorStand hasPhysics ()Z

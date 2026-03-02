@@ -1,7 +1,7 @@
 package dev.rvbsm.fsit.world.entity;
 
 import dev.rvbsm.fsit.FSitMod;
-import dev.rvbsm.fsit.api.PoseHolder;
+import dev.rvbsm.fsit.api.FSitPoseHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -119,7 +119,7 @@ public class Seat extends ArmorStand {
     @Override
     protected void removePassenger(Entity passenger) {
         if (passenger instanceof Player player) {
-            PoseHolder.set(player, ModPose.STANDING);
+            FSitPoseHolder.set(player, FSitPose.STANDING, null, true);
         }
 
         super.removePassenger(passenger);

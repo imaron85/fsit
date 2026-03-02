@@ -2,8 +2,8 @@ package dev.rvbsm.fsit.event;
 
 import com.mojang.logging.LogUtils;
 import dev.rvbsm.fsit.FSitMod;
-import dev.rvbsm.fsit.api.PoseHolder;
-import dev.rvbsm.fsit.world.entity.ModPose;
+import dev.rvbsm.fsit.api.FSitPoseHolder;
+import dev.rvbsm.fsit.world.entity.FSitPose;
 import net.fabricmc.fabric.api.event.player.BlockEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -15,7 +15,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -37,8 +36,7 @@ public final class BlockListener implements BlockEvents.UseWithoutItemCallback {
         LOGGER.debug("use block {} cs:{}", player, level.isClientSide());
 
         var config = FSitMod.getInstance().getConfig();
-        var location = hitResult.getLocation();
-        boolean isCloseEnough = location.closerThan(player.getEyePosition(), config.blockInteractionDistance());
+        boolean isCloseEnough = player.isWithinBlockInteractionRange(hitResult.getBlockPos(), 1.0);
 
         boolean haveNothingInOurHands =
                 player.getMainHandItem().isEmpty() && player.getOffhandItem().isEmpty();
@@ -63,10 +61,7 @@ public final class BlockListener implements BlockEvents.UseWithoutItemCallback {
         if (isCloseEnough && !suppressUsingBlock && isCorrectState) {
             LOGGER.debug("success with {} at {}", state, hitResult);
 
-            PoseHolder.set(
-                    player,
-                    ModPose.SITTING,
-                    config.seatsCentered() ? new Vec3(pos.getX() + 0.5, location.y, pos.getZ() + 0.5) : location);
+            FSitPoseHolder.set(player, FSitPose.SITTING, new FSitPose.Context.Vec3(hitResult.getLocation()));
             return InteractionResult.SUCCESS_SERVER;
         }
 
