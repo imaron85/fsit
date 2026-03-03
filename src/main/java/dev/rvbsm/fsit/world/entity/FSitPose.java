@@ -6,6 +6,8 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.function.IntFunction;
 
@@ -40,15 +42,9 @@ public enum FSitPose implements StringRepresentable {
 
     public sealed interface Context {
 
-        net.minecraft.world.phys.Vec3 position();
+        Vec3 position();
 
-        record Vec3(net.minecraft.world.phys.Vec3 position) implements Context {}
-        record Entity(net.minecraft.world.entity.Entity entity) implements Context {
-
-            @Override
-            public net.minecraft.world.phys.Vec3 position() {
-                return this.entity().position();
-            }
-        }
+        record Positioned(Vec3 position) implements Context {}
+        record Attached(Player attachable, Vec3 position) implements Context {}
     }
 }

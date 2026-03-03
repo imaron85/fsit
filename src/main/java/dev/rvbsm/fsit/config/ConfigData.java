@@ -25,9 +25,8 @@ public record ConfigData(
     SeatTrait seatsTrait,
     boolean seatsCentered,
 
-    int blockInteractionDistance,
-    int playerInteractionDistance,
-    // not HolderSet<Block> because we unwrap multiple tags into single HolderSet.Direct
+    boolean blockInteraction,
+    // not HolderSet<Block> because we unwrap multiple tags into single HolderSet.Direct and we need to store tags
     // todo: list of BlockPredicate?
     List<ExtraCodecs.TagOrElementLocation> blockInteractionIds,
 
@@ -44,8 +43,7 @@ public record ConfigData(
         SeatTrait.CODEC.fieldOf("seats-trait").forGetter(ConfigData::seatsTrait),
         Codec.BOOL.fieldOf("seats-centered").forGetter(ConfigData::seatsCentered),
 
-        Codec.intRange(0, 5).fieldOf("block-interaction-distance").forGetter(ConfigData::blockInteractionDistance),
-        Codec.intRange(0, 5).fieldOf("player-interaction-distance").forGetter(ConfigData::blockInteractionDistance),
+        Codec.BOOL.fieldOf("block-interaction").forGetter(ConfigData::blockInteraction),
         ExtraCodecs.TAG_OR_ELEMENT_ID.listOf().fieldOf("block-interaction-ids").forGetter(ConfigData::blockInteractionIds),
 
         Codec.intRange(0, 20).fieldOf("sneak-window").forGetter(ConfigData::sneakWindow),

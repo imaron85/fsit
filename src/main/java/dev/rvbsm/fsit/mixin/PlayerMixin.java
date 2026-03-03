@@ -5,7 +5,7 @@ import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.api.FSitPoseHolder;
-import dev.rvbsm.fsit.api.event.ChangePoseCallback;
+import dev.rvbsm.fsit.api.event.FSitPoseCallback;
 import dev.rvbsm.fsit.world.entity.FSitPose;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Avatar;
@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.At;
 public abstract class PlayerMixin extends Avatar implements FSitPoseHolder {
 
     @Unique
-    private FSitPose fsit$pose = FSitPose.STANDING;
+    protected FSitPose fsit$pose = FSitPose.STANDING;
 
     protected PlayerMixin() {
         //noinspection DataFlowIssue
@@ -45,9 +45,11 @@ public abstract class PlayerMixin extends Avatar implements FSitPoseHolder {
             this.fsit$pose = pose;
 
             if (emitEvent) {
-                var newPose = ChangePoseCallback.EVENT.invoker().changePose((Player) (Object) this, pose, ctx);
-                if (newPose != null) {
-                    this.fsit$pose = newPose;
+                var position = FSitPoseCallback.EVENT.invoker().createPose((Player) (Object) this, pose, ctx);
+                if (position != null) {
+                    this.fsit$syncPose(position);
+                } else {
+                    this.fsit$pose = FSitPose.STANDING;
                 }
             }
         }
@@ -57,6 +59,9 @@ public abstract class PlayerMixin extends Avatar implements FSitPoseHolder {
     public FSitPose fsit$getPose() {
         return this.fsit$pose;
     }
+
+    @Unique
+    protected void fsit$syncPose(Vec3 position) {}
 
     @Unique
     protected boolean fsit$canStartPosing() {
@@ -96,6 +101,6 @@ public abstract class PlayerMixin extends Avatar implements FSitPoseHolder {
             }
         }
 
-        this.fsit$setPose(desiredPose, new FSitPose.Context.Vec3(this.position()), true);
+        this.fsit$setPose(desiredPose, new FSitPose.Context.Positioned(this.position()), true);
     }
 }

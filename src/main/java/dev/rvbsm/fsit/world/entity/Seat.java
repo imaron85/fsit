@@ -10,7 +10,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.decoration.ArmorStand;
@@ -24,22 +23,16 @@ import java.util.ArrayList;
 
 public class Seat extends ArmorStand {
 
-    private static final int TICKS_TO_DISCARD = 20;
-    private int noRiderTicks = 0;
-
-    public Seat(EntityType<? extends ArmorStand> type, Level level) {
-        super(type, level);
-    }
-
-    public Seat(Level level) {
-        this(EntityType.ARMOR_STAND, level);
-        this.entityData.set(DATA_CLIENT_FLAGS, (byte) 0b10000); // marker
+    public Seat(Level level, double x, double y, double z) {
+        super(level, x, y, z);
         this.setInvisible(true);
+        this.entityData.set(DATA_CLIENT_FLAGS, (byte) 0b10000); // marker
+        this.addTag(FSitMod.MOD_ID);
     }
 
     @Override
     protected boolean hasPhysics() {
-        return FSitMod.getInstance().getConfig().seatsTrait().canMove();
+        return !this.isNoGravity() && FSitMod.getInstance().getConfig().seatsTrait().canMove();
     }
 
     @Override
@@ -94,12 +87,8 @@ public class Seat extends ArmorStand {
         }
 
         if (!this.isVehicle()) {
-            this.noRiderTicks += 1;
-            if (this.noRiderTicks >= TICKS_TO_DISCARD) {
-                this.discard();
-            }
-
-            return;
+            // todo: `remove_entities` might be sent earlier than `player_position`?
+            this.discard();
         }
 
         // todo:

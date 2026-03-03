@@ -1,8 +1,6 @@
 package dev.rvbsm.fsit.client;
 
 import dev.rvbsm.fsit.FSitMod;
-import dev.rvbsm.fsit.api.event.ChangePoseCallback;
-import dev.rvbsm.fsit.client.event.ClientChangePoseListener;
 import dev.rvbsm.fsit.client.network.ClientModPacketListener;
 import dev.rvbsm.fsit.client.option.ModOptions;
 import dev.rvbsm.fsit.config.ConfigData;
@@ -35,8 +33,6 @@ public final class FSitModClient implements ClientModInitializer {
         this.options.load();
 
         ClientPlayNetworking.registerGlobalReceiver(ClientboundPlayerPosePayload.TYPE, ClientModPacketListener::handleChangePose);
-
-        ChangePoseCallback.EVENT.register(ClientChangePoseListener.INSTANCE);
 
         KeyMappingHelper.registerKeyMapping(this.options.sitKey);
         KeyMappingHelper.registerKeyMapping(this.options.crawlKey);

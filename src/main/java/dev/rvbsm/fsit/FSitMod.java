@@ -1,14 +1,14 @@
 package dev.rvbsm.fsit;
 
 import com.mojang.logging.LogUtils;
-import dev.rvbsm.fsit.api.event.ChangePoseCallback;
+import dev.rvbsm.fsit.api.event.FSitPoseCallback;
 import dev.rvbsm.fsit.config.ConfigData;
 import dev.rvbsm.fsit.config.ConfigLoader;
 import dev.rvbsm.fsit.event.BlockListener;
 import dev.rvbsm.fsit.event.CommandRegistrationListener;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
 import dev.rvbsm.fsit.network.protocol.game.ServerboundPlayerPosePayload;
-import dev.rvbsm.fsit.server.event.ServerChangePoseListener;
+import dev.rvbsm.fsit.server.event.FSitPoseListener;
 import dev.rvbsm.fsit.server.event.ServerPlayConnectionListener;
 import dev.rvbsm.fsit.server.network.ServerModPacketListener;
 import net.fabricmc.api.ModInitializer;
@@ -67,7 +67,7 @@ public final class FSitMod implements ModInitializer {
 
         BlockEvents.USE_WITHOUT_ITEM.register(BlockListener.INSTANCE);
 
-        ChangePoseCallback.EVENT.register(ServerChangePoseListener.INSTANCE);
+        FSitPoseCallback.EVENT.register(FSitPoseListener.INSTANCE);
         ServerPlayConnectionEvents.JOIN.register(ServerPlayConnectionListener.INSTANCE);
         ServerPlayConnectionEvents.DISCONNECT.register(ServerPlayConnectionListener.INSTANCE);
 
@@ -90,11 +90,11 @@ public final class FSitMod implements ModInitializer {
 
         var configDir = FabricLoader.getInstance().getConfigDir();
         var configPath = configDir.resolve(CONFIG_NAME);
-        return ConfigLoader.readConfig(configPath).handle((c, e) -> {
-            LOGGER.debug("Configuration load took {}", Duration.between(started, Instant.now()));
+        return ConfigLoader.readConfig(configPath).handle((data, e) -> {
+            LOGGER.debug("Configuration load took {} milliseconds", Duration.between(started, Instant.now()).toMillis());
 
             if (e == null) {
-                this.configRef.set(c);
+                this.configRef.set(data);
                 return true;
             }
 

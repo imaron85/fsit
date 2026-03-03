@@ -46,7 +46,7 @@ public final class ServerModPacketListener {
         var position = payload.position();
 
         if (player.isWithinBlockInteractionRange(BlockPos.containing(position), 1.0)) {
-            FSitPoseHolder.set(player, payload.pose(), new FSitPose.Context.Vec3(position));
+            FSitPoseHolder.set(player, payload.pose(), new FSitPose.Context.Positioned(position));
         }
     }
 }

@@ -55,7 +55,7 @@ public final class PoseCommand {
         }
 
         var resultPose = FSitPoseHolder.get(player) != FSitPose.STANDING ? FSitPose.STANDING : pose;
-        FSitPoseHolder.set(player, resultPose, new FSitPose.Context.Vec3(srcPosition));
+        FSitPoseHolder.set(player, resultPose, new FSitPose.Context.Positioned(srcPosition));
 
         return Command.SINGLE_SUCCESS;
     }

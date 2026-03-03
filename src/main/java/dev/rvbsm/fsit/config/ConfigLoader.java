@@ -15,11 +15,10 @@ import java.util.concurrent.CompletableFuture;
 
 public final class ConfigLoader {
 
-    // @formatter:off
     public static final ConfigData INIT_DATA = new ConfigData(
         false,
         SeatTrait.MOVEABLE, false,
-        3, 2, List.of(
+        true, List.of(
             new TagOrElementLocation(Identifier.parse("minecraft:slabs"), true),
             new TagOrElementLocation(Identifier.parse("minecraft:stairs"), true),
             new TagOrElementLocation(Identifier.parse("minecraft:logs"), true),
@@ -28,7 +27,6 @@ public final class ConfigLoader {
         10, 60, true,
         new CommandConfig("fsit", "sit", "crawl")
     );
-    // @formatter:on
 
     private ConfigLoader() {
     }

@@ -169,8 +169,6 @@ public final class ModOptions {
     public void load() {
         this.useServer.set(this.modClient.getConfig().useServer());
         this.seatsCentered.set(this.modClient.getConfig().seatsCentered());
-        this.blockInteractionDistance.set(this.modClient.getConfig().blockInteractionDistance());
-        this.playerInteractionDistance.set(this.modClient.getConfig().playerInteractionDistance());
         this.blockInteractionIds.addAll(this.modClient.getConfig().blockInteractionIds());
         this.sneakWindow.set(this.modClient.getConfig().sneakWindow());
         this.sneakMinimumPitch.set(this.modClient.getConfig().sneakMinimumPitch());

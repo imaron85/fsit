@@ -36,11 +36,21 @@ public final class BlockListener implements BlockEvents.UseWithoutItemCallback {
         LOGGER.debug("use block {} cs:{}", player, level.isClientSide());
 
         var config = FSitMod.getInstance().getConfig();
+        if (!config.blockInteraction()) {
+            return null;
+        }
+
         boolean isCloseEnough = player.isWithinBlockInteractionRange(hitResult.getBlockPos(), 1.0);
+        if (!isCloseEnough) {
+            return null;
+        }
 
         boolean haveNothingInOurHands =
                 player.getMainHandItem().isEmpty() && player.getOffhandItem().isEmpty();
         boolean suppressUsingBlock = player.isSecondaryUseActive() || !haveNothingInOurHands;
+        if (suppressUsingBlock) {
+            return null;
+        }
 
         boolean isCorrectState = hitResult.getDirection() == Direction.UP
                 && state.getProperties().stream().allMatch(property -> {
@@ -58,13 +68,13 @@ public final class BlockListener implements BlockEvents.UseWithoutItemCallback {
                 })
                 && state.is(config.collectInteractableBlocks(player.registryAccess()));
 
-        if (isCloseEnough && !suppressUsingBlock && isCorrectState) {
-            LOGGER.debug("success with {} at {}", state, hitResult);
-
-            FSitPoseHolder.set(player, FSitPose.SITTING, new FSitPose.Context.Vec3(hitResult.getLocation()));
-            return InteractionResult.SUCCESS_SERVER;
+        if (!isCorrectState) {
+            return null;
         }
 
-        return null;
+        LOGGER.debug("success with {} at {}", state, hitResult);
+
+        FSitPoseHolder.set(player, FSitPose.SITTING, new FSitPose.Context.Positioned(hitResult.getLocation()));
+        return InteractionResult.SUCCESS;
     }
 }

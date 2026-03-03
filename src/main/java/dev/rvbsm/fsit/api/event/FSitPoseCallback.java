@@ -4,16 +4,16 @@ import dev.rvbsm.fsit.world.entity.FSitPose;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 @FunctionalInterface
-public interface ChangePoseCallback {
+public interface FSitPoseCallback {
 
-    Event<ChangePoseCallback> EVENT =
-            EventFactory.createArrayBacked(
-                ChangePoseCallback.class, listeners -> (player, pose, pos) -> {
+    Event<FSitPoseCallback> EVENT =
+            EventFactory.createArrayBacked(FSitPoseCallback.class, listeners -> (player, pose, pos) -> {
                 for (var listener : listeners) {
-                    var newPose = listener.changePose(player, pose, pos);
+                    var newPose = listener.createPose(player, pose, pos);
                     if (newPose != null) {
                         return newPose;
                     }
@@ -23,5 +23,5 @@ public interface ChangePoseCallback {
             });
 
     @Nullable
-    FSitPose changePose(Player player, FSitPose pose, FSitPose.@Nullable Context ctx);
+    Vec3 createPose(Player player, FSitPose pose, FSitPose.@Nullable Context ctx);
 }

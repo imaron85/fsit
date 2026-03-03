@@ -5,8 +5,11 @@ import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.client.FSitModClient;
-import dev.rvbsm.fsit.world.entity.ModPose;
+import dev.rvbsm.fsit.client.network.ClientModPacketListener;
+import dev.rvbsm.fsit.network.protocol.game.ServerboundPlayerPosePayload;
+import dev.rvbsm.fsit.world.entity.FSitPose;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -18,10 +21,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class LocalPlayerMixin extends AbstractClientPlayerMixin {
 
     @Unique
-    private int sneakTriggerTime = 0;
+    private FSitPose fsit$lastSentPose = FSitPose.STANDING;
 
     @Unique
-    private ModPose lastInputPose = ModPose.STANDING;
+    private int fsit$sneakTriggerTime = 0;
+
+    @Unique
+    private FSitPose fsit$lastInputPose = FSitPose.STANDING;
 
     @Shadow
     public abstract boolean isShiftKeyDown();
@@ -30,25 +36,26 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayerMixin {
     @Expression("super.aiStep()")
     @Inject(method = "aiStep", at = @At("MIXINEXTRAS:EXPRESSION"))
     private void sneakWindow(CallbackInfo ci, @Local(name = "wasShiftKeyDown") boolean wasShiftKeyDown) {
-        if (this.fsit$getPose() == ModPose.CRAWLING && this.wantsToStopRiding()) {
-            this.fsit$setPose(ModPose.STANDING, this.position());
+        if (this.fsit$getPose() == FSitPose.CRAWLING && this.wantsToStopRiding()) {
+            this.fsit$setPose(FSitPose.STANDING, null, true);
             return;
         }
 
-        if (this.sneakTriggerTime > 0) {
-            this.sneakTriggerTime -= 1;
+        if (this.fsit$sneakTriggerTime > 0) {
+            this.fsit$sneakTriggerTime -= 1;
         }
 
         if (!this.onGround() || this.isPassenger()) {
-            this.sneakTriggerTime = 0;
+            this.fsit$sneakTriggerTime = 0;
         }
 
-        if (this.canStartPosingBySneaking()) {
+        if (this.fsit$canStartPosingBySneaking()) {
             if (wasShiftKeyDown) {
-                if (this.sneakTriggerTime > 0) {
-                    this.startPosingBySneaking();
+                if (this.fsit$sneakTriggerTime > 0) {
+                    this.fsit$startPosingBySneaking();
                 } else {
-                    this.sneakTriggerTime = FSitMod.getInstance().getConfig().sneakWindow();
+                    this.fsit$sneakTriggerTime =
+                            FSitMod.getInstance().getConfig().sneakWindow();
                 }
             }
         }
@@ -70,19 +77,28 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayerMixin {
         var isSitDown = FSitModClient.getInstance().getOptions().sitKey.isDown();
         var isCrawlDown = FSitModClient.getInstance().getOptions().crawlKey.isDown();
 
-        var inputPose = this.lastInputPose;
+        var inputPose = this.fsit$lastInputPose;
         if (isSitDown) {
-            inputPose = ModPose.SITTING;
+            inputPose = FSitPose.SITTING;
         } else if (isCrawlDown) {
-            inputPose = ModPose.CRAWLING;
+            inputPose = FSitPose.CRAWLING;
         } else {
-            inputPose = ModPose.STANDING;
+            inputPose = FSitPose.STANDING;
         }
 
-        if (inputPose != this.lastInputPose && (inputPose == ModPose.STANDING || this.canStartPosing())) {
-            this.fsit$setPose(inputPose, this.position());
+        if (inputPose != this.fsit$lastInputPose && (inputPose == FSitPose.STANDING || this.fsit$canStartPosing())) {
+            this.fsit$setPose(inputPose, new FSitPose.Context.Positioned(this.position()), true);
         }
 
-        this.lastInputPose = inputPose;
+        this.fsit$lastInputPose = inputPose;
+    }
+
+    @Override
+    protected void fsit$syncPose(Vec3 position) {
+        if (this.fsit$pose != this.fsit$lastSentPose) {
+            ClientModPacketListener.send(
+                    ServerboundPlayerPosePayload.TYPE,
+                    () -> new ServerboundPlayerPosePayload(this.fsit$pose, position));
+        }
     }
 }
