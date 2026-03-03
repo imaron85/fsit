@@ -23,6 +23,8 @@ loom {
         runDir = "../../run"
         property("mixin.debug.export", "true")
     }
+
+    log4jConfigs.from("$rootDir/log4j-dev.xml")
 }
 
 stonecutter {}
@@ -102,7 +104,7 @@ tasks.jar {
     from(zipTree(tasks.shadowJar.flatMap { it.archiveFile }))
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-    from(rootProject.file("LICENSE")) {
+    from("$rootDir/LICENSE") {
         into("META-INF")
     }
 }
