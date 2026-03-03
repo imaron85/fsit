@@ -22,6 +22,7 @@ loom {
         isIdeConfigGenerated = true
         runDir = "../../run"
         property("mixin.debug.export", "true")
+        vmArg("-Xmx1G")
     }
 
     log4jConfigs.from("$rootDir/log4j-dev.xml")
