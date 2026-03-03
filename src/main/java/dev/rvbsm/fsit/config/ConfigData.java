@@ -30,6 +30,10 @@ public record ConfigData(
     // todo: list of BlockPredicate?
     List<ExtraCodecs.TagOrElementLocation> blockInteractionIds,
 
+    boolean riding,
+    boolean ridingNew,
+    int ridingBackAngle,
+
     int sneakWindow,
     int sneakMinimumPitch,
     boolean sneakCrawlingDetection,
@@ -45,6 +49,10 @@ public record ConfigData(
 
         Codec.BOOL.fieldOf("block-interaction").forGetter(ConfigData::blockInteraction),
         ExtraCodecs.TAG_OR_ELEMENT_ID.listOf().fieldOf("block-interaction-ids").forGetter(ConfigData::blockInteractionIds),
+
+        Codec.BOOL.fieldOf("riding").forGetter(ConfigData::riding),
+        Codec.BOOL.fieldOf("riding-new").forGetter(ConfigData::ridingNew),
+        Codec.intRange(0, 360).fieldOf("riding-back-angle").forGetter(ConfigData::ridingBackAngle),
 
         Codec.intRange(0, 20).fieldOf("sneak-window").forGetter(ConfigData::sneakWindow),
         Codec.intRange(-90, 90).fieldOf("sneak-minimum-pitch").forGetter(ConfigData::sneakMinimumPitch),

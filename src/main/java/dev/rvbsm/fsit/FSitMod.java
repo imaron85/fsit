@@ -6,6 +6,7 @@ import dev.rvbsm.fsit.config.ConfigData;
 import dev.rvbsm.fsit.config.ConfigLoader;
 import dev.rvbsm.fsit.event.BlockListener;
 import dev.rvbsm.fsit.event.CommandRegistrationListener;
+import dev.rvbsm.fsit.event.UseEntityListener;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
 import dev.rvbsm.fsit.network.protocol.game.ServerboundPlayerPosePayload;
 import dev.rvbsm.fsit.server.event.FSitPoseListener;
@@ -14,6 +15,7 @@ import dev.rvbsm.fsit.server.network.ServerModPacketListener;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.player.BlockEvents;
+import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -66,6 +68,7 @@ public final class FSitMod implements ModInitializer {
         ServerPlayNetworking.registerGlobalReceiver(ServerboundPlayerPosePayload.TYPE, ServerModPacketListener::handleChangePose);
 
         BlockEvents.USE_WITHOUT_ITEM.register(BlockListener.INSTANCE);
+        UseEntityCallback.EVENT.register(UseEntityListener.INSTANCE);
 
         FSitPoseCallback.EVENT.register(FSitPoseListener.INSTANCE);
         ServerPlayConnectionEvents.JOIN.register(ServerPlayConnectionListener.INSTANCE);

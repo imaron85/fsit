@@ -24,6 +24,7 @@ public final class ConfigLoader {
             new TagOrElementLocation(Identifier.parse("minecraft:logs"), true),
             new TagOrElementLocation(Identifier.parse("minecraft:fences"), true)
         ),
+        true, true, 45,
         10, 60, true,
         new CommandConfig("fsit", "sit", "crawl")
     );
