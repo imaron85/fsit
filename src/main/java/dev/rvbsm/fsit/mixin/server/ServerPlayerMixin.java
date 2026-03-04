@@ -71,7 +71,13 @@ public abstract class ServerPlayerMixin extends PlayerMixin implements FSitAttac
     }
 
     @Override
-    protected void fsit$syncPose(Vec3 position) {
+    protected boolean fsit$canStartPosingBySneaking() {
+        return this.getKnownSpeed().horizontalDistance() < 1.0e-3
+            && super.fsit$canStartPosingBySneaking();
+    }
+
+    @Override
+    protected void fsit$sendPose(Vec3 position) {
         if (this.fsit$pose != this.fsit$lastSentPose) {
             ServerModPacketListener.send(
                     (ServerPlayer) (Object) this,

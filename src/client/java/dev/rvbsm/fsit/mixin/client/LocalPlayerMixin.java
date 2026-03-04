@@ -8,6 +8,7 @@ import dev.rvbsm.fsit.client.FSitModClient;
 import dev.rvbsm.fsit.client.network.ClientModPacketListener;
 import dev.rvbsm.fsit.network.protocol.game.ServerboundPlayerPosePayload;
 import dev.rvbsm.fsit.world.entity.FSitPose;
+import net.minecraft.client.player.ClientInput;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,6 +32,9 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayerMixin {
 
     @Shadow
     public abstract boolean isShiftKeyDown();
+
+    @Shadow
+    public ClientInput input;
 
     @Definition(id = "aiStep", method = "Lnet/minecraft/client/player/AbstractClientPlayer;aiStep()V")
     @Expression("super.aiStep()")
@@ -101,11 +105,22 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayerMixin {
     }
 
     @Override
-    protected void fsit$syncPose(Vec3 position) {
+    protected boolean fsit$canStartPosingBySneaking() {
+        return this.input.getMoveVector().lengthSquared() < 1.0e-5
+            && super.fsit$canStartPosingBySneaking();
+    }
+
+    @Override
+    protected void fsit$sendPose(Vec3 position) {
         if (this.fsit$pose != this.fsit$lastSentPose) {
-            ClientModPacketListener.send(
+            boolean success = ClientModPacketListener.send(
                     ServerboundPlayerPosePayload.TYPE,
                     () -> new ServerboundPlayerPosePayload(this.fsit$pose, position));
+            if (!success) {
+                this.fsit$pose = fsit$lastSentPose;
+            }
+
+            this.fsit$lastSentPose = this.fsit$pose;
         }
     }
 }

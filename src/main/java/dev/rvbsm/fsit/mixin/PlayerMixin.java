@@ -47,7 +47,7 @@ public abstract class PlayerMixin extends Avatar implements FSitPoseHolder {
             if (emitEvent) {
                 var position = FSitPoseCallback.EVENT.invoker().createPose((Player) (Object) this, pose, ctx);
                 if (position != null) {
-                    this.fsit$syncPose(position);
+                    this.fsit$sendPose(position);
                 } else {
                     this.fsit$pose = FSitPose.STANDING;
                 }
@@ -61,7 +61,7 @@ public abstract class PlayerMixin extends Avatar implements FSitPoseHolder {
     }
 
     @Unique
-    protected void fsit$syncPose(Vec3 position) {}
+    protected void fsit$sendPose(Vec3 position) {}
 
     @Unique
     protected boolean fsit$canStartPosing() {
@@ -71,7 +71,7 @@ public abstract class PlayerMixin extends Avatar implements FSitPoseHolder {
     }
 
     @Unique
-    // fixme: triggered on dismount
+    // fixme: triggered after dismount
     protected boolean fsit$canStartPosingBySneaking() {
         return this.fsit$canStartPosing()
                 && !this.isShiftKeyDown()
