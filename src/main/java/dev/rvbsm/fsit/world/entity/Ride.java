@@ -32,7 +32,7 @@ public class Ride extends AreaEffectCloud {
         }
 
         ((EntityAccessor) this).setVehicle(entityToRide);
-        ((EntityAccessor) entityToRide).addPassenger(this);
+        ((EntityAccessor) entityToRide).callAddPassenger(this);
         if (sendEventAndTriggers) {
             this.level().gameEvent(this, GameEvent.ENTITY_MOUNT, entityToRide.position());
             for (var entity : entityToRide.getIndirectPassengers()) {

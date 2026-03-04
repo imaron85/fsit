@@ -13,5 +13,5 @@ public interface EntityAccessor {
     void setVehicle(@Nullable Entity vehicle);
 
     @Invoker("addPassenger")
-    void addPassenger(Entity entity);
+    void callAddPassenger(Entity entity);
 }
