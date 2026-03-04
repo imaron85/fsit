@@ -33,12 +33,7 @@ public abstract class ServerPlayerMixin extends PlayerMixin implements FSitAttac
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void sneakWindow(CallbackInfo ci) {
-        if (FSitMod.getInstance().handledByClient(this.getUUID())) {
-            return;
-        }
-
-        if (this.fsit$getPose() == FSitPose.CRAWLING && this.wantsToStopRiding()) {
-            this.fsit$setPose(FSitPose.STANDING, null, true);
+        if (FSitMod.getInstance().isClient((ServerPlayer) (Object) this)) {
             return;
         }
 
@@ -67,7 +62,11 @@ public abstract class ServerPlayerMixin extends PlayerMixin implements FSitAttac
     @Inject(method = "tick", at = @At("TAIL"))
     private void tickAttached(CallbackInfo ci) {
         if (this.fsit$attachedEntity != null) {
-            this.fsit$attachedEntity.tick();
+            if (this.wantsToStopRiding()) {
+                this.fsit$detach();
+            } else {
+                this.fsit$attachedEntity.tick();
+            }
         }
     }
 

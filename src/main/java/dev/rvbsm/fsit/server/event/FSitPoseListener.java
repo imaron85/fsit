@@ -50,8 +50,11 @@ public final class FSitPoseListener implements FSitPoseCallback {
             }
 
             case SITTING -> {
-                if (!FSitMod.getInstance().handledByClient(player.getUUID()) && config.seatsCentered()) {
-                    position = new Vec3(Math.floor(position.x) + 0.5, position.y, Math.floor(position.z) + 0.5);
+                if (!(player instanceof ServerPlayer serverPlayer)
+                        || !FSitMod.getInstance().isClient(serverPlayer)) {
+                    if (config.seatsCentered()) {
+                        position = new Vec3(Math.floor(position.x) + 0.5, position.y, Math.floor(position.z) + 0.5);
+                    }
                 }
 
                 var dimensions = player.getDimensions(Pose.STANDING);
@@ -72,8 +75,8 @@ public final class FSitPoseListener implements FSitPoseCallback {
             }
 
             case CRAWLING -> {
-//                if (!player.level().isClientSide() && !FSitMod.getInstance().handledByClient(player.getUUID())) {
-                if (player instanceof ServerPlayer serverPlayer) {
+                if (player instanceof ServerPlayer serverPlayer
+                        && !FSitMod.getInstance().isClient(serverPlayer)) {
                     var crawl = new ServerCrawl(serverPlayer);
                     FSitAttachable.attach(serverPlayer, crawl);
                 }

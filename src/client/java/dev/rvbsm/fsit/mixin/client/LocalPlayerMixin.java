@@ -36,6 +36,10 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayerMixin {
     @Expression("super.aiStep()")
     @Inject(method = "aiStep", at = @At("MIXINEXTRAS:EXPRESSION"))
     private void sneakWindow(CallbackInfo ci, @Local(name = "wasShiftKeyDown") boolean wasShiftKeyDown) {
+        if (!FSitModClient.getInstance().isEnabled()) {
+            return;
+        }
+
         if (this.fsit$getPose() == FSitPose.CRAWLING && this.wantsToStopRiding()) {
             this.fsit$setPose(FSitPose.STANDING, null, true);
             return;
@@ -54,8 +58,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayerMixin {
                 if (this.fsit$sneakTriggerTime > 0) {
                     this.fsit$startPosingBySneaking();
                 } else {
-                    this.fsit$sneakTriggerTime =
-                            FSitMod.getInstance().getConfig().sneakWindow();
+                    this.fsit$sneakTriggerTime = FSitMod.getInstance().getConfig().sneakWindow();
                 }
             }
         }
@@ -66,6 +69,10 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayerMixin {
     @Expression("super.aiStep()")
     @Inject(method = "aiStep", at = @At("MIXINEXTRAS:EXPRESSION"))
     private void tickInput(CallbackInfo ci) {
+        if (!FSitModClient.getInstance().isEnabled()) {
+            return;
+        }
+
         FSitModClient.getInstance().getOptions().sitKey.tick();
         FSitModClient.getInstance().getOptions().crawlKey.tick();
 

@@ -10,14 +10,12 @@ import dev.rvbsm.fsit.event.UseEntityListener;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
 import dev.rvbsm.fsit.network.protocol.game.ServerboundPlayerPosePayload;
 import dev.rvbsm.fsit.server.event.FSitPoseListener;
-import dev.rvbsm.fsit.server.event.ServerPlayConnectionListener;
 import dev.rvbsm.fsit.server.network.ServerModPacketListener;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.player.BlockEvents;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.Identifier;
@@ -30,10 +28,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -45,7 +40,6 @@ public final class FSitMod implements ModInitializer {
 
     private static @Nullable FSitMod instance = null;
     private final AtomicReference<ConfigData> configRef = new AtomicReference<>(ConfigLoader.INIT_DATA);
-    private final Set<UUID> moddedClients = new HashSet<>();
 
     public FSitMod() {
         instance = this;
@@ -71,8 +65,6 @@ public final class FSitMod implements ModInitializer {
         UseEntityCallback.EVENT.register(UseEntityListener.INSTANCE);
 
         FSitPoseCallback.EVENT.register(FSitPoseListener.INSTANCE);
-        ServerPlayConnectionEvents.JOIN.register(ServerPlayConnectionListener.INSTANCE);
-        ServerPlayConnectionEvents.DISCONNECT.register(ServerPlayConnectionListener.INSTANCE);
 
         // commands depend on the config, but we don't want to block other mods from loading
         configLoader.thenRunAsync(
@@ -128,15 +120,7 @@ public final class FSitMod implements ModInitializer {
         });
     }
 
-    public boolean handledByClient(UUID id) {
-        return this.moddedClients.contains(id);
-    }
-
-    public void addClient(ServerPlayer player) {
-        this.moddedClients.add(player.getUUID());
-    }
-
-    public void removeClient(ServerPlayer player) {
-        this.moddedClients.remove(player.getUUID());
+    public boolean isClient(ServerPlayer player) {
+        return ServerModPacketListener.canSend(player, ClientboundPlayerPosePayload.TYPE);
     }
 }

@@ -3,6 +3,7 @@ package dev.rvbsm.fsit.client.network;
 import com.mojang.logging.LogUtils;
 import dev.rvbsm.fsit.api.FSitPoseHolder;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
+import dev.rvbsm.fsit.network.protocol.game.ServerboundPlayerPosePayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.slf4j.Logger;
@@ -18,6 +19,10 @@ public final class ClientModPacketListener {
 
     public static boolean canSend(CustomPacketPayload.Type<?> type) {
         return ClientPlayNetworking.canSend(type);
+    }
+
+    public static boolean isConnected() {
+        return canSend(ServerboundPlayerPosePayload.TYPE);
     }
 
     public static void send(CustomPacketPayload payload) {

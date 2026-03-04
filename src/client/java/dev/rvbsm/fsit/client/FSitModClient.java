@@ -7,6 +7,7 @@ import dev.rvbsm.fsit.config.ConfigData;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import org.jspecify.annotations.Nullable;
@@ -17,6 +18,7 @@ public final class FSitModClient implements ClientModInitializer {
 
     private static @Nullable FSitModClient instance = null;
     private final ModOptions options;
+    private boolean enabled;
 
     @SuppressWarnings("this-escape")
     public FSitModClient() {
@@ -34,10 +36,13 @@ public final class FSitModClient implements ClientModInitializer {
 
         ClientPlayNetworking.registerGlobalReceiver(ClientboundPlayerPosePayload.TYPE, ClientModPacketListener::handleChangePose);
 
+        // hashset lookups are cheap, but booleans are even cheaper
+        ClientPlayConnectionEvents.JOIN.register((_, _, _) -> this.enabled = ClientModPacketListener.isConnected());
+        ClientPlayConnectionEvents.DISCONNECT.register((_, _) -> this.enabled = false);
+
         KeyMappingHelper.registerKeyMapping(this.options.sitKey);
         KeyMappingHelper.registerKeyMapping(this.options.crawlKey);
     }
-
 
     public ConfigData getConfig() {
         return FSitMod.getInstance().getConfig();
@@ -45,5 +50,9 @@ public final class FSitModClient implements ClientModInitializer {
 
     public ModOptions getOptions() {
         return this.options;
+    }
+
+    public boolean isEnabled() {
+        return this.enabled;
     }
 }

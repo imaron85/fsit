@@ -7,6 +7,7 @@ import dev.rvbsm.fsit.world.entity.FSitPose;
 import net.fabricmc.fabric.api.event.player.BlockEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -29,11 +30,11 @@ public final class BlockListener implements BlockEvents.UseWithoutItemCallback {
     public @Nullable InteractionResult useWithoutItem(
             BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
 
-        if (!level.isClientSide() && FSitMod.getInstance().handledByClient(player.getUUID())) {
+        if (!level.isClientSide() && FSitMod.getInstance().isClient((ServerPlayer) player)) {
             return null;
         }
 
-        LOGGER.debug("use block {} cs:{}", player, level.isClientSide());
+        LOGGER.debug("use block {} {} {} {} {}", state, level, pos, player, hitResult);
 
         var config = FSitMod.getInstance().getConfig();
         if (!config.blockInteraction()) {
