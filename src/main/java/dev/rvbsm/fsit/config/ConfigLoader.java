@@ -16,7 +16,6 @@ import java.util.concurrent.CompletableFuture;
 public final class ConfigLoader {
 
     public static final ConfigData INIT_DATA = new ConfigData(
-        false,
         SeatTrait.MOVEABLE, false,
         true, List.of(
             new TagOrElementLocation(Identifier.parse("minecraft:slabs"), true),

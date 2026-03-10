@@ -21,15 +21,6 @@ public final class ModOptions {
 
     // todo: hear me out, generate from Codec?
 
-    // todo: tell the server abt it
-    private static final Component USE_SERVER_TOOLTIP = Component.translatable("option.fsit.use_server.tooltip");
-    public final OptionInstance<Boolean> useServer = OptionInstance.createBoolean(
-        "option.fsit.use_server",
-        OptionInstance.cachedConstantTooltip(USE_SERVER_TOOLTIP),
-        false,
-        _ -> {}
-    );
-
     private static final Component SEATS_TRAIT_STATIC_TOOLTIP =  Component.translatable("option.fsit.seats_trait.static.tooltip");
     private static final Component SEATS_TRAIT_ATTACHED_TOOLTIP =  Component.translatable("option.fsit.seats_trait.attached.tooltip");
     private static final Component SEATS_TRAIT_MOVEABLE_TOOLTIP =  Component.translatable("option.fsit.seats_trait.moveable.tooltip");
@@ -160,7 +151,6 @@ public final class ModOptions {
 
     private final Minecraft client;
     private final FSitModClient modClient;
-    private boolean serverUseServer = false;
 
     public ModOptions(Minecraft client, FSitModClient modClient) {
         this.client = client;
@@ -168,7 +158,6 @@ public final class ModOptions {
     }
 
     public void load() {
-        this.useServer.set(this.modClient.getConfig().useServer());
         this.seatsTrait.set(this.modClient.getConfig().seatsTrait());
         this.seatsCentered.set(this.modClient.getConfig().seatsCentered());
         this.blockInteraction.set(this.modClient.getConfig().blockInteraction());
@@ -181,7 +170,6 @@ public final class ModOptions {
 
     public void save() {
         this.modClient.setConfig(new ConfigData(
-            this.useServer.get(),
             this.seatsTrait.get(),
             this.seatsCentered.get(),
             this.blockInteraction.get(),
