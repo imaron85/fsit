@@ -23,18 +23,17 @@ public final class ModOptionsScreen extends OptionsSubScreen {
         if (this.list != null) {
             this.list.addBig(this.modOptions.useServer);
 
-            // todo: disable/change adjacent options.
-            //  e.g. sneak_window = 0 -> disable sneak_minimum_pitch
             this.list.addHeader(Component.translatable("option.fsit.sitting.title"));
             this.list.addSmall(this.modOptions.seatsTrait, this.modOptions.seatsCentered);
 
             this.list.addHeader(Component.translatable("option.fsit.interaction.title"));
-            this.list.addSmall(this.modOptions.blockInteractionDistance, this.modOptions.playerInteractionDistance);
+            this.list.addSmall(this.modOptions.blockInteraction, this.modOptions.ridingMinimumYaw);
+            // TODO: block ids list, probably separate screen
 
             this.list.addHeader(Component.translatable("option.fsit.sneak.title"));
             this.list.addSmall(
                 this.modOptions.sneakWindow, this.modOptions.sneakMinimumPitch,
-                this.modOptions.sneakCrawlingDetection
+                this.modOptions.sneakCrawling
             );
 
             this.list.addHeader(Component.translatable("option.fsit.control.title"));

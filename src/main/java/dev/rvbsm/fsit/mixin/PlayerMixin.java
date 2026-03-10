@@ -101,7 +101,7 @@ public abstract class PlayerMixin extends AvatarMixin implements FSitPoseHolder 
     @Unique
     protected void fsit$startPosingBySneaking() {
         var desiredPose = FSitPose.SITTING;
-        if (FSitMod.getInstance().getConfig().sneakCrawlingDetection()) {
+        if (FSitMod.getInstance().getConfig().sneakCrawling()) {
             var offset = getCollisionHorizontalEscapeVector(
                     this.getBbWidth() * Mth.SQRT_OF_TWO, this.getBbWidth(), this.getYRot());
             var offsetPos = this.position().add(offset);

@@ -49,12 +49,12 @@ public final class UseEntityListener implements UseEntityCallback {
 
         LOGGER.debug("use entity {} {} {} {} {}", player, level, hand, entity, hitResult.getLocation());
         var config = FSitMod.getInstance().getConfig();
-        if (!config.riding()) {
+        if (config.ridingMinimumYaw() == 0) {
             return level.isClientSide() ? InteractionResult.FAIL : InteractionResult.PASS;
         }
 
         boolean isCloseEnough = player.isWithinEntityInteractionRange(entity, 3.0)
-            && (Math.abs(player.getYRot() - entity.getYRot()) < config.ridingBackAngle());
+            && (Math.abs(player.getYRot() - entity.getYRot()) < config.ridingMinimumYaw());
         if (!isCloseEnough) {
             return level.isClientSide() ? InteractionResult.FAIL : InteractionResult.PASS;
         }
@@ -67,10 +67,10 @@ public final class UseEntityListener implements UseEntityCallback {
         }
 
         // todo: hitResult#location is not relative
-        var offset = config.ridingNew() ? getClickedRidingOffset(target, hitResult.getLocation()) : Vec3.ZERO;
-        if (offset == null) {
-            return level.isClientSide() ? InteractionResult.FAIL : InteractionResult.PASS;
-        }
+        // var offset = config.ridingNew() ? getClickedRidingOffset(target, hitResult.getLocation()) : Vec3.ZERO;
+        // if (offset == null) {
+        //     return level.isClientSide() ? InteractionResult.FAIL : InteractionResult.PASS;
+        // }
 
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS_SERVER;

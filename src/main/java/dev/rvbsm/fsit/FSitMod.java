@@ -77,6 +77,10 @@ public final class FSitMod implements ModInitializer {
         return this.configRef.get();
     }
 
+    public void setConfig(ConfigData config) {
+        this.configRef.set(config);
+    }
+
     /**
      * @return `true` if configuration was reloaded; `false` if configuration exists but could not be reloaded
      */

@@ -30,13 +30,11 @@ public record ConfigData(
     // todo: list of BlockPredicate?
     List<ExtraCodecs.TagOrElementLocation> blockInteractionIds,
 
-    boolean riding,
-    boolean ridingNew,
-    int ridingBackAngle,
+    int ridingMinimumYaw,
 
     int sneakWindow,
     int sneakMinimumPitch,
-    boolean sneakCrawlingDetection,
+    boolean sneakCrawling,
 
     CommandConfig commands
 ) {
@@ -50,13 +48,11 @@ public record ConfigData(
         Codec.BOOL.fieldOf("block-interaction").forGetter(ConfigData::blockInteraction),
         ExtraCodecs.TAG_OR_ELEMENT_ID.listOf().fieldOf("block-interaction-ids").forGetter(ConfigData::blockInteractionIds),
 
-        Codec.BOOL.fieldOf("riding").forGetter(ConfigData::riding),
-        Codec.BOOL.fieldOf("riding-new").forGetter(ConfigData::ridingNew),
-        Codec.intRange(0, 360).fieldOf("riding-back-angle").forGetter(ConfigData::ridingBackAngle),
+        Codec.intRange(0, 360).fieldOf("riding-minimum-yaw").forGetter(ConfigData::ridingMinimumYaw),
 
         Codec.intRange(0, 20).fieldOf("sneak-window").forGetter(ConfigData::sneakWindow),
         Codec.intRange(-90, 90).fieldOf("sneak-minimum-pitch").forGetter(ConfigData::sneakMinimumPitch),
-        Codec.BOOL.fieldOf("sneak-crawling-detection").forGetter(ConfigData::sneakCrawlingDetection),
+        Codec.BOOL.fieldOf("sneak-crawling").forGetter(ConfigData::sneakCrawling),
 
         CommandConfig.CODEC.fieldOf("commands").forGetter(ConfigData::commands)
     ).apply(instance, ConfigData::new));
