@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.9.1
+
+### Fixes
+
+- Fail sneak interaction on player movement (to fix speedbridging).
+  Thanks [#9](https://codeberg.org/rvbsm/fsit/issues/9)
+
 ## v2.9.0
 
 ### Features
@@ -44,7 +51,8 @@
 
 ### Fixed
 
-- (1.21.6+) Moving while crouching resulted in a player jiggering. Thanks [#3](https://codeberg.org/rvbsm/fsit/issues/3)!
+- (1.21.6+) Moving while crouching resulted in a player jiggering.
+  Thanks [#3](https://codeberg.org/rvbsm/fsit/issues/3)!
 
 ## v2.7.11
 
