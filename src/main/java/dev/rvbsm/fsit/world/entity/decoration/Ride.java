@@ -1,4 +1,4 @@
-package dev.rvbsm.fsit.world.entity;
+package dev.rvbsm.fsit.world.entity.decoration;
 
 import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.mixin.EntityAccessor;

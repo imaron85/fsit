@@ -113,12 +113,9 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayerMixin {
     @Override
     protected void fsit$sendPose(Vec3 position) {
         if (this.fsit$pose != this.fsit$lastSentPose) {
-            boolean success = ClientModPacketListener.send(
+            ClientModPacketListener.send(
                     ServerboundPlayerPosePayload.TYPE,
                     () -> new ServerboundPlayerPosePayload(this.fsit$pose, position));
-            if (!success) {
-                this.fsit$pose = fsit$lastSentPose;
-            }
 
             this.fsit$lastSentPose = this.fsit$pose;
         }

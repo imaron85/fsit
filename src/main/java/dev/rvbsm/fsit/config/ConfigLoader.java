@@ -26,7 +26,7 @@ public final class ConfigLoader {
         ),
         true, true, 45,
         10, 60, true,
-        new CommandConfig("fsit", "sit", "crawl")
+        new CommandConfig("fsit", "sit", "crawl", "lay")
     );
 
     private ConfigLoader() {

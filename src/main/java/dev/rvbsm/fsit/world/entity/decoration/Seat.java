@@ -1,7 +1,8 @@
-package dev.rvbsm.fsit.world.entity;
+package dev.rvbsm.fsit.world.entity.decoration;
 
 import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.api.FSitPoseHolder;
+import dev.rvbsm.fsit.world.entity.FSitPose;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;

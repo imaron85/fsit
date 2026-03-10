@@ -2,7 +2,6 @@ package dev.rvbsm.fsit.server.command;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.logging.LogUtils;
 import dev.rvbsm.fsit.FSitMod;
@@ -22,25 +21,36 @@ public final class PoseCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         var sit = FSitMod.getInstance().getConfig().commands().sit();
-        if (sit.isEmpty()) {
-            LOGGER.info("Not registering sit command!");
-        } else {
-            dispatcher.register(create(sit, FSitPose.SITTING, "fsit.command.sit", PermissionLevel.ALL));
+        if (!register(dispatcher, sit, FSitPose.SITTING, "fsit.command.sit", PermissionLevel.ALL)) {
+            LOGGER.warn("Not registering sit command!");
         }
 
         var crawl = FSitMod.getInstance().getConfig().commands().crawl();
-        if (crawl.isEmpty()) {
-            LOGGER.info("Not registering crawl command!");
-        } else {
-            dispatcher.register(create(crawl, FSitPose.CRAWLING, "fsit.command.crawl", PermissionLevel.ALL));
+        if (!register(dispatcher, crawl, FSitPose.CRAWLING, "fsit.command.crawl", PermissionLevel.ALL)) {
+            LOGGER.warn("Not registering crawl command!");
+        }
+
+        var lay = FSitMod.getInstance().getConfig().commands().lay();
+        if (!register(dispatcher, lay, FSitPose.LAYING, "fsit.command.lay", PermissionLevel.ALL)) {
+            LOGGER.warn("Not registering lay command!");
         }
     }
 
-    private static LiteralArgumentBuilder<CommandSourceStack> create(
-        String name, FSitPose pose, String permission, PermissionLevel level) {
-        return Commands.literal(name)
+    private static boolean register(
+            CommandDispatcher<CommandSourceStack> dispatcher,
+            String name,
+            FSitPose pose,
+            String permission,
+            PermissionLevel level) {
+        if (name.isEmpty()) {
+            return false;
+        }
+
+        dispatcher.register(Commands.literal(name)
                 .requires(Permissions.require(permission, level))
-                .executes(ctx -> executePose(ctx.getSource(), pose));
+                .executes(ctx -> executePose(ctx.getSource(), pose)));
+
+        return true;
     }
 
     private static int executePose(CommandSourceStack src, FSitPose pose) throws CommandSyntaxException {

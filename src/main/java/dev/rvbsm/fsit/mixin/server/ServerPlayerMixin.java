@@ -21,13 +21,10 @@ public abstract class ServerPlayerMixin extends PlayerMixin implements FSitAttac
 
     @Unique
     private FSitPose fsit$lastSentPose = FSitPose.STANDING;
-
     @Unique
     private int fsit$sneakTriggerTime = 0;
-
     @Unique
     private boolean fsit$lastShiftKeyDown = false;
-
     @Unique
     private @Nullable Entity fsit$attachedEntity = null;
 
@@ -68,6 +65,11 @@ public abstract class ServerPlayerMixin extends PlayerMixin implements FSitAttac
                 this.fsit$attachedEntity.tick();
             }
         }
+    }
+
+    @Override
+    protected boolean checkIsLaying(boolean bedExists) {
+        return super.checkIsLaying(bedExists) || this.fsit$getPose() == FSitPose.LAYING;
     }
 
     @Override

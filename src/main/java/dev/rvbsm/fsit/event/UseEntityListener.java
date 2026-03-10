@@ -1,7 +1,7 @@
 package dev.rvbsm.fsit.event;
 
 import dev.rvbsm.fsit.FSitMod;
-import dev.rvbsm.fsit.world.entity.Ride;
+import dev.rvbsm.fsit.world.entity.decoration.Ride;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -76,7 +76,8 @@ public final class UseEntityListener implements UseEntityCallback {
             return InteractionResult.SUCCESS_SERVER;
         }
 
-        // todo: start riding with specified position
+        // TODO: start riding with specified offset
+        // ffs riders position is client-side for riders
         var seat = new Ride(level, target.getX(), target.getY(), target.getZ());
         target.startRiding(seat, true, true);
         seat.startRiding(entity, true, true);

@@ -3,10 +3,13 @@
   "package": "dev.rvbsm.fsit.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
+    "AvatarMixin",
     "EntityAccessor",
+    "LivingEntityMixin",
     "PlayerMixin",
     "server.ServerGamePacketListenerImplMixin_TEMPORARYFIXANNOYINGOUTOFCONTEXTBUILDLIMITMESSAGE",
-    "server.ServerPlayerMixin"
+    "server.ServerPlayerMixin",
+    "server.SleepStatusMixin"
   ],
   "injectors": {
     "defaultRequire": 1

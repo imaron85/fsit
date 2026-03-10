@@ -6,10 +6,16 @@ import dev.rvbsm.fsit.api.FSitAttachable;
 import dev.rvbsm.fsit.api.event.FSitPoseCallback;
 import dev.rvbsm.fsit.server.level.ServerCrawl;
 import dev.rvbsm.fsit.world.entity.FSitPose;
-import dev.rvbsm.fsit.world.entity.Seat;
+import dev.rvbsm.fsit.world.entity.decoration.Seat;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BedPart;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
@@ -19,6 +25,8 @@ public final class FSitPoseListener implements FSitPoseCallback {
 
     public static final FSitPoseListener INSTANCE = new FSitPoseListener();
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final BlockState BED_STATE =
+            Blocks.BLACK_BED.defaultBlockState().setValue(BlockStateProperties.BED_PART, BedPart.HEAD);
 
     private FSitPoseListener() {}
 
@@ -46,6 +54,10 @@ public final class FSitPoseListener implements FSitPoseCallback {
                 player.stopRiding();
                 if (player instanceof ServerPlayer serverPlayer) {
                     FSitAttachable.detach(serverPlayer);
+
+                    var pos = BlockPos.containing(position);
+                    var state = player.level().getBlockState(pos);
+                    serverPlayer.connection.send(new ClientboundBlockUpdatePacket(pos, state));
                 }
             }
 
@@ -82,9 +94,25 @@ public final class FSitPoseListener implements FSitPoseCallback {
                 }
             }
 
-            case LAYING -> {}
+            case LAYING -> {
+                // TODO: rotation seems random but also stable
+                // FIXME: player floats in the air
 
-            case SPINNING -> {}
+                if (player instanceof ServerPlayer serverPlayer) {
+                    var bedPosition = BlockPos.containing(position);
+                    serverPlayer.connection.send(new ClientboundBlockUpdatePacket(bedPosition, BED_STATE));
+                    serverPlayer.startSleeping(bedPosition);
+                    // TODO: award stat and trigger `slept_in_bed` criteria?
+                    // FIXME: skips when all players are laying
+                    serverPlayer.level().updateSleepingPlayerList();
+                }
+            }
+
+            case SPINNING -> {
+                if (player instanceof ServerPlayer serverPlayer) {
+                    // TODO: requires restricting movement / spawning a shadow player
+                }
+            }
 
             default -> {}
         }

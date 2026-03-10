@@ -8,7 +8,6 @@ import dev.rvbsm.fsit.api.FSitPoseHolder;
 import dev.rvbsm.fsit.api.event.FSitPoseCallback;
 import dev.rvbsm.fsit.world.entity.FSitPose;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -17,17 +16,14 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Player.class)
-public abstract class PlayerMixin extends Avatar implements FSitPoseHolder {
+public abstract class PlayerMixin extends AvatarMixin implements FSitPoseHolder {
 
     @Unique
     protected FSitPose fsit$pose = FSitPose.STANDING;
-
-    protected PlayerMixin() {
-        //noinspection DataFlowIssue
-        super(null, null);
-    }
 
     @Shadow
     protected abstract boolean wantsToStopRiding();
@@ -35,8 +31,24 @@ public abstract class PlayerMixin extends Avatar implements FSitPoseHolder {
     @Definition(id = "isSwimming", method = "Lnet/minecraft/world/entity/player/Player;isSwimming()Z")
     @Expression("this.isSwimming()")
     @ModifyExpressionValue(method = "getDesiredPose", at = @At("MIXINEXTRAS:EXPRESSION"))
-    private boolean isCrawling(boolean isSwimming) {
-        return isSwimming || this.fsit$getPose() == FSitPose.CRAWLING;
+    private boolean isCrawling(boolean swimming) {
+        return swimming || this.fsit$getPose() == FSitPose.CRAWLING;
+    }
+
+    @Definition(
+            id = "canSleep",
+            method = "Lnet/minecraft/world/attribute/BedRule;canSleep(Lnet/minecraft/world/level/Level;)Z")
+    @Expression("?.canSleep(?)")
+    @ModifyExpressionValue(method = "tick", at = @At("MIXINEXTRAS:EXPRESSION"))
+    private boolean canSleepOrLaying(boolean original) {
+        return original || this.fsit$getPose() == FSitPose.LAYING;
+    }
+
+    @Inject(method = "stopSleepInBed", at = @At("HEAD"))
+    private void stopLaying(CallbackInfo ci) {
+        this.getSleepingPos().ifPresent(bedPosition -> {
+            this.fsit$setPose(FSitPose.STANDING, new FSitPose.Context.Positioned(bedPosition.getCenter()), true);
+        });
     }
 
     @Override
