@@ -3,6 +3,7 @@ package dev.rvbsm.fsit.mixin.server;
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
+import dev.rvbsm.fsit.FSitMod;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,6 +18,6 @@ public class ServerGamePacketListenerImplMixin_TEMPORARYFIXANNOYINGOUTOFCONTEXTB
     @Expression("?.sendBuildLimitMessage(true, ?)")
     @WrapWithCondition(method = "handleUseItemOn", at = @At(value = "MIXINEXTRAS:EXPRESSION", ordinal = 3))
     private static boolean stop(ServerPlayer instance, boolean isTooHigh, int limit) {
-        return false;
+        return !instance.getRootVehicle().entityTags().contains(FSitMod.MOD_ID);
     }
 }
