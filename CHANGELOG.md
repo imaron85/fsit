@@ -1,15 +1,100 @@
 # Changelog
 
+## v3.0.0
+
+**Tiny Takeover** over the codebase!
+
+With big changes to Minecraft internals, and obfuscation drop, I felt like it would be very complicated to continue
+maintaining previous versions.
+The new versioning scheme might be seen as a soft-reboot, and v2 branch is somewhat messy...
+
+**Pre-26.1 versions will no longer be maintained**, _or at least will not be a main focus_.
+They might receive some fixes, but can't promise much.
+
+This update brings a complete rewrite, while keeping most features of the previous branch.
+
+The configuration screen is a bit messy, sorry for that, I don't have much time to focus on it.
+If someone wishes to contribute and polish it, I would gladly accept them!
+
+The configuration itself changed a bit, with no automatic migrations from v2.
+
+- `seats-trait` is the same `sitting.behaviour` with same possible values under a different name;
+- `block-interaction` and `block-interaction-ids` were `on-use.sitting` and `on-use.blocks`;
+- `riding-minimum-yaw` was `on-use.riding`, but with added control over angle difference between players. (where 0 =
+  disabled, 360 = no restrictions)
+
+Probably the biggest change about configuration is that clients no longer send their configuration to the server.
+No-no, wait! Client-side configurations are still here, the processing was given to the client.
+Clients without mod installed can still use all the features of the mod, the server will handle it.
+And, well, `use-server` was kinda not working properly, as it assumed the processing is done only on the server, so it
+was removed. :bleh:
+
+<details>
+<summary>fsit.yml</summary>
+
+```yml
+seats-trait: moveable # [static, attached, moveable]
+seats-centered: false
+block-interaction: true
+block-interaction-ids:
+  - '#minecraft:slabs'
+  - '#minecraft:stairs'
+  - '#minecraft:logs'
+  - '#minecraft:fences'
+riding-minimum-yaw: 45
+sneak-window: 10
+sneak-minimum-pitch: 60
+sneak-crawling: true
+commands:
+  root: fsit
+  sit: sit
+  crawl: crawl
+  lay: lay
+```
+
+</details>
+
+Riding restrictions were also removed.
+They made riding requests way more complicated that they should be, and I do not think that sending the whole list of
+UUIDs to the server is viable.
+
+And, finally, laying support! Experimental, Works On My Machine™, so please report if bwoke!
+Currently accessible only with command, as I have no idea how else could it be done otherwise.
+
+Oh, and Fabric Permissions API of course. Currently, for commands only, but might be extended in the future.
+
+Thank you everyone for your support! Please report regressions, bugs, or feature requests!
+
+### Added
+
+- feat: laying
+- feat(command): `/lay`
+- feat: Fabric Permissions API
+
+### Changed
+
+- feat(sneak): ignore if player is moving
+- refactor(config): new format
+- refactor(config): switch to `snakeyaml-engine` and `com.mojang.serialization`
+- refactor(interaction): more consistent block interactions
+
+### Removed
+
+- feat(config): configuration sync
+- feat(riding): riding restrictions
+- build: Proguard (was used for minimizing included libraries)
+- chore: Fabric Language Kotlin
+
 ## v2.9.1
 
-### Fixes
+### Fixed
 
 - Fail sneak interaction on player movement (to fix speedbridging).
   Thanks [#9](https://codeberg.org/rvbsm/fsit/issues/9)
 
 ## v2.9.0
 
-### Features
+### Added
 
 - New config option `require_empty_main_hand`. Thanks [#6](https://codeberg.org/rvbsm/fsit/issues/6)
   and [#8](https://codeberg.org/rvbsm/fsit/issues/8)!
