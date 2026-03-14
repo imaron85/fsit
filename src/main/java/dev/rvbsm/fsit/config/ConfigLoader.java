@@ -57,7 +57,7 @@ public final class ConfigLoader {
                 });
     }
 
-    public static CompletableFuture<@Nullable Void> writeConfig(ConfigData config, Path path) {
+    public static CompletableFuture<Void> writeConfig(ConfigData config, Path path) {
         return CompletableFuture.runAsync(
             () -> {
                 try (var writer = Files.newBufferedWriter(path)) {

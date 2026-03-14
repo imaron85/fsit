@@ -180,5 +180,6 @@ public final class ModOptions {
             this.sneakCrawling.get(),
             this.modClient.getConfig().commands()
         ));
+        this.modClient.saveConfig();
     }
 }

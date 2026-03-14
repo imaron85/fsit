@@ -83,7 +83,7 @@ public abstract class PlayerMixin extends AvatarMixin implements FSitPoseHolder 
     }
 
     @Unique
-    // fixme: triggered after dismount
+    // FIXME: triggered after dismount
     protected boolean fsit$canStartPosingBySneaking() {
         return this.fsit$canStartPosing()
                 && !this.isShiftKeyDown()

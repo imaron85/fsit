@@ -106,6 +106,7 @@ public final class FSitMod implements ModInitializer {
                 var configTmp = Files.createTempFile(configDir, CONFIG_NAME, null);
                 ConfigLoader.writeConfig(this.getConfig(), configTmp).exceptionally(fex -> {
                     LOGGER.warn("Failed to write configuration file {}", configTmp, fex);
+                    //noinspection DataFlowIssue
                     return null;
                 }).thenRun(() -> {
                     var configBak = configPath.resolveSibling(CONFIG_NAME + "_old");
@@ -116,11 +117,22 @@ public final class FSitMod implements ModInitializer {
 
                 ConfigLoader.writeConfig(this.getConfig(), configPath).exceptionally(fex -> {
                     LOGGER.warn("Failed to write configuration file {}", configPath, fex);
+                    //noinspection DataFlowIssue
                     return null;
                 });
             }
 
             return !didExist;
+        });
+    }
+
+    public CompletableFuture<Void> saveConfig() {
+        var configDir = FabricLoader.getInstance().getConfigDir();
+        var configPath = configDir.resolve(CONFIG_NAME);
+        return ConfigLoader.writeConfig(this.configRef.get(), configPath).exceptionally(e -> {
+            LOGGER.warn("Failed to save configuration file", e);
+            //noinspection DataFlowIssue
+            return null;
         });
     }
 

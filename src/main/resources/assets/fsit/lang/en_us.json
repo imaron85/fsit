@@ -1,9 +1,6 @@
 {
   "option.fsit.title": "FSit",
 
-  "option.fsit.use_server": "Use Server Configuration",
-  "option.fsit.use_server.tooltip": "Ignore player settings and forcibly use configuration provided by the server.",
-
   "option.fsit.sitting.title": "Sitting",
   "option.fsit.seats_trait": "Trait",
   "option.fsit.seats_trait.static": "Static",

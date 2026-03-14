@@ -70,8 +70,9 @@ dependencies {
     shadow("org.snakeyaml:snakeyaml-engine:${property("version.snakeyaml")}")
 
     implementation("me.lucko:fabric-permissions-api") { version { branch = "master" } }
-    implementation("com.terraformersmc:modmenu:${property("version.modmenu")}")
+    compileOnly("com.terraformersmc:modmenu:${property("version.modmenu")}")
     implementation("dev.isxander:yet-another-config-lib:${property("version.yacl")}") {
+        runtimeOnly("net.fabricmc.fabric-api:fabric-api:${property("version.fabric-api")}")
         isTransitive = false
     }
 

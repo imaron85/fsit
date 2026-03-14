@@ -22,9 +22,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class LocalPlayerMixin extends AbstractClientPlayerMixin {
 
     @Unique
-    private FSitPose fsit$lastSentPose = FSitPose.STANDING;
-
-    @Unique
     private int fsit$sneakTriggerTime = 0;
 
     @Unique
@@ -106,18 +103,12 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayerMixin {
 
     @Override
     protected boolean fsit$canStartPosingBySneaking() {
-        return this.input.getMoveVector().lengthSquared() < 1.0e-5
-            && super.fsit$canStartPosingBySneaking();
+        return this.input.getMoveVector().lengthSquared() < 1.0e-5 && super.fsit$canStartPosingBySneaking();
     }
 
     @Override
     protected void fsit$sendPose(Vec3 position) {
-        if (this.fsit$pose != this.fsit$lastSentPose) {
-            ClientModPacketListener.send(
-                    ServerboundPlayerPosePayload.TYPE,
-                    () -> new ServerboundPlayerPosePayload(this.fsit$pose, position));
-
-            this.fsit$lastSentPose = this.fsit$pose;
-        }
+        ClientModPacketListener.send(
+                ServerboundPlayerPosePayload.TYPE, () -> new ServerboundPlayerPosePayload(this.fsit$pose, position));
     }
 }

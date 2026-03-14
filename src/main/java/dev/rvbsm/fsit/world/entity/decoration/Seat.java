@@ -88,11 +88,10 @@ public class Seat extends ArmorStand {
         }
 
         if (!this.isVehicle()) {
-            // todo: `remove_entities` might be sent earlier than `player_position`?
+            // FIXME: `remove_entities` might be sent earlier than `player_position`?
             this.discard();
         }
 
-        // todo:
         var config = FSitMod.getInstance().getConfig();
         if (config.seatsTrait().needsGround()) {
             var checkGround = AABB.ofSize(this.position(), this.getBbWidth(), 1.0e-3, this.getBbWidth());

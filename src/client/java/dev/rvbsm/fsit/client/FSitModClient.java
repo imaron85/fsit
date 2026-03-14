@@ -52,6 +52,10 @@ public final class FSitModClient implements ClientModInitializer {
         FSitMod.getInstance().setConfig(config);
     }
 
+    public void saveConfig() {
+        FSitMod.getInstance().saveConfig();
+    }
+
     public ModOptions getOptions() {
         return this.options;
     }

@@ -1,13 +1,12 @@
 package dev.rvbsm.fsit.client.gui.screen;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.yacl3.api.Binding;
 import dev.isxander.yacl3.api.ConfigCategory;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.OptionDescription;
 import dev.isxander.yacl3.api.OptionGroup;
 import dev.isxander.yacl3.api.YetAnotherConfigLib;
-import dev.isxander.yacl3.api.controller.EnumDropdownControllerBuilder;
+import dev.isxander.yacl3.api.controller.EnumControllerBuilder;
 import dev.isxander.yacl3.api.controller.IntegerSliderControllerBuilder;
 import dev.isxander.yacl3.api.controller.TickBoxControllerBuilder;
 import dev.rvbsm.fsit.client.FSitModClient;
@@ -15,7 +14,6 @@ import dev.rvbsm.fsit.client.option.HybridKeyMapping;
 import dev.rvbsm.fsit.client.option.ModOptions;
 import dev.rvbsm.fsit.config.SeatTrait;
 import dev.rvbsm.fsit.mixin.client.OptionInstanceAccessor;
-import net.minecraft.client.KeyMapping;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -30,6 +28,7 @@ public class YetAnotherConfigLibScreen {
 
     private static ConfigCategory general(ModOptions options) {
         return ConfigCategory.createBuilder()
+                .name(ModOptionsScreen.TITLE)
                 .group(OptionGroup.createBuilder()
                         .name(ModOptionsScreen.SITTING)
                         .option(Option.<SeatTrait>createBuilder()
@@ -39,7 +38,7 @@ public class YetAnotherConfigLibScreen {
                                         ModOptions.SEATS_TRAIT_ATTACHED_TOOLTIP,
                                         ModOptions.SEATS_TRAIT_MOVEABLE_TOOLTIP))
                                 .binding(Binding.minecraft(options.seatsTrait))
-                                .controller(EnumDropdownControllerBuilder::create)
+                                .controller(o -> EnumControllerBuilder.create(o).enumClass(SeatTrait.class))
                                 .build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(caption(options.seatsCentered))
@@ -60,23 +59,23 @@ public class YetAnotherConfigLibScreen {
                                 .name(caption(options.ridingMinimumYaw))
                                 .description(OptionDescription.of(ModOptions.RIDING_MINIMUM_YAW_TOOLTIP))
                                 .binding(Binding.minecraft(options.ridingMinimumYaw))
-                                .controller(IntegerSliderControllerBuilder::create)
+                                .controller(o -> IntegerSliderControllerBuilder.create(o).range(0, 360).step(1))
                                 .build())
                         .build())
                 // TODO: block ids
                 .group(OptionGroup.createBuilder()
                         .name(ModOptionsScreen.SNEAK)
                         .option(Option.<Integer>createBuilder()
-                                .name(caption(options.sneakMinimumPitch))
+                                .name(caption(options.sneakWindow))
                                 .description(OptionDescription.of(ModOptions.SNEAK_WINDOW_TOOLTIP))
                                 .binding(Binding.minecraft(options.sneakWindow))
-                                .controller(IntegerSliderControllerBuilder::create)
+                                .controller(o -> IntegerSliderControllerBuilder.create(o).range(0, 20).step(1))
                                 .build())
                         .option(Option.<Integer>createBuilder()
                                 .name(caption(options.sneakMinimumPitch))
                                 .description(OptionDescription.of(ModOptions.SNEAK_MINIMUM_PITCH_TOOLTIP))
                                 .binding(Binding.minecraft(options.sneakMinimumPitch))
-                                .controller(IntegerSliderControllerBuilder::create)
+                                .controller(o -> IntegerSliderControllerBuilder.create(o).range(-90, 90).step(1))
                                 .build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(caption(options.sneakCrawling))
@@ -90,17 +89,17 @@ public class YetAnotherConfigLibScreen {
                         .option(Option.<HybridKeyMapping.Mode>createBuilder()
                                 .name(caption(options.hybridSit))
                                 .binding(Binding.minecraft(options.hybridSit))
-                                .controller(EnumDropdownControllerBuilder::create)
+                                .controller(o -> EnumControllerBuilder.create(o).enumClass(HybridKeyMapping.Mode.class))
                                 .build())
                         .option(Option.<HybridKeyMapping.Mode>createBuilder()
                                 .name(caption(options.hybridCrawl))
                                 .binding(Binding.minecraft(options.hybridCrawl))
-                                .controller(EnumDropdownControllerBuilder::create)
+                                .controller(o -> EnumControllerBuilder.create(o).enumClass(HybridKeyMapping.Mode.class))
                                 .build())
                         .option(Option.<Integer>createBuilder()
-                                .name(caption(options.hybridCrawl))
+                                .name(caption(options.hybridKeyWindow))
                                 .binding(Binding.minecraft(options.hybridKeyWindow))
-                                .controller(IntegerSliderControllerBuilder::create)
+                                .controller(o -> IntegerSliderControllerBuilder.create(o).range(0, 10).step(1))
                                 .build())
                         .build())
                 .build();
@@ -109,7 +108,10 @@ public class YetAnotherConfigLibScreen {
     public static Screen generateScreen(Screen screen) {
         var modOptions = FSitModClient.getInstance().getOptions();
         return YetAnotherConfigLib.createBuilder()
-            .categories(Set.of(general(modOptions)))
-            .build().generateScreen(screen);
+                .title(ModOptionsScreen.TITLE)
+                .categories(Set.of(general(modOptions)))
+                .save(modOptions::save)
+                .build()
+                .generateScreen(screen);
     }
 }
