@@ -21,9 +21,9 @@ public final class ModOptions {
 
     // todo: hear me out, generate from Codec?
 
-    private static final Component SEATS_TRAIT_STATIC_TOOLTIP =  Component.translatable("option.fsit.seats_trait.static.tooltip");
-    private static final Component SEATS_TRAIT_ATTACHED_TOOLTIP =  Component.translatable("option.fsit.seats_trait.attached.tooltip");
-    private static final Component SEATS_TRAIT_MOVEABLE_TOOLTIP =  Component.translatable("option.fsit.seats_trait.moveable.tooltip");
+    public static final Component SEATS_TRAIT_STATIC_TOOLTIP =  Component.translatable("option.fsit.seats_trait.static.tooltip");
+    public static final Component SEATS_TRAIT_ATTACHED_TOOLTIP =  Component.translatable("option.fsit.seats_trait.attached.tooltip");
+    public static final Component SEATS_TRAIT_MOVEABLE_TOOLTIP =  Component.translatable("option.fsit.seats_trait.moveable.tooltip");
     public final OptionInstance<SeatTrait> seatsTrait = new OptionInstance<>(
         "option.fsit.seats_trait",
         value -> switch (value) {
@@ -37,7 +37,7 @@ public final class ModOptions {
         _ -> {}
     );
 
-    private static final Component SEATS_CENTERED_TOOLTIP =  Component.translatable("option.fsit.seats_centered.tooltip");
+    public static final Component SEATS_CENTERED_TOOLTIP =  Component.translatable("option.fsit.seats_centered.tooltip");
     public final OptionInstance<Boolean> seatsCentered = OptionInstance.createBoolean(
         "option.fsit.seats_centered",
         OptionInstance.cachedConstantTooltip(SEATS_CENTERED_TOOLTIP),
@@ -46,7 +46,7 @@ public final class ModOptions {
     );
 
 
-    private static final Component BLOCK_INTERACTION_TOOLTIP =  Component.translatable("option.fsit.block_interaction.tooltip");
+    public static final Component BLOCK_INTERACTION_TOOLTIP =  Component.translatable("option.fsit.block_interaction.tooltip");
     public final OptionInstance<Boolean> blockInteraction = OptionInstance.createBoolean(
         "option.fsit.block_interaction",
         OptionInstance.cachedConstantTooltip(BLOCK_INTERACTION_TOOLTIP),
@@ -55,10 +55,10 @@ public final class ModOptions {
     );
 
     // TODO: list option somehow
-    private static final Component USABLE_BLOCKS_TOOLTIP =  Component.translatable("option.fsit.block_interaction_ids.tooltip");
+    public static final Component USABLE_BLOCKS_TOOLTIP =  Component.translatable("option.fsit.block_interaction_ids.tooltip");
     public final List<TagOrElementLocation> blockInteractionIds = new ArrayList<>();
 
-    private static final Component RIDING_MINIMUM_YAW_TOOLTIP = Component.translatable("option.fsit.riding_minimum_yaw.tooltip");
+    public static final Component RIDING_MINIMUM_YAW_TOOLTIP = Component.translatable("option.fsit.riding_minimum_yaw.tooltip");
     public final OptionInstance<Integer> ridingMinimumYaw = new OptionInstance<>(
             "option.fsit.riding_minimum_yaw",
             OptionInstance.cachedConstantTooltip(RIDING_MINIMUM_YAW_TOOLTIP),
@@ -72,7 +72,7 @@ public final class ModOptions {
         _ -> {}
     );
 
-    private static final Component SNEAK_WINDOW_TOOLTIP =  Component.translatable("option.fsit.sneak_window.tooltip");
+    public static final Component SNEAK_WINDOW_TOOLTIP =  Component.translatable("option.fsit.sneak_window.tooltip");
     public final OptionInstance<Integer> sneakWindow = new OptionInstance<>(
         "option.fsit.sneak_window",
         OptionInstance.cachedConstantTooltip(SNEAK_WINDOW_TOOLTIP),
@@ -84,7 +84,7 @@ public final class ModOptions {
         _ -> {}
     );
 
-    private static final Component SNEAK_MINIMUM_PITCH_TOOLTIP =  Component.translatable("option.fsit.sneak_minimum_pitch.tooltip");
+    public static final Component SNEAK_MINIMUM_PITCH_TOOLTIP =  Component.translatable("option.fsit.sneak_minimum_pitch.tooltip");
     public final OptionInstance<Integer> sneakMinimumPitch = new OptionInstance<>(
         "option.fsit.sneak_minimum_pitch",
         OptionInstance.cachedConstantTooltip(SNEAK_MINIMUM_PITCH_TOOLTIP),
@@ -98,7 +98,7 @@ public final class ModOptions {
         _ -> {}
     );
 
-    private static final Component SNEAK_CRAWLING_TOOLTIP =  Component.translatable("option.fsit.sneak_crawling.tooltip");
+    public static final Component SNEAK_CRAWLING_TOOLTIP =  Component.translatable("option.fsit.sneak_crawling.tooltip");
     public final OptionInstance<Boolean> sneakCrawling = OptionInstance.createBoolean(
         "option.fsit.sneak_crawling",
         OptionInstance.cachedConstantTooltip(SNEAK_CRAWLING_TOOLTIP),

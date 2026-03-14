@@ -28,7 +28,7 @@
   ],
   "depends": {
     "java": ">=${java}",
-    "minecraft": ">=${minecraft}-",
+    "minecraft": "${minecraft}",
     "fabricloader": ">=0.18.0",
     "fabric-api-base": "*",
     "fabric-command-api-v2": "*",
@@ -36,7 +36,8 @@
     "fabric-networking-api-v1": "*"
   },
   "suggests": {
+    "fabric-permissions-api-v0": "*",
     "modmenu": "*",
-    "fabric-permissions-api-v0": "*"
+    "yet_another_config_lib_v3": ">=3.9.0"
   }
 }

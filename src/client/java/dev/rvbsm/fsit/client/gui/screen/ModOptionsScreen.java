@@ -9,7 +9,11 @@ import net.minecraft.network.chat.Component;
 
 public final class ModOptionsScreen extends OptionsSubScreen {
 
-    private static final Component TITLE = Component.translatable("option.fsit.title");
+    static final Component TITLE = Component.translatable("option.fsit.title");
+    static final Component SITTING = Component.translatable("option.fsit.sitting.title");
+    static final Component INTERACTION = Component.translatable("option.fsit.interaction.title");
+    static final Component SNEAK = Component.translatable("option.fsit.sneak.title");
+    static final Component CONTROL = Component.translatable("option.fsit.control.title");
 
     private final ModOptions modOptions;
 
@@ -21,22 +25,20 @@ public final class ModOptionsScreen extends OptionsSubScreen {
     @Override
     protected void addOptions() {
         if (this.list != null) {
-            this.list.addBig(this.modOptions.useServer);
-
-            this.list.addHeader(Component.translatable("option.fsit.sitting.title"));
+            this.list.addHeader(SITTING);
             this.list.addSmall(this.modOptions.seatsTrait, this.modOptions.seatsCentered);
 
-            this.list.addHeader(Component.translatable("option.fsit.interaction.title"));
+            this.list.addHeader(INTERACTION);
             this.list.addSmall(this.modOptions.blockInteraction, this.modOptions.ridingMinimumYaw);
             // TODO: block ids list, probably separate screen
 
-            this.list.addHeader(Component.translatable("option.fsit.sneak.title"));
+            this.list.addHeader(SNEAK);
             this.list.addSmall(
                 this.modOptions.sneakWindow, this.modOptions.sneakMinimumPitch,
                 this.modOptions.sneakCrawling
             );
 
-            this.list.addHeader(Component.translatable("option.fsit.control.title"));
+            this.list.addHeader(CONTROL);
             this.list.addSmall(
                 this.modOptions.hybridSit, this.modOptions.hybridCrawl,
                 this.modOptions.hybridKeyWindow

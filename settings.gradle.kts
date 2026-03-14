@@ -7,9 +7,9 @@ pluginManagement {
     }
 
     plugins {
-        id("net.fabricmc.fabric-loom") version "1.15-SNAPSHOT"
-        id("me.modmuss50.mod-publish-plugin") version "1.1.0"
-        id("com.gradleup.shadow") version "9.3.1"
+        id("net.fabricmc.fabric-loom") version "1.15-SNAPSHOT" apply false
+        id("me.modmuss50.mod-publish-plugin") version "1.1.0" apply false
+        id("com.gradleup.shadow") version "9.3.1" apply false
     }
 }
 
@@ -19,8 +19,10 @@ plugins {
 
 stonecutter {
     create(rootProject) {
-        versions("26.1")
         vcsVersion = "26.1"
+        versions(
+            "26.1" to "26.1-pre-1",
+        )
     }
 }
 

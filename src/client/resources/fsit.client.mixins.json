@@ -6,7 +6,8 @@
     "AbstractClientPlayerMixin",
     "GameNarratorMixin_DONOTFORGETTOREMOVEPLEASE",
     "KeyMappingMixin",
-    "LocalPlayerMixin"
+    "LocalPlayerMixin",
+    "OptionInstanceAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

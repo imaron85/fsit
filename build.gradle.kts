@@ -39,25 +39,22 @@ repositories {
     mavenCentral()
 
     maven("https://maven.terraformersmc.com/releases") {
+        name = "TerraformersMC"
         content {
             includeGroup("com.terraformersmc")
         }
     }
 
-    maven("https://repo.opencollab.dev/main") {
+    maven("https://maven.isxander.dev/releases") {
+        name = "Xander"
         content {
-            includeGroupByRegex("org\\.geysermc\\..*")
-            includeGroup("org.cloudburstmc.math")
+            includeGroup("dev.isxander")
         }
     }
 }
 
-configurations.implementation {
-    extendsFrom(configurations.shadow.get())
-}
-
 dependencies {
-    minecraft("com.minecraft:minecraft:${property("version.minecraft")}")
+    minecraft("com.minecraft:minecraft:${stonecutter.current.version}")
 
     implementation("net.fabricmc:fabric-loader:${property("version.fabric-loader")}")
     setOf(
@@ -69,11 +66,14 @@ dependencies {
         "fabric-networking-api-v1",
     ).map { fabricApi.module(it, property("version.fabric-api").toString()) }.forEach(::implementation)
 
+    implementation("org.snakeyaml:snakeyaml-engine:${property("version.snakeyaml")}")
     shadow("org.snakeyaml:snakeyaml-engine:${property("version.snakeyaml")}")
 
-    implementation("com.terraformersmc:modmenu:${property("version.modmenu")}")
-    //implementation("me.lucko:fabric-permissions-api:${property("version.fabric-permissions-api")}")
     implementation("me.lucko:fabric-permissions-api") { version { branch = "master" } }
+    implementation("com.terraformersmc:modmenu:${property("version.modmenu")}")
+    implementation("dev.isxander:yet-another-config-lib:${property("version.yacl")}") {
+        isTransitive = false
+    }
 
     testImplementation("net.fabricmc:fabric-loader-junit:${property("version.fabric-loader")}")
 }
@@ -82,7 +82,7 @@ tasks.processResources {
     val properties = mapOf(
         "version" to version,
         "java" to project.property("version.java"),
-        "minecraft" to stonecutter.current.project,
+        "minecraft" to "~${stonecutter.current.project}-",
     )
 
     inputs.properties(properties)
@@ -96,6 +96,8 @@ tasks.shadowJar {
 
     enableAutoRelocation = true
     relocationPrefix = "dev.rvbsm.fsit.lib"
+
+    exclude("META-INF/maven/org.snakeyaml/*/**")
 
     minimize()
 }
@@ -153,7 +155,10 @@ publishMods {
         projectId = providers.gradleProperty("mod.modrinth_id")
         featured = true
 
-        minecraftVersions.addAll(providers.gradleProperty("mod.minecraft_versions").map { it.split(" ") })
+        minecraftVersionRange {
+            start = stonecutter.current.project
+            end = stonecutter.current.version
+        }
 
         requires("fabric-api")
         optional("modmenu")
