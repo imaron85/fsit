@@ -4,7 +4,6 @@
   "compatibilityLevel": "JAVA_25",
   "client": [
     "AbstractClientPlayerMixin",
-    "GameNarratorMixin_DONOTFORGETTOREMOVEPLEASE",
     "KeyMappingMixin",
     "LocalPlayerMixin",
     "OptionInstanceAccessor"
