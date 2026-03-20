@@ -1,6 +1,10 @@
 {
   "option.fsit.title": "FSit",
 
+  "option.fsit.use_server": "Use Server",
+  "option.fsit.use_server.tooltip": "Whether to use the server-side configuration.",
+  "option.fsit.use_server.enabled": "FSit client is disabled on this server",
+
   "option.fsit.sitting.title": "Sitting",
   "option.fsit.seats_trait": "Trait",
   "option.fsit.seats_trait.static": "Static",

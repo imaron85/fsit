@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public record ConfigData(
+    boolean useServer,
     SeatTrait seatsTrait,
     boolean seatsCentered,
 
@@ -38,6 +39,7 @@ public record ConfigData(
 ) {
 
     public static final Codec<ConfigData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+        Codec.BOOL.fieldOf("use-server").forGetter(ConfigData::useServer),
         SeatTrait.CODEC.fieldOf("seats-trait").forGetter(ConfigData::seatsTrait),
         Codec.BOOL.fieldOf("seats-centered").forGetter(ConfigData::seatsCentered),
 

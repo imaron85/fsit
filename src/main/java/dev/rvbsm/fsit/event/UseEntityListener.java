@@ -47,8 +47,12 @@ public final class UseEntityListener implements UseEntityCallback {
             return InteractionResult.PASS;
         }
 
-        LOGGER.debug("use entity {} {} {} {} {}", player, level, hand, entity, hitResult.getLocation());
+        LOGGER.debug("use entity {} {} {} {} {}", player, level, hand, entity, hitResult != null ? hitResult.getLocation() : null);
         var config = FSitMod.getInstance().getConfig();
+        if (level.isClientSide() && config.useServer()) {
+            return InteractionResult.PASS;
+        }
+
         if (config.ridingMinimumYaw() == 0) {
             return level.isClientSide() ? InteractionResult.FAIL : InteractionResult.PASS;
         }

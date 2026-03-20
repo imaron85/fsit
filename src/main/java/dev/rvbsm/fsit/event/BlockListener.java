@@ -37,6 +37,10 @@ public final class BlockListener implements BlockEvents.UseWithoutItemCallback {
         LOGGER.debug("use block {} {} {} {} {}", state, level, pos, player, hitResult);
 
         var config = FSitMod.getInstance().getConfig();
+        if (level.isClientSide() && config.useServer()) {
+            return null;
+        }
+
         if (!config.blockInteraction()) {
             return null;
         }
