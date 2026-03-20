@@ -14,10 +14,11 @@ pluginManagement {
 }
 
 plugins {
-    id("dev.kikugie.stonecutter") version "0.8.3"
+    id("dev.kikugie.stonecutter") version "0.9"
 }
 
 stonecutter {
+    // TODO: data-driven
     create(rootProject) {
         vcsVersion = "26.1"
         versions(
