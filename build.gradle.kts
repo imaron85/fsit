@@ -115,6 +115,10 @@ tasks.jar {
     }
 }
 
+tasks.withType<Jar> {
+    destinationDirectory = rootProject.layout.buildDirectory.dir("libs")
+}
+
 tasks.test {
     useJUnitPlatform()
 }
