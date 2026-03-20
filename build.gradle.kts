@@ -64,15 +64,17 @@ dependencies {
         "fabric-key-mapping-api-v1",
         "fabric-lifecycle-events-v1",
         "fabric-networking-api-v1",
+        // TODO: https://github.com/FabricMC/fabric-api/pull/5226
+        // "fabric-permission-api-v1",
     ).map { fabricApi.module(it, property("version.fabric-api").toString()) }.forEach(::implementation)
+    implementation("me.lucko:fabric-permissions-api") { version { branch = "26.1-clean" } }
 
-    implementation("org.snakeyaml:snakeyaml-engine:${property("version.snakeyaml")}")
-    shadow("org.snakeyaml:snakeyaml-engine:${property("version.snakeyaml")}")
+    implementation("org.snakeyaml:snakeyaml-engine:3.0.1")
+    shadow("org.snakeyaml:snakeyaml-engine:3.0.1")
 
-    implementation("me.lucko:fabric-permissions-api") { version { branch = "master" } }
-    compileOnly("com.terraformersmc:modmenu:${property("version.modmenu")}")
+    runtimeOnly("net.fabricmc.fabric-api:fabric-api:${property("version.fabric-api")}")
+    implementation("com.terraformersmc:modmenu:${property("version.modmenu")}")
     implementation("dev.isxander:yet-another-config-lib:${property("version.yacl")}") {
-        runtimeOnly("net.fabricmc.fabric-api:fabric-api:${property("version.fabric-api")}")
         isTransitive = false
     }
 
