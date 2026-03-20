@@ -84,7 +84,7 @@ dependencies {
 tasks.processResources {
     val properties = mapOf(
         "version" to version,
-        "java" to project.property("version.java"),
+        "java" to ">=${java.targetCompatibility}",
         "minecraft" to "~${stonecutter.current.project}-",
     )
 
@@ -121,7 +121,7 @@ tasks.test {
 
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
-    options.release = project.property("version.java").toString().toInt()
+    options.release = java.targetCompatibility.ordinal + 1
     options.compilerArgs.addAll(listOf("-Xlint:all", "-Xlint:-processing", "-parameters"))
     options.isFork = true
     options.forkOptions.jvmArgs = listOf("-Dline.separator=\n")
@@ -130,8 +130,8 @@ tasks.withType<JavaCompile> {
 java {
     withSourcesJar()
 
-    sourceCompatibility = JavaVersion.toVersion(project.property("version.java")!!)
-    targetCompatibility = JavaVersion.toVersion(project.property("version.java")!!)
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 publishMods {
@@ -164,7 +164,7 @@ publishMods {
         }
 
         requires("fabric-api")
-        optional("modmenu")
+        optional("modmenu", "yacl")
     }
 }
 
