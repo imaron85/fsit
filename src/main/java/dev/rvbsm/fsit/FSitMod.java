@@ -9,7 +9,7 @@ import dev.rvbsm.fsit.event.CommandRegistrationListener;
 import dev.rvbsm.fsit.event.UseEntityListener;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
 import dev.rvbsm.fsit.network.protocol.game.ServerboundPlayerPosePayload;
-import dev.rvbsm.fsit.server.event.FSitPoseListener;
+import dev.rvbsm.fsit.event.FSitPoseListener;
 import dev.rvbsm.fsit.server.network.ServerModPacketListener;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;

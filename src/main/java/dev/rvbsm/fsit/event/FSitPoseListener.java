@@ -1,4 +1,4 @@
-package dev.rvbsm.fsit.server.event;
+package dev.rvbsm.fsit.event;
 
 import com.mojang.logging.LogUtils;
 import dev.rvbsm.fsit.FSitMod;
@@ -10,6 +10,7 @@ import dev.rvbsm.fsit.world.entity.decoration.Seat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
@@ -103,8 +104,16 @@ public final class FSitPoseListener implements FSitPoseCallback {
                     serverPlayer.connection.send(new ClientboundBlockUpdatePacket(bedPosition, BED_STATE));
                     serverPlayer.startSleeping(bedPosition);
                     // TODO: award stat and trigger `slept_in_bed` criteria?
-                    // FIXME: skips when all players are laying
-                    serverPlayer.level().updateSleepingPlayerList();
+
+                    // to avoid skipping day when all players are laying
+                    boolean canSleep = player.level()
+                            .environmentAttributes()
+                            .getValue(EnvironmentAttributes.BED_RULE, position)
+                            .canSleep(player.level());
+
+                    if (canSleep) {
+                        serverPlayer.level().updateSleepingPlayerList();
+                    }
                 }
             }
 

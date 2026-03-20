@@ -8,8 +8,7 @@
     "LivingEntityMixin",
     "PlayerMixin",
     "server.ServerGamePacketListenerImplMixin_TEMPORARYFIXANNOYINGOUTOFCONTEXTBUILDLIMITMESSAGE",
-    "server.ServerPlayerMixin",
-    "server.SleepStatusMixin"
+    "server.ServerPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
