@@ -2,6 +2,9 @@ package dev.rvbsm.fsit.client.network;
 
 import com.mojang.logging.LogUtils;
 import dev.rvbsm.fsit.api.FSitPoseHolder;
+import dev.rvbsm.fsit.client.FSitModClient;
+import dev.rvbsm.fsit.client.option.HybridKeyMapping;
+import dev.rvbsm.fsit.network.protocol.game.ClientboundConfigurationUseServerPayload;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
 import dev.rvbsm.fsit.network.protocol.game.ServerboundPlayerPosePayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -41,5 +44,10 @@ public final class ClientModPacketListener {
 
     public static void handleChangePose(ClientboundPlayerPosePayload payload, ClientPlayNetworking.Context ctx) {
         FSitPoseHolder.set(ctx.player(), payload.pose());
+        HybridKeyMapping.resetHybridKeys();
+    }
+
+    public static void handleConfigurationUseServer(ClientboundConfigurationUseServerPayload payload, ClientPlayNetworking.Context ctx) {
+        FSitModClient.getInstance().getOptions().useServerRemote = payload.useServer();
     }
 }

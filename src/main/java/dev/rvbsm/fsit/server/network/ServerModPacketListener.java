@@ -3,12 +3,15 @@ package dev.rvbsm.fsit.server.network;
 import com.mojang.logging.LogUtils;
 import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.api.FSitPoseHolder;
+import dev.rvbsm.fsit.network.protocol.game.ClientboundConfigurationUseServerPayload;
+import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
 import dev.rvbsm.fsit.network.protocol.game.ServerboundPlayerPosePayload;
 import dev.rvbsm.fsit.world.entity.FSitPose;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import org.slf4j.Logger;
 
@@ -57,6 +60,13 @@ public final class ServerModPacketListener {
 
         if (player.isWithinBlockInteractionRange(BlockPos.containing(position), 1.0)) {
             FSitPoseHolder.set(player, payload.pose(), new FSitPose.Context.Positioned(position));
+        }
+    }
+
+    public static void broadcastConfig(MinecraftServer server) {
+        var packet = new ClientboundConfigurationUseServerPayload(FSitMod.getInstance().getConfig().useServer());
+        for (var player : server.getPlayerList().getPlayers()) {
+            ServerModPacketListener.send(player, packet);
         }
     }
 }

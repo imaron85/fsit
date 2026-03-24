@@ -6,16 +6,19 @@ import dev.rvbsm.fsit.config.ConfigData;
 import dev.rvbsm.fsit.config.ConfigLoader;
 import dev.rvbsm.fsit.event.BlockListener;
 import dev.rvbsm.fsit.event.CommandRegistrationListener;
+import dev.rvbsm.fsit.event.FSitPoseListener;
 import dev.rvbsm.fsit.event.UseEntityListener;
+import dev.rvbsm.fsit.network.protocol.game.ClientboundConfigurationUseServerPayload;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
 import dev.rvbsm.fsit.network.protocol.game.ServerboundPlayerPosePayload;
-import dev.rvbsm.fsit.event.FSitPoseListener;
+import dev.rvbsm.fsit.server.event.ServerPlayConnectionListener;
 import dev.rvbsm.fsit.server.network.ServerModPacketListener;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.player.BlockEvents;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.Identifier;
@@ -58,9 +61,11 @@ public final class FSitMod implements ModInitializer {
         var configLoader = this.reloadConfig();
 
         PayloadTypeRegistry.clientboundPlay().register(ClientboundPlayerPosePayload.TYPE, ClientboundPlayerPosePayload.STREAM_CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(ClientboundConfigurationUseServerPayload.TYPE, ClientboundConfigurationUseServerPayload.STREAM_CODEC);
         PayloadTypeRegistry.serverboundPlay().register(ServerboundPlayerPosePayload.TYPE, ServerboundPlayerPosePayload.STREAM_CODEC);
         ServerPlayNetworking.registerGlobalReceiver(ServerboundPlayerPosePayload.TYPE, ServerModPacketListener::handleChangePose);
 
+        ServerPlayConnectionEvents.JOIN.register(ServerPlayConnectionListener.INSTANCE);
         BlockEvents.USE_WITHOUT_ITEM.register(BlockListener.INSTANCE);
         UseEntityCallback.EVENT.register(UseEntityListener.INSTANCE);
 
@@ -81,9 +86,9 @@ public final class FSitMod implements ModInitializer {
         this.configRef.set(config);
     }
 
-    /**
-     * @return `true` if configuration was reloaded; `false` if configuration exists but could not be reloaded
-     */
+    /// @return `true` if configuration was reloaded; `false` if configuration exists but could not be reloaded.
+    /// @apiNote Does not broadcast changes to the client.
+    /// @see ServerModPacketListener#broadcastConfig
     public CompletableFuture<Boolean> reloadConfig() {
         var started = Instant.now();
 
@@ -93,7 +98,7 @@ public final class FSitMod implements ModInitializer {
             LOGGER.debug("Configuration load took {} milliseconds", Duration.between(started, Instant.now()).toMillis());
 
             if (e == null) {
-                this.configRef.set(data);
+                this.setConfig(data);
                 return true;
             }
 

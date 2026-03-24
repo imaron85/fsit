@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
 import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.server.compat.permissions.Permissions;
+import dev.rvbsm.fsit.server.network.ServerModPacketListener;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -32,6 +33,7 @@ public final class FSitCommand {
         FSitMod.getInstance().reloadConfig().thenAcceptAsync(
             success -> {
                 if (success) {
+                    ServerModPacketListener.broadcastConfig(src.getServer());
                     return;
                 }
 

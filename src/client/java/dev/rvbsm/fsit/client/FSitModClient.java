@@ -4,6 +4,7 @@ import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.client.network.ClientModPacketListener;
 import dev.rvbsm.fsit.client.option.ModOptions;
 import dev.rvbsm.fsit.config.ConfigData;
+import dev.rvbsm.fsit.network.protocol.game.ClientboundConfigurationUseServerPayload;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
@@ -35,6 +36,7 @@ public final class FSitModClient implements ClientModInitializer {
         this.options.load();
 
         ClientPlayNetworking.registerGlobalReceiver(ClientboundPlayerPosePayload.TYPE, ClientModPacketListener::handleChangePose);
+        ClientPlayNetworking.registerGlobalReceiver(ClientboundConfigurationUseServerPayload.TYPE, ClientModPacketListener::handleConfigurationUseServer);
 
         // hashset lookups are cheap, but booleans are even cheaper
         ClientPlayConnectionEvents.JOIN.register((_, _, _) -> this.enabled = ClientModPacketListener.isConnected());
