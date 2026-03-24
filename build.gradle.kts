@@ -73,7 +73,9 @@ dependencies {
     shadow("org.snakeyaml:snakeyaml-engine:3.0.1")
 
     runtimeOnly("net.fabricmc.fabric-api:fabric-api:${property("version.fabric-api")}")
-    implementation("com.terraformersmc:modmenu:${property("version.modmenu")}")
+    implementation("com.terraformersmc:modmenu:${property("version.modmenu")}") {
+        isTransitive = false
+    }
     implementation("dev.isxander:yet-another-config-lib:${property("version.yacl")}") {
         isTransitive = false
     }
