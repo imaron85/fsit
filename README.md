@@ -2,7 +2,7 @@
 
 Customizable server-side mod that allows players to sit, crawl, and ride each other.
 Client-side is supported too,
-it allows players to improve their experience by syncing configuration
+it allows players to improve their experience by using client configuration
 and adding some client-side mod behaviour improvements.
 
 > [!NOTE]
@@ -13,7 +13,7 @@ and adding some client-side mod behaviour improvements.
 Having this mod installed on the server is enough, players are not forced to have it to be able to use it.
 
 However, installation on the client will bring some QoL improvements for players using this mod.
-Such as configuration syncing, better crawling, key bindings, and riding restrictions.
+Such as client configuration, better crawling, and key bindings.
 
 ### Interacting with blocks
 
@@ -21,7 +21,7 @@ Interact with the topside of the block, that can be sat on, to start sitting on 
 
 ![sapling yippee](./public/sapling-serenity.jpg)
 
-Controlled with [`on_use.sitting`](#on_usesitting) and [`on_use.range`](#on_userange).
+Controlled with [`block-interaction`](#block-interaction).
 
 ### Interacting with players
 
@@ -29,24 +29,16 @@ Interact with any player to start riding them.
 
 ![elytra](./public/soaring-spirits.jpg)
 
-Controlled with [`on_use.riding`](#on_useriding) and [`on_use.range`](#on_userange).
-
-#### Riding restrictions (client)
-
-Players can restrict other players from riding them.
-
-![social interactions](./public/riding-restrictions.jpg)
-
-Can be accessed with [Social Interactions Screen] or using `/fsit:client allow|restrict <player>`.
+Control angle difference with [`riding-minimum-yaw`](#riding-minimum-yaw)
 
 ### Sneaking
 
-Double sneak while looking down to sit right away. ([`on_sneak.sitting`](#on_sneaksitting))
+Double sneak while looking down to sit right away.
 
-Doing the same, but near the hole, will start crawling otherwise. ([`on_sneak.crawling`](#on_sneakcrawling))
+Doing the same, but near the hole, will start crawling otherwise. ([`sneak-crawling`](#sneak-crawling))
 
-Minimal pitch and maximum sneak window can be configured with [`on_sneak.min_pitch`](#on_sneakmin_pitch) and
-[`on_sneak.delay`](#on_sneakdelay) accordingly.
+Minimal pitch and maximum sneak window can be configured with [`sneak-minimum-pitch`](#sneak-minimum-pitch) and
+[`sneak-window`](#sneak-window) accordingly.
 
 ### Commands
 
@@ -59,108 +51,91 @@ Use key bindings to start sitting (default: RCtrl) or crawling (default: RAlt).
 Key bindings have three modes: **Hold**, **Toggle**, and **Hybrid**.
 **Hold** and **Toggle** works the same as Vanilla.
 **Hybrid** is an in-between mechanic, that works as Toggle on single-use and as Hold on holding.
+The **Hybrid** window between **Hold** and **Toggle** can be configured from the Configuration Screen.
 
 ## Configuration
 
 As was stated before, players can use their own configurations if they have this mod installed on the client.
 Otherwise, server configuration will be used.
 
-Configuration can be viewed or edited on the server with `/fsit <option> [value]`.
-Reloading from the file can be done with `/fsit reload`.
+Configuration can be reloaded from the file with `/fsit reload`.
 
 For clients, configuration can be modified with [Mod Menu] and [YetAnotherConfigLib] installed.
 
 ![yacl screen](./public/yacl-config.jpg)
 
-<details>
-<summary><i>What is that in the background?</i></summary>
-
-WaveTech's villager trading matrix by [cubicmetre](https://youtu.be/oJDRiV3kJJI)
-designed by [mrmaxmondays](https://youtu.be/8OLzXqe3f5g).
-
-</details>
-
 ### Default configuration file
 
 ```yaml
-use_server: false
-sitting:
-  behaviour: gravity
-  should_center: false
-on_use:
-  sitting: false
-  riding: false
-  range: 2
-  check_suffocation: true
-  blocks:
-    - "#slabs"
-    - "#stairs"
-    - "#logs"
-on_sneak:
-  sitting: true
-  crawling: true
-  min_pitch: 60.0
-  delay: 600
+use-server: false
+seats-trait: moveable
+seats-centered: false
+block-interaction: true
+block-interaction-ids:
+  - '#minecraft:slabs'
+  - '#minecraft:stairs'
+  - '#minecraft:logs'
+  - '#minecraft:fences'
+riding-minimum-yaw: 45
+sneak-window: 10
+sneak-minimum-pitch: 60
+sneak-crawling: true
+commands:
+  root: fsit
+  sit: sit
+  crawl: crawl
+  lay: lay
 ```
 
 <details>
 <summary>Options details</summary>
 
-### `use_server`
+### `use-server`
 
-When set to `true`, forces all players (server) or player (client) to use server's configuration.
+When set to `true`, forces all players (server) or player (client) to use server configuration.
 
-Players' configuration will still be received and processed by the server, but will be ignored when accessed.
+Enabling this option will ignore client pose updates, leaving only server-to-client synchronization.
 
-Re-disabling this option does not require resynchronizing players' configuration.
+### `seats-trait`
 
-### `sitting.behaviour`
+Controls sitting behaviour. Possible values: `static`, `attached`, `moveable`.
 
-Controls sitting behaviour. Possible values: `nothing`, `discard`, `gravity`.
+* `static` – does nothing, ignores everything;
+* `attached` – seats will be discarded if they do not have any supporting block underneath;
+* `moveable` – seats can be pushed by fluids, pistons, etc. Will start falling without a supporting block.
 
-* `nothing` – does nothing, ignores everything;
-* `discard` – seats will be discarded if they do not have any supporting block underneath;
-* `gravity` – seats can be pushed by fluids, pistons, etc. Will start falling without a supporting block;
-
-### `sitting.should_center`
+### `seats-centered`
 
 Place seats in the centre of the block.
 
-### `on_use.sitting`
+### `block-interaction`
 
 Allows sitting by interacting with blocks.
 
-### `on_use.riding`
+### `riding-minimum-yaw`
 
-Allows riding by interacting with players.
+When 1..180, allows riding by interacting with players.
+Setting to 0 disables riding interactions, and 180 removes restriction.
 
-### `on_use.range`
+The option controls a difference between players' horizontal facing angle to allow riding by interaction.
 
-Interaction radius for sitting and riding features.
-
-### `on_use.check_suffocattion`
-
-Restricts player from completing interaction if it results in their suffocation.
-
-### `on_use.blocks`
+### `block-interaction-ids`
 
 List of blocks and block tags that are available to interact with.
 
-### `on_sneak.sitting`
-
-Allows player to start sitting by double sneaking.
-
-### `on_sneak.crawling`
+### `sneak-crawling`
 
 Starts crawling instead of sitting if there is a hole nearby.
 
-### `on_sneak.min_pitch`
+### `sneak-minimum-pitch`
 
-Minimal required player's pitch to start registering sneak actions. Where -90 is straight up, and 90 is straight down.
+Minimal required player pitch to start registering sneak actions.
+Where 90 is straight down, and -90 ignores player pitch.
 
-### `on_sneak.delay`
+### `sneak-window`
 
-The window between sneaks to be recognized as double sneak action. Measured in milliseconds.
+The window in ticks between sneaks to be recognized as double sneak action.
+Setting to 0 disables sneak actions.
 
 </details>
 
@@ -179,19 +154,26 @@ you are free to create new or remove keys with `description.<n>` when needed.
 
 ### Building
 
-Since the project uses [Stonecutter], the build is performed using `chiseledBuild` task:
+The project uses [FabricMC] and [Stonecutter] for multi-versioning.
 
 ```shell
-> ./gradlew chiseledBuild
+> ./gradlew build
 ```
 
-Publishing is done with `chiseledPublish` task:
+To run a specific version, switch to that version with Stonecutter, and run version configuration provided by IDE, or
+
+```shell
+> ./gradlew "Set active project to [version]"
+> ./gradlew [version]:runClient # or
+> ./gradlew [version]:runServer
+```
+
+Publishing is done with `publishMods` task.
+Requires `MODRINTH_TOKEN` environment variable to be provided, otherwise the task will dry-run.
 
 ```shell
 > ./gradlew chiseledPublish
 ```
-
-For further versioning info, visit the [Stonecutter Wiki].
 
 ## License
 
@@ -199,10 +181,8 @@ This project is licensed under the [MIT License](./LICENSE).
 
 [gsit]: https://github.com/Gecolay/GSit
 
-[social interactions screen]: https://minecraft.wiki/w/Social_interactions
-
 [mod menu]: [https://modrinth.com/mod/modmenu]
 [yetanotherconfiglib]: [https://modrinth.com/mod/yacl]
 
-[stonecutter]: https://github.com/stonecutter-versioning/stonecutter
-[stonecutter wiki]: https://stonecutter.kikugie.dev
+[fabricmc]: https://docs.fabricmc.net/develop/
+[stonecutter]: https://stonecutter.kikugie.dev
