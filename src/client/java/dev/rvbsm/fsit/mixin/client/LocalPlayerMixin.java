@@ -6,6 +6,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.client.FSitModClient;
 import dev.rvbsm.fsit.client.network.ClientModPacketListener;
+import dev.rvbsm.fsit.client.option.HybridKeyMapping;
 import dev.rvbsm.fsit.network.protocol.game.ServerboundPlayerPosePayload;
 import dev.rvbsm.fsit.world.entity.FSitPose;
 import net.minecraft.client.player.ClientInput;
@@ -74,12 +75,10 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayerMixin {
             return;
         }
 
-        FSitModClient.getInstance().getOptions().sitKey.tick();
-        FSitModClient.getInstance().getOptions().crawlKey.tick();
+        HybridKeyMapping.tickAll();
 
         if (this.isShiftKeyDown()) {
-            FSitModClient.getInstance().getOptions().sitKey.reset();
-            FSitModClient.getInstance().getOptions().crawlKey.reset();
+            HybridKeyMapping.resetHybridKeys();
         }
 
         var isSitDown = FSitModClient.getInstance().getOptions().sitKey.isDown();
@@ -101,6 +100,11 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayerMixin {
         this.fsit$lastInputPose = inputPose;
     }
 
+    @Inject(method = "respawn", at = @At("TAIL"))
+    private void resetHybridKeys(CallbackInfo ci) {
+        HybridKeyMapping.resetHybridKeys();
+    }
+
     @Override
     protected boolean fsit$canStartPosingBySneaking() {
         return this.input.getMoveVector().lengthSquared() < 1.0e-5 && super.fsit$canStartPosingBySneaking();
@@ -108,7 +112,10 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayerMixin {
 
     @Override
     protected void fsit$sendPose(Vec3 position) {
-        ClientModPacketListener.send(
+        boolean success = ClientModPacketListener.send(
                 ServerboundPlayerPosePayload.TYPE, () -> new ServerboundPlayerPosePayload(this.fsit$pose, position));
+        if (!success) {
+            this.fsit$pose = FSitPose.STANDING;
+        }
     }
 }

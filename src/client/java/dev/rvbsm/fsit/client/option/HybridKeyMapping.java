@@ -6,16 +6,30 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
 public final class HybridKeyMapping extends KeyMapping {
 
+    private static final Map<String, HybridKeyMapping> HYBRID = new HashMap<>();
+
     private final Supplier<Mode> modeGetter;
     private final IntSupplier windowGetter;
     private int toggleTicks = 0;
+
+    public static void resetHybridKeys() {
+        for (var hybridKeyMapping : HYBRID.values()) {
+            hybridKeyMapping.reset();
+        }
+    }
+
+    public static void tickAll() {
+        for (var hybridKeyMapping : HYBRID.values()) {
+            hybridKeyMapping.consumeTick();
+        }
+    }
 
     @SuppressWarnings("this-escape")
     public HybridKeyMapping(
@@ -28,9 +42,10 @@ public final class HybridKeyMapping extends KeyMapping {
         super(name, InputConstants.Type.KEYSYM, value, category);
         this.modeGetter = modeGetter;
         this.windowGetter = windowGetter;
+        HYBRID.put(name, this);
     }
 
-    public void tick() {
+    private void consumeTick() {
         if (this.toggleTicks > 0) {
             this.toggleTicks -= 1;
         }
@@ -61,7 +76,22 @@ public final class HybridKeyMapping extends KeyMapping {
         }
     }
 
-    public void reset() {
+    @Override
+    protected void release() {
+        switch (this.modeGetter.get()) {
+            case TOGGLE -> super.release();
+            case HOLD -> super.setDown(false);
+            case HYBRID -> {
+                if (this.toggleTicks > 0) {
+                    super.release();
+                } else {
+                    super.setDown(false);
+                }
+            }
+        }
+    }
+
+    private void reset() {
         super.setDown(false);
     }
 
