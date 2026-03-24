@@ -26,6 +26,7 @@
       "environment": "client"
     }
   ],
+  "accessWidener": "fsit.classtweaker",
   "depends": {
     "java": "${java}",
     "minecraft": "${minecraft}",
