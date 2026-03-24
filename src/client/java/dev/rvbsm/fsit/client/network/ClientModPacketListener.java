@@ -4,9 +4,10 @@ import com.mojang.logging.LogUtils;
 import dev.rvbsm.fsit.api.FSitPoseHolder;
 import dev.rvbsm.fsit.client.FSitModClient;
 import dev.rvbsm.fsit.client.option.HybridKeyMapping;
-import dev.rvbsm.fsit.network.protocol.game.ClientboundConfigurationUseServerPayload;
+import dev.rvbsm.fsit.config.ConfigData;
+import dev.rvbsm.fsit.network.protocol.game.ClientboundServerConfigPayload;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
-import dev.rvbsm.fsit.network.protocol.game.ServerboundPlayerPosePayload;
+import dev.rvbsm.fsit.network.protocol.game.ServerboundPlayerConfigPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.slf4j.Logger;
@@ -22,10 +23,6 @@ public final class ClientModPacketListener {
 
     public static boolean canSend(CustomPacketPayload.Type<?> type) {
         return ClientPlayNetworking.canSend(type);
-    }
-
-    public static boolean isConnected() {
-        return canSend(ServerboundPlayerPosePayload.TYPE);
     }
 
     public static void send(CustomPacketPayload payload) {
@@ -47,7 +44,11 @@ public final class ClientModPacketListener {
         HybridKeyMapping.resetHybridKeys();
     }
 
-    public static void handleConfigurationUseServer(ClientboundConfigurationUseServerPayload payload, ClientPlayNetworking.Context ctx) {
+    public static boolean sendConfig(ConfigData config) {
+        return ClientModPacketListener.send(ServerboundPlayerConfigPayload.TYPE, () -> new ServerboundPlayerConfigPayload(config.makePlayerConfig()));
+    }
+
+    public static void handleServerConfig(ClientboundServerConfigPayload payload, ClientPlayNetworking.Context ctx) {
         FSitModClient.getInstance().getOptions().useServerRemote = payload.useServer();
     }
 }

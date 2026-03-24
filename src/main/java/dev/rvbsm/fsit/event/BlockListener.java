@@ -30,7 +30,7 @@ public final class BlockListener implements BlockEvents.UseWithoutItemCallback {
     public @Nullable InteractionResult useWithoutItem(
             BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
 
-        if (!level.isClientSide() && FSitMod.getInstance().isClient((ServerPlayer) player)) {
+        if (!level.isClientSide() && FSitMod.getInstance().isUsingClient((ServerPlayer) player)) {
             return null;
         }
 

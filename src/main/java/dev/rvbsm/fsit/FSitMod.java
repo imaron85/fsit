@@ -1,6 +1,7 @@
 package dev.rvbsm.fsit;
 
 import com.mojang.logging.LogUtils;
+import dev.rvbsm.fsit.api.FSitPlayerConfig;
 import dev.rvbsm.fsit.api.event.FSitPoseCallback;
 import dev.rvbsm.fsit.config.ConfigData;
 import dev.rvbsm.fsit.config.ConfigLoader;
@@ -8,8 +9,9 @@ import dev.rvbsm.fsit.event.BlockListener;
 import dev.rvbsm.fsit.event.CommandRegistrationListener;
 import dev.rvbsm.fsit.event.FSitPoseListener;
 import dev.rvbsm.fsit.event.UseEntityListener;
-import dev.rvbsm.fsit.network.protocol.game.ClientboundConfigurationUseServerPayload;
+import dev.rvbsm.fsit.network.protocol.game.ClientboundServerConfigPayload;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
+import dev.rvbsm.fsit.network.protocol.game.ServerboundPlayerConfigPayload;
 import dev.rvbsm.fsit.network.protocol.game.ServerboundPlayerPosePayload;
 import dev.rvbsm.fsit.server.event.ServerPlayConnectionListener;
 import dev.rvbsm.fsit.server.network.ServerModPacketListener;
@@ -61,9 +63,11 @@ public final class FSitMod implements ModInitializer {
         var configLoader = this.reloadConfig();
 
         PayloadTypeRegistry.clientboundPlay().register(ClientboundPlayerPosePayload.TYPE, ClientboundPlayerPosePayload.STREAM_CODEC);
-        PayloadTypeRegistry.clientboundPlay().register(ClientboundConfigurationUseServerPayload.TYPE, ClientboundConfigurationUseServerPayload.STREAM_CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(ClientboundServerConfigPayload.TYPE, ClientboundServerConfigPayload.STREAM_CODEC);
         PayloadTypeRegistry.serverboundPlay().register(ServerboundPlayerPosePayload.TYPE, ServerboundPlayerPosePayload.STREAM_CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(ServerboundPlayerConfigPayload.TYPE, ServerboundPlayerConfigPayload.STREAM_CODEC);
         ServerPlayNetworking.registerGlobalReceiver(ServerboundPlayerPosePayload.TYPE, ServerModPacketListener::handleChangePose);
+        ServerPlayNetworking.registerGlobalReceiver(ServerboundPlayerConfigPayload.TYPE, ServerModPacketListener::handleConfig);
 
         ServerPlayConnectionEvents.JOIN.register(ServerPlayConnectionListener.INSTANCE);
         BlockEvents.USE_WITHOUT_ITEM.register(BlockListener.INSTANCE);
@@ -142,6 +146,11 @@ public final class FSitMod implements ModInitializer {
     }
 
     public boolean isClient(ServerPlayer player) {
-        return ServerModPacketListener.canSend(player, ClientboundPlayerPosePayload.TYPE);
+        return FSitPlayerConfig.get(player) != null;
+    }
+
+    public boolean isUsingClient(ServerPlayer player) {
+        var config = FSitPlayerConfig.get(player);
+        return !this.getConfig().useServer() && (config != null && !config.useServer());
     }
 }

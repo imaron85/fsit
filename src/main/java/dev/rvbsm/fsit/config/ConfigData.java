@@ -84,4 +84,8 @@ public record ConfigData(
             return HolderSet.empty();
         }
     }
+
+    public PlayerConfig makePlayerConfig() {
+        return new PlayerConfig(this.useServer(), this.seatsTrait());
+    }
 }

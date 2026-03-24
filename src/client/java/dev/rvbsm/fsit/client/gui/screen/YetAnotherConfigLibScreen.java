@@ -29,6 +29,12 @@ public class YetAnotherConfigLibScreen {
     private static ConfigCategory general(ModOptions options) {
         return ConfigCategory.createBuilder()
                 .name(ModOptionsScreen.TITLE)
+                .option(Option.<Boolean>createBuilder()
+                    .name(caption(options.useServer))
+                    .description(OptionDescription.of(ModOptions.USE_SERVER_TOOLTIP))
+                    .binding(Binding.minecraft(options.useServer))
+                    .controller(TickBoxControllerBuilder::create)
+                    .build())
                 .group(OptionGroup.createBuilder()
                         .name(ModOptionsScreen.SITTING)
                         .option(Option.<SeatTrait>createBuilder()

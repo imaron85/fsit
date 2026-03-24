@@ -58,7 +58,7 @@ public final class UseEntityListener implements UseEntityCallback {
             return InteractionResult.PASS;
         }
 
-        if (level.isClientSide() || !FSitMod.getInstance().isClient((ServerPlayer) player)) {
+        if (level.isClientSide() || !FSitMod.getInstance().isUsingClient((ServerPlayer) player)) {
             if (config.ridingMinimumYaw() == 0) {
                 return getResultForLevel(level);
             } else if (config.ridingMinimumYaw() < 180) {

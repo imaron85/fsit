@@ -63,8 +63,7 @@ public final class FSitPoseListener implements FSitPoseCallback {
             }
 
             case SITTING -> {
-                if (!(player instanceof ServerPlayer serverPlayer)
-                        || !FSitMod.getInstance().isClient(serverPlayer)) {
+                if (!(player instanceof ServerPlayer serverPlayer) || !FSitMod.getInstance().isUsingClient(serverPlayer)) {
                     if (config.seatsCentered()) {
                         position = new Vec3(Math.floor(position.x) + 0.5, position.y, Math.floor(position.z) + 0.5);
                     }

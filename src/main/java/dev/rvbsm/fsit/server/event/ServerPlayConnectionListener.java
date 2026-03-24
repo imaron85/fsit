@@ -1,7 +1,7 @@
 package dev.rvbsm.fsit.server.event;
 
 import dev.rvbsm.fsit.FSitMod;
-import dev.rvbsm.fsit.network.protocol.game.ClientboundConfigurationUseServerPayload;
+import dev.rvbsm.fsit.network.protocol.game.ClientboundServerConfigPayload;
 import dev.rvbsm.fsit.server.network.ServerModPacketListener;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -18,8 +18,8 @@ public final class ServerPlayConnectionListener implements ServerPlayConnectionE
     public void onPlayReady(ServerGamePacketListenerImpl listener, PacketSender sender, MinecraftServer server) {
         ServerModPacketListener.send(
                 listener.getPlayer(),
-                ClientboundConfigurationUseServerPayload.TYPE,
-                () -> new ClientboundConfigurationUseServerPayload(
+                ClientboundServerConfigPayload.TYPE,
+                () -> new ClientboundServerConfigPayload(
                         FSitMod.getInstance().getConfig().useServer()));
     }
 }

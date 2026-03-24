@@ -25,6 +25,7 @@ public final class ModOptionsScreen extends OptionsSubScreen {
     @Override
     protected void addOptions() {
         if (this.list != null) {
+            this.list.addBig(this.modOptions.useServer);
             this.list.addHeader(SITTING);
             this.list.addSmall(this.modOptions.seatsTrait, this.modOptions.seatsCentered);
 

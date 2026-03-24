@@ -21,25 +21,25 @@ public final class FSitCommand {
             LOGGER.info("Not registering root command!");
         } else {
             dispatcher.register(Commands.literal(root)
-                .requires(Permissions.require("fsit.command.root", PermissionLevel.GAMEMASTERS))
-                .then(Commands.literal("reload")
-                    .requires(Permissions.require("fsit.command.root.reload", PermissionLevel.GAMEMASTERS))
-                    .executes(ctx -> executeReload(ctx.getSource()))));
+                    .requires(Permissions.require("fsit.command.root", PermissionLevel.GAMEMASTERS))
+                    .then(Commands.literal("reload")
+                            .requires(Permissions.require("fsit.command.root.reload", PermissionLevel.GAMEMASTERS))
+                            .executes(ctx -> executeReload(ctx.getSource()))));
         }
     }
 
     private static int executeReload(CommandSourceStack src) {
         src.sendSuccess(() -> Component.literal("[FSit] ").append(Component.translatable("commands.reload.success")), true);
-        FSitMod.getInstance().reloadConfig().thenAcceptAsync(
-            success -> {
+        FSitMod.getInstance().reloadConfig().thenAcceptAsync(success -> {
                 if (success) {
-                    ServerModPacketListener.broadcastConfig(src.getServer());
+                    ServerModPacketListener.broadcastConfig(src.getServer(), FSitMod.getInstance().getConfig());
                     return;
                 }
 
-                src.sendFailure(Component.literal("[FSit] ").append(Component.translatable("commands.reload.failure")));
-            }, Runnable::run
-        );
+                src.sendFailure(Component.literal("[FSit] ")
+                        .append(Component.translatable("commands.reload.failure")));
+            },
+            Runnable::run);
 
         return 0;
     }

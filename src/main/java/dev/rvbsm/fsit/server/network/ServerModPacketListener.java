@@ -2,9 +2,12 @@ package dev.rvbsm.fsit.server.network;
 
 import com.mojang.logging.LogUtils;
 import dev.rvbsm.fsit.FSitMod;
+import dev.rvbsm.fsit.api.FSitPlayerConfig;
 import dev.rvbsm.fsit.api.FSitPoseHolder;
-import dev.rvbsm.fsit.network.protocol.game.ClientboundConfigurationUseServerPayload;
+import dev.rvbsm.fsit.config.ConfigData;
+import dev.rvbsm.fsit.network.protocol.game.ClientboundServerConfigPayload;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
+import dev.rvbsm.fsit.network.protocol.game.ServerboundPlayerConfigPayload;
 import dev.rvbsm.fsit.network.protocol.game.ServerboundPlayerPosePayload;
 import dev.rvbsm.fsit.world.entity.FSitPose;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -63,10 +66,16 @@ public final class ServerModPacketListener {
         }
     }
 
-    public static void broadcastConfig(MinecraftServer server) {
-        var packet = new ClientboundConfigurationUseServerPayload(FSitMod.getInstance().getConfig().useServer());
+    public static void broadcastConfig(MinecraftServer server, ConfigData config) {
+        var packet = new ClientboundServerConfigPayload(config.useServer());
         for (var player : server.getPlayerList().getPlayers()) {
             ServerModPacketListener.send(player, packet);
         }
+    }
+
+    public static void handleConfig(ServerboundPlayerConfigPayload payload, ServerPlayNetworking.Context ctx) {
+        var player = ctx.player();
+        var config = payload.config();
+        FSitPlayerConfig.set(player, config);
     }
 }

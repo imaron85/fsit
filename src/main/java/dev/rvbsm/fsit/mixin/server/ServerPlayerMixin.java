@@ -2,6 +2,8 @@ package dev.rvbsm.fsit.mixin.server;
 
 import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.api.FSitAttachable;
+import dev.rvbsm.fsit.api.FSitPlayerConfig;
+import dev.rvbsm.fsit.config.PlayerConfig;
 import dev.rvbsm.fsit.mixin.PlayerMixin;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
 import dev.rvbsm.fsit.server.network.ServerModPacketListener;
@@ -17,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayer.class)
-public abstract class ServerPlayerMixin extends PlayerMixin implements FSitAttachable {
+public abstract class ServerPlayerMixin extends PlayerMixin implements FSitAttachable, FSitPlayerConfig {
 
     @Unique
     private FSitPose fsit$lastSentPose = FSitPose.STANDING;
@@ -31,11 +33,13 @@ public abstract class ServerPlayerMixin extends PlayerMixin implements FSitAttac
     @Unique
     private @Nullable Entity fsit$attachedEntity = null;
 
+    @Unique
+    private @Nullable PlayerConfig fsit$playerConfig = null;
+
     @Inject(method = "tick", at = @At("TAIL"))
     private void sneakWindow(CallbackInfo ci) {
-        final var config = FSitMod.getInstance().getConfig();
-        boolean isClient = FSitMod.getInstance().isClient((ServerPlayer) (Object) this);
-        if (isClient && !config.useServer()) {
+        boolean useClient = FSitMod.getInstance().isUsingClient((ServerPlayer) (Object) this);
+        if (useClient) {
             return;
         }
 
@@ -52,7 +56,7 @@ public abstract class ServerPlayerMixin extends PlayerMixin implements FSitAttac
                 if (this.fsit$sneakTriggerTime > 0) {
                     this.fsit$startPosingBySneaking();
                 } else {
-                    this.fsit$sneakTriggerTime = config.sneakWindow();
+                    this.fsit$sneakTriggerTime = FSitMod.getInstance().getConfig().sneakWindow();
                 }
             }
         }
@@ -104,5 +108,15 @@ public abstract class ServerPlayerMixin extends PlayerMixin implements FSitAttac
             this.fsit$attachedEntity.discard();
             this.fsit$attachedEntity = null;
         }
+    }
+
+    @Override
+    public void fsit$setConfig(PlayerConfig config) {
+        this.fsit$playerConfig = config;
+    }
+
+    @Override
+    public @Nullable PlayerConfig fsit$getConfig() {
+        return this.fsit$playerConfig;
     }
 }
