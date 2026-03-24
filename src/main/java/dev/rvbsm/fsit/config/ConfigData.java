@@ -85,7 +85,7 @@ public record ConfigData(
         }
     }
 
-    public PlayerConfig makePlayerConfig() {
-        return new PlayerConfig(this.useServer(), this.seatsTrait());
+    public ClientConfig makeClientConfig() {
+        return new ClientConfig(this.useServer(), this.seatsTrait());
     }
 }

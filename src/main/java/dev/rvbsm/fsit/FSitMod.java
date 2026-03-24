@@ -1,7 +1,7 @@
 package dev.rvbsm.fsit;
 
 import com.mojang.logging.LogUtils;
-import dev.rvbsm.fsit.api.FSitPlayerConfig;
+import dev.rvbsm.fsit.api.FSitClientConfig;
 import dev.rvbsm.fsit.api.event.FSitPoseCallback;
 import dev.rvbsm.fsit.config.ConfigData;
 import dev.rvbsm.fsit.config.ConfigLoader;
@@ -146,11 +146,11 @@ public final class FSitMod implements ModInitializer {
     }
 
     public boolean isClient(ServerPlayer player) {
-        return FSitPlayerConfig.get(player) != null;
+        return FSitClientConfig.get(player) != null;
     }
 
     public boolean isUsingClient(ServerPlayer player) {
-        var config = FSitPlayerConfig.get(player);
+        var config = FSitClientConfig.get(player);
         return !this.getConfig().useServer() && (config != null && !config.useServer());
     }
 }

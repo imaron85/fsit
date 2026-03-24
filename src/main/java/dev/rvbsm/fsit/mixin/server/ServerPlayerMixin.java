@@ -2,8 +2,8 @@ package dev.rvbsm.fsit.mixin.server;
 
 import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.api.FSitAttachable;
-import dev.rvbsm.fsit.api.FSitPlayerConfig;
-import dev.rvbsm.fsit.config.PlayerConfig;
+import dev.rvbsm.fsit.api.FSitClientConfig;
+import dev.rvbsm.fsit.config.ClientConfig;
 import dev.rvbsm.fsit.mixin.PlayerMixin;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
 import dev.rvbsm.fsit.server.network.ServerModPacketListener;
@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayer.class)
-public abstract class ServerPlayerMixin extends PlayerMixin implements FSitAttachable, FSitPlayerConfig {
+public abstract class ServerPlayerMixin extends PlayerMixin implements FSitAttachable, FSitClientConfig {
 
     @Unique
     private FSitPose fsit$lastSentPose = FSitPose.STANDING;
@@ -34,7 +34,7 @@ public abstract class ServerPlayerMixin extends PlayerMixin implements FSitAttac
     private @Nullable Entity fsit$attachedEntity = null;
 
     @Unique
-    private @Nullable PlayerConfig fsit$playerConfig = null;
+    private @Nullable ClientConfig fsit$clientConfig = null;
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void sneakWindow(CallbackInfo ci) {
@@ -111,12 +111,12 @@ public abstract class ServerPlayerMixin extends PlayerMixin implements FSitAttac
     }
 
     @Override
-    public void fsit$setConfig(PlayerConfig config) {
-        this.fsit$playerConfig = config;
+    public void fsit$setConfig(ClientConfig config) {
+        this.fsit$clientConfig = config;
     }
 
     @Override
-    public @Nullable PlayerConfig fsit$getConfig() {
-        return this.fsit$playerConfig;
+    public @Nullable ClientConfig fsit$getConfig() {
+        return this.fsit$clientConfig;
     }
 }

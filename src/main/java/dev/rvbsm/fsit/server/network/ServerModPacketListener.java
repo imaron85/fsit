@@ -2,7 +2,7 @@ package dev.rvbsm.fsit.server.network;
 
 import com.mojang.logging.LogUtils;
 import dev.rvbsm.fsit.FSitMod;
-import dev.rvbsm.fsit.api.FSitPlayerConfig;
+import dev.rvbsm.fsit.api.FSitClientConfig;
 import dev.rvbsm.fsit.api.FSitPoseHolder;
 import dev.rvbsm.fsit.config.ConfigData;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundServerConfigPayload;
@@ -76,6 +76,6 @@ public final class ServerModPacketListener {
     public static void handleConfig(ServerboundPlayerConfigPayload payload, ServerPlayNetworking.Context ctx) {
         var player = ctx.player();
         var config = payload.config();
-        FSitPlayerConfig.set(player, config);
+        FSitClientConfig.set(player, config);
     }
 }

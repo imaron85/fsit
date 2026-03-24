@@ -1,7 +1,7 @@
 package dev.rvbsm.fsit.world.entity.decoration;
 
 import dev.rvbsm.fsit.FSitMod;
-import dev.rvbsm.fsit.api.FSitPlayerConfig;
+import dev.rvbsm.fsit.api.FSitClientConfig;
 import dev.rvbsm.fsit.api.FSitPoseHolder;
 import dev.rvbsm.fsit.config.SeatTrait;
 import dev.rvbsm.fsit.world.entity.FSitPose;
@@ -175,9 +175,9 @@ public class Seat extends ArmorStand {
 
     private SeatTrait getTrait() {
         if (this.tickCount % 60 == 0) {
-            if (this.getFirstPassenger() instanceof ServerPlayer player && FSitPlayerConfig.get(player) != null) {
+            if (this.getFirstPassenger() instanceof ServerPlayer player && FSitClientConfig.get(player) != null) {
                 //noinspection DataFlowIssue
-                this.trait = FSitPlayerConfig.get(player).seatTrait();
+                this.trait = FSitClientConfig.get(player).seatTrait();
             } else {
                 this.trait = FSitMod.getInstance().getConfig().seatsTrait();
             }

@@ -45,7 +45,7 @@ public final class ClientModPacketListener {
     }
 
     public static boolean sendConfig(ConfigData config) {
-        return ClientModPacketListener.send(ServerboundPlayerConfigPayload.TYPE, () -> new ServerboundPlayerConfigPayload(config.makePlayerConfig()));
+        return ClientModPacketListener.send(ServerboundPlayerConfigPayload.TYPE, () -> new ServerboundPlayerConfigPayload(config.makeClientConfig()));
     }
 
     public static void handleServerConfig(ClientboundServerConfigPayload payload, ClientPlayNetworking.Context ctx) {
