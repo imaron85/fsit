@@ -182,7 +182,7 @@ fun readChangelog(name: String): Provider<String> = providers.provider {
         for (line in lines) when {
             line.startsWith("## v${rootProject.version}") -> isWritingContent = true
             isWritingContent && line.startsWith("## v") -> break
-            isWritingContent -> versionContent.append(line)
+            isWritingContent -> versionContent.appendLine(line)
         }
 
         versionContent.trim().toString()
