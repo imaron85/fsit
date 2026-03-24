@@ -49,7 +49,8 @@ public final class ServerModPacketListener {
 
         // FIXME: keybindings are being handled here as well
         if (FSitMod.getInstance().getConfig().useServer()) {
-            // if client can send packets then it can receive this component
+            // if client can send packets then it can receive this
+            ctx.responseSender().sendPacket(new ClientboundPlayerPosePayload(FSitPose.STANDING));
             player.sendOverlayMessage(Component.translatable("option.fsit.use_server.enabled"));
             return;
         }
