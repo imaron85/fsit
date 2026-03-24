@@ -21,16 +21,21 @@ public abstract class ServerPlayerMixin extends PlayerMixin implements FSitAttac
 
     @Unique
     private FSitPose fsit$lastSentPose = FSitPose.STANDING;
+
     @Unique
     private int fsit$sneakTriggerTime = 0;
+
     @Unique
     private boolean fsit$lastShiftKeyDown = false;
+
     @Unique
     private @Nullable Entity fsit$attachedEntity = null;
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void sneakWindow(CallbackInfo ci) {
-        if (FSitMod.getInstance().isClient((ServerPlayer) (Object) this)) {
+        final var config = FSitMod.getInstance().getConfig();
+        boolean isClient = FSitMod.getInstance().isClient((ServerPlayer) (Object) this);
+        if (isClient && !config.useServer()) {
             return;
         }
 
@@ -47,8 +52,7 @@ public abstract class ServerPlayerMixin extends PlayerMixin implements FSitAttac
                 if (this.fsit$sneakTriggerTime > 0) {
                     this.fsit$startPosingBySneaking();
                 } else {
-                    this.fsit$sneakTriggerTime =
-                            FSitMod.getInstance().getConfig().sneakWindow();
+                    this.fsit$sneakTriggerTime = config.sneakWindow();
                 }
             }
         }
