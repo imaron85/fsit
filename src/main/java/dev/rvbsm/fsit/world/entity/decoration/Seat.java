@@ -105,7 +105,7 @@ public class Seat extends ArmorStand {
             }
         }
 
-        super.tick();
+        super.aiStep();
     }
 
     @Override
