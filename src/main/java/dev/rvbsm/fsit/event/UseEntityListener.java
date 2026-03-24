@@ -3,6 +3,7 @@ package dev.rvbsm.fsit.event;
 import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.world.entity.decoration.Ride;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -19,6 +20,10 @@ public final class UseEntityListener implements UseEntityCallback {
 
     public static final UseEntityListener INSTANCE = new UseEntityListener();
     private static final Logger LOGGER = LoggerFactory.getLogger(UseEntityListener.class);
+
+    private static InteractionResult getResultForLevel(Level level) {
+        return level.isClientSide() ? InteractionResult.FAIL : InteractionResult.PASS;
+    }
 
     private static @Nullable Vec3 getClickedRidingOffset(LivingEntity vehicle, Vec3 location) {
         // todo: offsets
@@ -53,21 +58,27 @@ public final class UseEntityListener implements UseEntityCallback {
             return InteractionResult.PASS;
         }
 
-        if (config.ridingMinimumYaw() == 0) {
-            return level.isClientSide() ? InteractionResult.FAIL : InteractionResult.PASS;
+        if (level.isClientSide() || !FSitMod.getInstance().isClient((ServerPlayer) player)) {
+            if (config.ridingMinimumYaw() == 0) {
+                return getResultForLevel(level);
+            } else if (config.ridingMinimumYaw() < 180) {
+                double yawDiff = Math.abs(player.getYRot() - entity.getYRot());
+                if (yawDiff > config.ridingMinimumYaw()) {
+                    return getResultForLevel(level);
+                }
+            }
         }
 
-        boolean isCloseEnough = player.isWithinEntityInteractionRange(entity, 3.0)
-            && (Math.abs(player.getYRot() - entity.getYRot()) < config.ridingMinimumYaw());
-        if (!isCloseEnough) {
-            return level.isClientSide() ? InteractionResult.FAIL : InteractionResult.PASS;
+        boolean isWithinRange = player.isWithinEntityInteractionRange(entity, 3.0);
+        if (!isWithinRange) {
+            return getResultForLevel(level);
         }
 
         boolean haveNothingInOurHands =
             player.getMainHandItem().isEmpty() && player.getOffhandItem().isEmpty();
         boolean suppressUsingPlayer = player.isSecondaryUseActive() || !haveNothingInOurHands;
         if (suppressUsingPlayer) {
-            return level.isClientSide() ? InteractionResult.FAIL : InteractionResult.PASS;
+            return getResultForLevel(level);
         }
 
         // todo: hitResult#location is not relative

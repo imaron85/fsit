@@ -46,7 +46,7 @@ public record ConfigData(
         Codec.BOOL.fieldOf("block-interaction").forGetter(ConfigData::blockInteraction),
         ExtraCodecs.TAG_OR_ELEMENT_ID.listOf().fieldOf("block-interaction-ids").forGetter(ConfigData::blockInteractionIds),
 
-        Codec.intRange(0, 360).fieldOf("riding-minimum-yaw").forGetter(ConfigData::ridingMinimumYaw),
+        Codec.intRange(0, 180).fieldOf("riding-minimum-yaw").forGetter(ConfigData::ridingMinimumYaw),
 
         Codec.intRange(0, 20).fieldOf("sneak-window").forGetter(ConfigData::sneakWindow),
         Codec.intRange(-90, 90).fieldOf("sneak-minimum-pitch").forGetter(ConfigData::sneakMinimumPitch),

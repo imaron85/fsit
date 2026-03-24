@@ -73,10 +73,10 @@ public final class ModOptions {
             OptionInstance.cachedConstantTooltip(RIDING_MINIMUM_YAW_TOOLTIP),
             (caption, value) -> switch (value) {
                 case 0 -> Options.genericValueLabel(caption, CommonComponents.OPTION_OFF);
-                case 360 -> Options.genericValueLabel(caption, CommonComponents.OPTION_ON);
+                case 180 -> Options.genericValueLabel(caption, CommonComponents.OPTION_ON);
                 default -> Options.genericValueLabel(caption, value);
             },
-            new OptionInstance.IntRange(0, 360),
+            new OptionInstance.IntRange(0, 180),
         45,
         _ -> {}
     );

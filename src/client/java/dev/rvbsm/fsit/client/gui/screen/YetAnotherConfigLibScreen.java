@@ -59,7 +59,7 @@ public class YetAnotherConfigLibScreen {
                                 .name(caption(options.ridingMinimumYaw))
                                 .description(OptionDescription.of(ModOptions.RIDING_MINIMUM_YAW_TOOLTIP))
                                 .binding(Binding.minecraft(options.ridingMinimumYaw))
-                                .controller(o -> IntegerSliderControllerBuilder.create(o).range(0, 360).step(1))
+                                .controller(o -> IntegerSliderControllerBuilder.create(o).range(0, 180).step(1))
                                 .build())
                         .build())
                 // TODO: block ids
