@@ -1,6 +1,6 @@
 # Changelog
 
-## v3.0.0
+## v3.0.0-beta.1
 
 **Tiny Takeover** over the codebase!
 
@@ -21,13 +21,11 @@ The configuration itself changed a bit, with no automatic migrations from v2.
 - `seats-trait` is the same `sitting.behaviour` with same possible values under a different name;
 - `block-interaction` and `block-interaction-ids` were `on-use.sitting` and `on-use.blocks`;
 - `riding-minimum-yaw` was `on-use.riding`, but with added control over angle difference between players. (where 0 =
-  disabled, 360 = no restrictions)
+  disabled, 180 = no restrictions)
 
-Probably the biggest change about configuration is that clients no longer send their configuration to the server.
+Probably the biggest change about configuration is that **clients no longer send their configuration to the server**.
 No-no, wait! Client-side configurations are still here, the processing was given to the client.
 Clients without mod installed can still use all the features of the mod, the server will handle it.
-And, well, `use-server` was kinda not working properly, as it assumed the processing is done only on the server, so it
-was removed. :bleh:
 
 <details>
 <summary>fsit.yml</summary>
@@ -54,11 +52,11 @@ commands:
 
 </details>
 
-Riding restrictions were also removed.
+**Riding restrictions** were removed.
 They made riding requests way more complicated that they should be, and I do not think that sending the whole list of
 UUIDs to the server is viable.
 
-And, finally, laying support! Experimental, Works On My Machine™, so please report if bwoke!
+And, finally, **laying** support! Experimental, Works On My Machine™, so please report if bwoke!
 Currently accessible only with command, as I have no idea how else could it be done otherwise.
 
 Oh, and Fabric Permissions API of course. Currently, for commands only, but might be extended in the future.
