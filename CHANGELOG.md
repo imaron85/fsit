@@ -31,6 +31,7 @@ Clients without mod installed can still use all the features of the mod, the ser
 <summary>fsit.yml</summary>
 
 ```yml
+use-server: false
 seats-trait: moveable # [static, attached, moveable]
 seats-centered: false
 block-interaction: true
