@@ -99,10 +99,9 @@ public class Seat extends ArmorStand {
 
         if (this.getTrait().needsGround()) {
             var checkGround = AABB.ofSize(this.position(), this.getBbWidth(), 1.0e-3, this.getBbWidth());
-            for (var shape : this.level().getCollisions(this, checkGround)) {
-                if (shape.isEmpty()) {
-                    this.discard();
-                }
+            if (this.level().noBlockCollision(this, checkGround)) {
+                this.ejectPassengers();
+                this.discard();
             }
         }
 
