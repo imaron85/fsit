@@ -1,10 +1,13 @@
 package dev.rvbsm.fsit.world.entity.decoration;
 
 import dev.rvbsm.fsit.FSitMod;
+import dev.rvbsm.fsit.api.FSitPlayerConfig;
 import dev.rvbsm.fsit.api.FSitPoseHolder;
+import dev.rvbsm.fsit.config.SeatTrait;
 import dev.rvbsm.fsit.world.entity.FSitPose;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -24,6 +27,8 @@ import java.util.ArrayList;
 
 public class Seat extends ArmorStand {
 
+    private SeatTrait trait = FSitMod.getInstance().getConfig().seatsTrait();
+
     public Seat(Level level, double x, double y, double z) {
         super(level, x, y, z);
         this.setInvisible(true);
@@ -33,7 +38,7 @@ public class Seat extends ArmorStand {
 
     @Override
     protected boolean hasPhysics() {
-        return !this.isNoGravity() && FSitMod.getInstance().getConfig().seatsTrait().canMove();
+        return !this.isNoGravity() && this.getTrait().canMove();
     }
 
     @Override
@@ -92,8 +97,7 @@ public class Seat extends ArmorStand {
             this.discard();
         }
 
-        var config = FSitMod.getInstance().getConfig();
-        if (config.seatsTrait().needsGround()) {
+        if (this.getTrait().needsGround()) {
             var checkGround = AABB.ofSize(this.position(), this.getBbWidth(), 1.0e-3, this.getBbWidth());
             for (var shape : this.level().getCollisions(this, checkGround)) {
                 if (shape.isEmpty()) {
@@ -166,6 +170,19 @@ public class Seat extends ArmorStand {
 
     @Override
     public boolean canSimulateMovement() {
-        return FSitMod.getInstance().getConfig().seatsTrait().canMove();
+        return this.getTrait().canMove();
+    }
+
+    private SeatTrait getTrait() {
+        if (this.tickCount % 60 == 0) {
+            if (this.getFirstPassenger() instanceof ServerPlayer player && FSitPlayerConfig.get(player) != null) {
+                //noinspection DataFlowIssue
+                this.trait = FSitPlayerConfig.get(player).seatTrait();
+            } else {
+                this.trait = FSitMod.getInstance().getConfig().seatsTrait();
+            }
+        }
+
+        return this.trait;
     }
 }
