@@ -40,8 +40,13 @@ public final class ClientModPacketListener {
     }
 
     public static void handleChangePose(ClientboundPlayerPosePayload payload, ClientPlayNetworking.Context ctx) {
-        FSitPoseHolder.set(ctx.player(), payload.pose());
-        HybridKeyMapping.resetHybridKeys();
+        var player = ctx.player();
+        var pose = payload.pose();
+        var lastPose = FSitPoseHolder.get(player);
+        FSitPoseHolder.set(player, pose);
+        if (pose != lastPose) {
+            HybridKeyMapping.resetHybridKeys();
+        }
     }
 
     public static boolean sendConfig(ConfigData config) {
