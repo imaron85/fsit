@@ -108,7 +108,7 @@ tasks.shadowJar {
 tasks.jar {
     dependsOn(tasks.shadowJar)
     from(zipTree(tasks.shadowJar.flatMap { it.archiveFile }))
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    duplicatesStrategy = DuplicatesStrategy.WARN
 
     from("$rootDir/LICENSE") {
         into("META-INF")
