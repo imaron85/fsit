@@ -94,9 +94,9 @@ public final class UseEntityListener implements UseEntityCallback {
         // TODO: start riding with specified offset
         // ffs riders position is client-side for riders
         var seat = new Ride(level, target.getX(), target.getY(), target.getZ());
-        target.startRiding(seat, true, true);
-        seat.startRiding(entity, true, true);
         level.addFreshEntity(seat);
+        seat.startRiding(target, true, true);
+        player.startRiding(seat, true, true);
 
         return InteractionResult.SUCCESS;
     }

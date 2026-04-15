@@ -25,7 +25,6 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Util;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -107,38 +106,45 @@ public final class FSitMod implements ModInitializer {
             }
 
             var didExist = Files.exists(configPath);
-            if (didExist) {
-                LOGGER.warn("Failed to reload configuration file", e);
-            }
+            var cause = e instanceof java.util.concurrent.CompletionException ? e.getCause() : e;
 
-            try {
-                var configTmp = Files.createTempFile(configDir, CONFIG_NAME, null);
-                ConfigLoader.writeConfig(this.getConfig(), configTmp).exceptionally(fex -> {
-                    LOGGER.warn("Failed to write configuration file {}", configTmp, fex);
-                    //noinspection DataFlowIssue
-                    return null;
-                }).thenRun(() -> {
-                    var configBak = configPath.resolveSibling(CONFIG_NAME + "_old");
-                    Util.safeReplaceFile(configPath, configTmp, configBak);
-                });
-            } catch (IOException ex) {
-                LOGGER.warn("Failed to back up configuration file. Overwriting {}", configPath, ex);
-
+            if (didExist && cause instanceof ConfigLoader.VersionMismatchException vme) {
+                // Schema changed in a breaking way — back up the old file and write fresh defaults.
+                var backup = configPath.resolveSibling(CONFIG_NAME + "_v" + vme.found + "_bak");
+                LOGGER.warn("Config version {} is not {}, backing up to {} and regenerating",
+                    vme.found, ConfigData.CURRENT_VERSION, backup.getFileName());
+                try {
+                    Files.move(configPath, backup, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException moveErr) {
+                    LOGGER.warn("Failed to back up old configuration", moveErr);
+                }
                 ConfigLoader.writeConfig(this.getConfig(), configPath).exceptionally(fex -> {
                     LOGGER.warn("Failed to write configuration file {}", configPath, fex);
                     //noinspection DataFlowIssue
                     return null;
                 });
+                return true;
             }
 
-            return !didExist;
+            if (didExist) {
+                LOGGER.warn("Failed to reload configuration file (keeping it unchanged, using defaults in memory)", e);
+                return false;
+            }
+
+            ConfigLoader.writeConfig(this.getConfig(), configPath).exceptionally(fex -> {
+                LOGGER.warn("Failed to write configuration file {}", configPath, fex);
+                //noinspection DataFlowIssue
+                return null;
+            });
+
+            return true;
         });
     }
 
-    public CompletableFuture<Void> saveConfig() {
+    public void saveConfig() {
         var configDir = FabricLoader.getInstance().getConfigDir();
         var configPath = configDir.resolve(CONFIG_NAME);
-        return ConfigLoader.writeConfig(this.configRef.get(), configPath).exceptionally(e -> {
+        ConfigLoader.writeConfig(this.configRef.get(), configPath).exceptionally(e -> {
             LOGGER.warn("Failed to save configuration file", e);
             //noinspection DataFlowIssue
             return null;

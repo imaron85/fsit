@@ -4,7 +4,10 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+
+import java.util.Optional;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryAccess;
@@ -38,22 +41,65 @@ public record ConfigData(
     CommandConfig commands
 ) {
 
-    public static final Codec<ConfigData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-        Codec.BOOL.fieldOf("use-server").forGetter(ConfigData::useServer),
-        SeatTrait.CODEC.fieldOf("seats-trait").forGetter(ConfigData::seatsTrait),
-        Codec.BOOL.fieldOf("seats-centered").forGetter(ConfigData::seatsCentered),
+    /// Bump when the YAML schema changes in a breaking way.
+    /// The loader will back up old configs as `fsit.yml_v<old>_bak` and write fresh defaults.
+    public static final int CURRENT_VERSION = 2;
 
-        Codec.BOOL.fieldOf("block-interaction").forGetter(ConfigData::blockInteraction),
-        ExtraCodecs.TAG_OR_ELEMENT_ID.listOf().fieldOf("block-interaction-ids").forGetter(ConfigData::blockInteractionIds),
+    /// Like `optionalFieldOf(name, default)` but always emits the field on encode (so generated
+    /// configs are self-documenting), while still tolerating a missing key on decode.
+    private static <A> MapCodec<A> field(Codec<A> codec, String name, A def) {
+        return codec.optionalFieldOf(name).xmap(opt -> opt.orElse(def), Optional::of);
+    }
 
-        Codec.intRange(0, 180).fieldOf("riding-minimum-yaw").forGetter(ConfigData::ridingMinimumYaw),
+    private record Sitting(boolean enabled, SeatTrait behavior, boolean centered, List<ExtraCodecs.TagOrElementLocation> blocks) {
+        static final Codec<Sitting> CODEC = RecordCodecBuilder.create(i -> i.group(
+            field(Codec.BOOL, "enabled", true).forGetter(Sitting::enabled),
+            field(SeatTrait.CODEC, "behavior", SeatTrait.MOVEABLE).forGetter(Sitting::behavior),
+            field(Codec.BOOL, "centered", false).forGetter(Sitting::centered),
+            field(ExtraCodecs.TAG_OR_ELEMENT_ID.listOf(), "blocks", List.of(
+                new ExtraCodecs.TagOrElementLocation(net.minecraft.resources.Identifier.parse("minecraft:slabs"), true),
+                new ExtraCodecs.TagOrElementLocation(net.minecraft.resources.Identifier.parse("minecraft:stairs"), true),
+                new ExtraCodecs.TagOrElementLocation(net.minecraft.resources.Identifier.parse("minecraft:logs"), true),
+                new ExtraCodecs.TagOrElementLocation(net.minecraft.resources.Identifier.parse("minecraft:fences"), true)
+            )).forGetter(Sitting::blocks)
+        ).apply(i, Sitting::new));
+    }
 
-        Codec.intRange(0, 20).fieldOf("sneak-window").forGetter(ConfigData::sneakWindow),
-        Codec.intRange(-90, 90).fieldOf("sneak-minimum-pitch").forGetter(ConfigData::sneakMinimumPitch),
-        Codec.BOOL.fieldOf("sneak-crawling").forGetter(ConfigData::sneakCrawling),
+    private record Riding(boolean enabled, int maxYawDifference) {
+        static final Codec<Riding> CODEC = RecordCodecBuilder.create(i -> i.group(
+            field(Codec.BOOL, "enabled", true).forGetter(Riding::enabled),
+            field(Codec.intRange(0, 180), "max-yaw-difference", 45).forGetter(Riding::maxYawDifference)
+        ).apply(i, Riding::new));
+    }
 
-        CommandConfig.CODEC.fieldOf("commands").forGetter(ConfigData::commands)
-    ).apply(instance, ConfigData::new));
+    private record Sneak(boolean enabled, int windowTicks, int minPitchDown, boolean preferCrawlInTightSpace) {
+        static final Codec<Sneak> CODEC = RecordCodecBuilder.create(i -> i.group(
+            field(Codec.BOOL, "enabled", true).forGetter(Sneak::enabled),
+            field(Codec.intRange(1, 20), "window-ticks", 10).forGetter(Sneak::windowTicks),
+            field(Codec.intRange(0, 90), "min-pitch-down", 60).forGetter(Sneak::minPitchDown),
+            field(Codec.BOOL, "prefer-crawl-in-tight-space", true).forGetter(Sneak::preferCrawlInTightSpace)
+        ).apply(i, Sneak::new));
+    }
+
+    public static final Codec<ConfigData> CODEC = RecordCodecBuilder.create(i -> i.group(
+        Codec.INT.fieldOf("version").forGetter(_ -> CURRENT_VERSION),
+        field(Codec.BOOL, "use-server-config", false).forGetter(ConfigData::useServer),
+        field(Sitting.CODEC, "sitting", new Sitting(true, SeatTrait.MOVEABLE, false, List.of())).forGetter(d ->
+            new Sitting(d.blockInteraction(), d.seatsTrait(), d.seatsCentered(), d.blockInteractionIds())),
+        field(Riding.CODEC, "riding", new Riding(true, 45)).forGetter(d ->
+            new Riding(d.ridingMinimumYaw() > 0, d.ridingMinimumYaw() > 0 ? d.ridingMinimumYaw() : 45)),
+        field(Sneak.CODEC, "sneak-activation", new Sneak(true, 10, 60, true)).forGetter(d ->
+            new Sneak(d.sneakWindow() > 0, d.sneakWindow() > 0 ? d.sneakWindow() : 10, d.sneakMinimumPitch(), d.sneakCrawling())),
+        field(CommandConfig.CODEC, "commands", new CommandConfig("fsit", "sit", "crawl", "lay"))
+            .forGetter(ConfigData::commands)
+    ).apply(i, (_, useServer, sitting, riding, sneak, commands) -> new ConfigData(
+        useServer,
+        sitting.behavior(), sitting.centered(),
+        sitting.enabled(), sitting.blocks(),
+        riding.enabled() ? riding.maxYawDifference() : 0,
+        sneak.enabled() ? sneak.windowTicks() : 0, sneak.minPitchDown(), sneak.preferCrawlInTightSpace(),
+        commands
+    )));
 
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Cache<ConfigData, HolderSet<Block>> INTERACTABLE_BLOCKS_CACHE = CacheBuilder.newBuilder()

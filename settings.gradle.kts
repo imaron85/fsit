@@ -26,9 +26,3 @@ stonecutter {
         )
     }
 }
-
-sourceControl {
-    gitRepository(uri("https://github.com/sakura-ryoko/fabric-permissions-api.git")) {
-        producesModule("me.lucko:fabric-permissions-api")
-    }
-}

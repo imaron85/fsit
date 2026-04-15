@@ -67,7 +67,7 @@ dependencies {
         // TODO: https://github.com/FabricMC/fabric-api/pull/5226
         // "fabric-permission-api-v1",
     ).map { fabricApi.module(it, property("version.fabric-api").toString()) }.forEach(::implementation)
-    implementation("me.lucko:fabric-permissions-api") { version { branch = "26.1-clean" } }
+    implementation("me.lucko:fabric-permissions-api:${property("version.fabric-permissions-api")}")
 
     implementation("org.snakeyaml:snakeyaml-engine:3.0.1")
     shadow("org.snakeyaml:snakeyaml-engine:3.0.1")

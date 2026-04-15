@@ -4,6 +4,7 @@ import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.mixin.EntityAccessor;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.AreaEffectCloud;
@@ -33,6 +34,9 @@ public class Ride extends AreaEffectCloud {
 
         ((EntityAccessor) this).setVehicle(entityToRide);
         ((EntityAccessor) entityToRide).callAddPassenger(this);
+        if (entityToRide instanceof ServerPlayer targetPlayer) {
+            targetPlayer.connection.send(new ClientboundSetPassengersPacket(entityToRide));
+        }
         if (sendEventAndTriggers) {
             this.level().gameEvent(this, GameEvent.ENTITY_MOUNT, entityToRide.position());
             for (var entity : entityToRide.getIndirectPassengers()) {
@@ -49,6 +53,16 @@ public class Ride extends AreaEffectCloud {
     public void tick() {
         if (!this.isPassenger() || !this.isVehicle()) {
             this.discard();
+            return;
+        }
+        var vehicle = this.getVehicle();
+        if (vehicle != null) {
+            if (vehicle.isShiftKeyDown()) {
+                this.ejectPassengers();
+                this.discard();
+                return;
+            }
+            this.setPos(vehicle.getX(), vehicle.getY(), vehicle.getZ());
         }
     }
 
