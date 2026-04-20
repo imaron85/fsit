@@ -8,6 +8,7 @@ import dev.rvbsm.fsit.config.ConfigLoader;
 import dev.rvbsm.fsit.event.BlockListener;
 import dev.rvbsm.fsit.event.CommandRegistrationListener;
 import dev.rvbsm.fsit.event.FSitPoseListener;
+import dev.rvbsm.fsit.event.PlayerDisconnectListener;
 import dev.rvbsm.fsit.event.UseEntityListener;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundServerConfigPayload;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
@@ -71,6 +72,7 @@ public final class FSitMod implements ModInitializer {
         ServerPlayConnectionEvents.JOIN.register(ServerPlayConnectionListener.INSTANCE);
         BlockEvents.USE_WITHOUT_ITEM.register(BlockListener.INSTANCE);
         UseEntityCallback.EVENT.register(UseEntityListener.INSTANCE);
+        ServerPlayConnectionEvents.DISCONNECT.register(new PlayerDisconnectListener());
 
         FSitPoseCallback.EVENT.register(FSitPoseListener.INSTANCE);
 
