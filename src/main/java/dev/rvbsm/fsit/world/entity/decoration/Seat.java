@@ -20,7 +20,9 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.DismountHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
@@ -29,11 +31,12 @@ public class Seat extends ArmorStand {
 
     private SeatTrait trait = FSitMod.getInstance().getConfig().seatsTrait();
 
-    public Seat(Level level, double x, double y, double z) {
+    public Seat(Level level, double x, double y, double z, Vec2 rot) {
         super(level, x, y, z);
         this.setInvisible(true);
         this.entityData.set(DATA_CLIENT_FLAGS, (byte) 0b10000); // marker
         this.addTag(FSitMod.MOD_ID);
+        this.absSnapRotationTo(rot.y,rot.x);
     }
 
     @Override
@@ -106,6 +109,12 @@ public class Seat extends ArmorStand {
         }
 
         super.aiStep();
+
+        if (this.getFirstPassenger() instanceof Player passenger) {
+            Vec2 rot = passenger.getRotationVector();
+            this.absSnapRotationTo(rot.y,rot.x);
+        }
+
     }
 
     @Override
