@@ -80,7 +80,7 @@ public final class FSitPoseListener implements FSitPoseCallback {
                 }
 
                 if (!player.level().isClientSide()) {
-                    var seat = new Seat(player.level(), position.x, position.y, position.z);
+                    var seat = new Seat(player.level(), position.x, position.y, position.z,player.getRotationVector());
                     player.startRiding(seat, true, true);
                     player.level().addFreshEntity(seat);
                 }

@@ -90,14 +90,28 @@ public final class UseEntityListener implements UseEntityCallback {
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS_SERVER;
         }
+        startRide(target,player,level);
 
+        return InteractionResult.SUCCESS;
+    }
+
+    private void startRide(Player target,Player player,Level level) {
         // TODO: start riding with specified offset
         // ffs riders position is client-side for riders
+
+        if (target.getFirstPassenger() instanceof Ride newRideTarget) {
+            if (newRideTarget.getFirstPassenger() instanceof Player newTargetPlayer) {
+                startRide(newTargetPlayer,player,level);
+                return;
+            }
+        }
+
         var seat = new Ride(level, target.getX(), target.getY(), target.getZ());
+
         level.addFreshEntity(seat);
         seat.startRiding(target, true, true);
         player.startRiding(seat, true, true);
 
-        return InteractionResult.SUCCESS;
     }
+
 }
