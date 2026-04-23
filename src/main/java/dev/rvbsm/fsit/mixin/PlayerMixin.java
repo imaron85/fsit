@@ -6,7 +6,9 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.api.FSitPoseHolder;
 import dev.rvbsm.fsit.api.event.FSitPoseCallback;
+import dev.rvbsm.fsit.event.FSitPoseListener;
 import dev.rvbsm.fsit.world.entity.FSitPose;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
@@ -44,11 +46,28 @@ public abstract class PlayerMixin extends AvatarMixin implements FSitPoseHolder 
         return original || this.fsit$getPose() == FSitPose.LAYING;
     }
 
-    @Inject(method = "stopSleepInBed", at = @At("HEAD"))
+    // bypass vanilla stopSleepInBed for lay — otherwise it'll teleport us to a stand-up
+    // position if there happens to be a real bed at our fake Y=minY sleepingPos.
+    // fsit$pose resets to STANDING on reload, so also catch the fake bed by Y coord.
+    @Inject(method = "stopSleepInBed", at = @At("HEAD"), cancellable = true)
     private void stopLaying(CallbackInfo ci) {
         this.getSleepingPos().ifPresent(bedPosition -> {
-            this.fsit$setPose(FSitPose.STANDING, new FSitPose.Context.Positioned(bedPosition.getCenter()), true);
+            boolean wasLaying = this.fsit$getPose() == FSitPose.LAYING;
+            boolean isFakeBed = bedPosition.getY() == this.level().getMinY();
+            if (!wasLaying && !isFakeBed) return;
+
+            this.fsit$pose = FSitPose.STANDING;
+            if ((Object) this instanceof ServerPlayer serverPlayer) {
+                FSitPoseListener.completeLayWakeUp(serverPlayer);
+            }
+            ci.cancel();
         });
+    }
+
+    // client runs the same auto-wake check as the server, both sides need this
+    @Override
+    protected boolean checkIsLaying(boolean bedExists) {
+        return super.checkIsLaying(bedExists) || this.fsit$getPose() == FSitPose.LAYING;
     }
 
     @Override

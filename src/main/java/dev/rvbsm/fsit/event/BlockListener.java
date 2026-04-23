@@ -8,14 +8,13 @@ import net.fabricmc.fabric.api.event.player.BlockEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.Half;
-import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -57,29 +56,24 @@ public final class BlockListener implements BlockEvents.UseWithoutItemCallback {
             return null;
         }
 
-        boolean isCorrectState = hitResult.getDirection() == Direction.UP
-                && state.getProperties().stream().allMatch(property -> {
-                    if (property == BlockStateProperties.HALF) {
-                        return state.getValue(BlockStateProperties.HALF) == Half.BOTTOM;
-                    }
-                    if (property == BlockStateProperties.SLAB_TYPE) {
-                        return state.getValue(BlockStateProperties.SLAB_TYPE) == SlabType.BOTTOM;
-                    }
-                    if (property == BlockStateProperties.AXIS) {
-                        return state.getValue(BlockStateProperties.AXIS).isHorizontal();
-                    }
+        if (hitResult.getDirection() != Direction.UP) {
+            return null;
+        }
 
-                    return true;
-                })
-                && state.is(config.collectInteractableBlocks(player.registryAccess()));
-
-        if (!isCorrectState) {
+        if (!state.is(config.collectInteractableBlocks(player.registryAccess()))) {
             return null;
         }
 
         LOGGER.debug("success with {} at {}", state, hitResult);
 
-        FSitPoseHolder.set(player, FSitPose.SITTING, new FSitPose.Context.Positioned(hitResult.getLocation()));
+        FSitPoseHolder.set(player, FSitPose.SITTING, new FSitPose.Context.Positioned(resolveSeatPosition(pos, hitResult)));
         return InteractionResult.SUCCESS;
+    }
+
+    // clamp X/Z inside the block so seats don't spawn on the edge between two blocks
+    private static Vec3 resolveSeatPosition(BlockPos pos, BlockHitResult hit) {
+        double seatX = Mth.clamp(hit.getLocation().x, pos.getX() + 0.05, pos.getX() + 0.95);
+        double seatZ = Mth.clamp(hit.getLocation().z, pos.getZ() + 0.05, pos.getZ() + 0.95);
+        return new Vec3(seatX, hit.getLocation().y, seatZ);
     }
 }

@@ -20,7 +20,6 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.DismountHelper;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
@@ -36,7 +35,7 @@ public class Seat extends ArmorStand {
         this.setInvisible(true);
         this.entityData.set(DATA_CLIENT_FLAGS, (byte) 0b10000); // marker
         this.addTag(FSitMod.MOD_ID);
-        this.absSnapRotationTo(rot.y,rot.x);
+        this.absSnapRotationTo(rot.y, rot.x);
     }
 
     @Override
@@ -110,11 +109,14 @@ public class Seat extends ArmorStand {
 
         super.aiStep();
 
+        // threshold — absSnapRotationTo marks the entity dirty every call
         if (this.getFirstPassenger() instanceof Player passenger) {
             Vec2 rot = passenger.getRotationVector();
-            this.absSnapRotationTo(rot.y,rot.x);
+            if (Math.abs(Mth.wrapDegrees(this.getYRot() - rot.y)) > 1.0f
+                    || Math.abs(this.getXRot() - rot.x) > 1.0f) {
+                this.absSnapRotationTo(rot.y, rot.x);
+            }
         }
-
     }
 
     @Override
@@ -149,7 +151,7 @@ public class Seat extends ArmorStand {
             dismountPositions.add(new Vec3(finalX, finalBlockPos.getY() + finalFloor, finalZ));
         }
 
-        var belowFloor = this.level().getBlockFloorHeight(finalBlockPos);
+        var belowFloor = this.level().getBlockFloorHeight(belowBlockPos);
         if (DismountHelper.isBlockFloorValid(belowFloor)) {
             dismountPositions.add(new Vec3(finalX, belowBlockPos.getY() + belowFloor, finalZ));
         }

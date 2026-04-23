@@ -77,7 +77,7 @@ public final class ModOptions {
                 default -> Options.genericValueLabel(caption, value);
             },
             new OptionInstance.IntRange(0, 180),
-        45,
+        180,
         _ -> {}
     );
 

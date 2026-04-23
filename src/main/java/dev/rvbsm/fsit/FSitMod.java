@@ -72,7 +72,7 @@ public final class FSitMod implements ModInitializer {
         ServerPlayConnectionEvents.JOIN.register(ServerPlayConnectionListener.INSTANCE);
         BlockEvents.USE_WITHOUT_ITEM.register(BlockListener.INSTANCE);
         UseEntityCallback.EVENT.register(UseEntityListener.INSTANCE);
-        ServerPlayConnectionEvents.DISCONNECT.register(new PlayerDisconnectListener());
+        ServerPlayConnectionEvents.DISCONNECT.register(PlayerDisconnectListener.INSTANCE);
 
         FSitPoseCallback.EVENT.register(FSitPoseListener.INSTANCE);
 

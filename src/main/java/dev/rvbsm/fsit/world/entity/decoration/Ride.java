@@ -83,7 +83,7 @@ public class Ride extends AreaEffectCloud {
             dismountPositions.add(new Vec3(finalX, finalBlockPos.getY() + finalFloor, finalZ));
         }
 
-        var belowFloor = this.level().getBlockFloorHeight(finalBlockPos);
+        var belowFloor = this.level().getBlockFloorHeight(belowBlockPos);
         if (DismountHelper.isBlockFloorValid(belowFloor)) {
             dismountPositions.add(new Vec3(finalX, belowBlockPos.getY() + belowFloor, finalZ));
         }

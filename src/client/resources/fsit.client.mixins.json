@@ -5,6 +5,7 @@
   "client": [
     "AbstractClientPlayerMixin",
     "LocalPlayerMixin",
+    "MinecraftMixin",
     "OptionInstanceAccessor"
   ],
   "injectors": {

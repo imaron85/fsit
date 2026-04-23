@@ -21,8 +21,8 @@
   "option.fsit.block_interaction.tooltip": "Allows to start sitting by interacting with blocks.\nBlocks can be configured through configuration file, sorry :(",
   "option.fsit.block_interaction_ids": "Blocks",
   "option.fsit.block_interaction_ids.tooltip": "List of blocks (e.g., \"oak_log\") that can be interacted with.",
-  "option.fsit.riding_minimum_yaw": "Back Angle",
-  "option.fsit.riding_minimum_yaw.tooltip": "The minimum yaw angle difference between players in degrees to initiate riding.",
+  "option.fsit.riding_minimum_yaw": "Mount Angle",
+  "option.fsit.riding_minimum_yaw.tooltip": "Max yaw difference (in degrees) between mounter and target to allow riding.\n0 = disabled, 180 = any side, 45 = behind only.",
 
   "option.fsit.sneak.title": "Sneak",
   "option.fsit.sneak_window": "Sneak Window",

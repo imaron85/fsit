@@ -42,7 +42,8 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayerMixin {
             return;
         }
 
-        if (this.fsit$getPose() == FSitPose.CRAWLING && this.wantsToStopRiding()) {
+        if ((this.fsit$getPose() == FSitPose.CRAWLING || this.fsit$getPose() == FSitPose.LAYING)
+                && this.wantsToStopRiding()) {
             this.fsit$setPose(FSitPose.STANDING, null, true);
             return;
         }

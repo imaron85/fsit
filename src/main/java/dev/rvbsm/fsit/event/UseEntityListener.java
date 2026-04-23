@@ -4,6 +4,7 @@ import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.world.entity.decoration.Ride;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -20,6 +21,7 @@ public final class UseEntityListener implements UseEntityCallback {
 
     public static final UseEntityListener INSTANCE = new UseEntityListener();
     private static final Logger LOGGER = LoggerFactory.getLogger(UseEntityListener.class);
+    private static final int MAX_STACK_DEPTH = 16;
 
     private static InteractionResult getResultForLevel(Level level) {
         return level.isClientSide() ? InteractionResult.FAIL : InteractionResult.PASS;
@@ -62,7 +64,7 @@ public final class UseEntityListener implements UseEntityCallback {
             if (config.ridingMinimumYaw() == 0) {
                 return getResultForLevel(level);
             } else if (config.ridingMinimumYaw() < 180) {
-                double yawDiff = Math.abs(player.getYRot() - entity.getYRot());
+                double yawDiff = Math.abs(Mth.wrapDegrees(player.getYRot() - entity.getYRot()));
                 if (yawDiff > config.ridingMinimumYaw()) {
                     return getResultForLevel(level);
                 }
@@ -90,28 +92,31 @@ public final class UseEntityListener implements UseEntityCallback {
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS_SERVER;
         }
-        startRide(target,player,level);
 
-        return InteractionResult.SUCCESS;
+        return startRide(player, target, level) ? InteractionResult.SUCCESS : InteractionResult.PASS;
     }
 
-    private void startRide(Player target,Player player,Level level) {
-        // TODO: start riding with specified offset
-        // ffs riders position is client-side for riders
-
-        if (target.getFirstPassenger() instanceof Ride newRideTarget) {
-            if (newRideTarget.getFirstPassenger() instanceof Player newTargetPlayer) {
-                startRide(newTargetPlayer,player,level);
-                return;
+    // TODO: start riding with specified offset — riders position is client-side for riders
+    private static boolean startRide(Player player, Player target, Level level) {
+        Player top = target;
+        for (int depth = 0; depth < MAX_STACK_DEPTH; depth++) {
+            if (top.getFirstPassenger() instanceof Ride ride
+                && ride.getFirstPassenger() instanceof Player next
+                && !next.equals(player)) {
+                top = next;
+                continue;
             }
+            break;
         }
 
-        var seat = new Ride(level, target.getX(), target.getY(), target.getZ());
+        if (top.equals(player)) {
+            return false;
+        }
 
+        var seat = new Ride(level, top.getX(), top.getY(), top.getZ());
         level.addFreshEntity(seat);
-        seat.startRiding(target, true, true);
+        seat.startRiding(top, true, true);
         player.startRiding(seat, true, true);
-
+        return true;
     }
-
 }

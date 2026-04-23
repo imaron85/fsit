@@ -23,9 +23,10 @@ public final class ConfigLoader {
             new TagOrElementLocation(Identifier.parse("minecraft:slabs"), true),
             new TagOrElementLocation(Identifier.parse("minecraft:stairs"), true),
             new TagOrElementLocation(Identifier.parse("minecraft:logs"), true),
-            new TagOrElementLocation(Identifier.parse("minecraft:fences"), true)
+            new TagOrElementLocation(Identifier.parse("minecraft:fences"), true),
+            new TagOrElementLocation(Identifier.parse("minecraft:walls"), true)
         ),
-        45,
+        180,
         10, 60, true,
         new CommandConfig("fsit", "sit", "crawl", "lay")
     );
@@ -105,8 +106,7 @@ public final class ConfigLoader {
         );
     }
 
-    /// Injects documentation comments into the serialized YAML. Comments are attached to section headings
-    /// so they travel with the relevant block and don't get visually misattributed to the neighbour above.
+    // attach docs to each section heading so comments stick with the right block
     private static String annotate(String yaml) {
         var header = String.join("\n",
             "# FSit configuration. Do not edit `version` by hand.",

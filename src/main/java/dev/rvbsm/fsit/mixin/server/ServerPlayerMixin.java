@@ -4,10 +4,12 @@ import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.api.FSitAttachable;
 import dev.rvbsm.fsit.api.FSitClientConfig;
 import dev.rvbsm.fsit.config.ClientConfig;
+import dev.rvbsm.fsit.event.FSitPoseListener;
 import dev.rvbsm.fsit.mixin.PlayerMixin;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
 import dev.rvbsm.fsit.server.network.ServerModPacketListener;
 import dev.rvbsm.fsit.world.entity.FSitPose;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -75,9 +77,19 @@ public abstract class ServerPlayerMixin extends PlayerMixin implements FSitAttac
         }
     }
 
-    @Override
-    protected boolean checkIsLaying(boolean bedExists) {
-        return super.checkIsLaying(bedExists) || this.fsit$getPose() == FSitPose.LAYING;
+    // late joiners / dimension-returners won't have the fake bed packet from /lay — re-send it
+    @Inject(method = "tick", at = @At("TAIL"))
+    private void fsit$tickLayingVisuals(CallbackInfo ci) {
+        if (this.fsit$getPose() != FSitPose.LAYING) return;
+        ServerPlayer self = (ServerPlayer) (Object) this;
+        if (self.tickCount % 20 != 0) return;
+
+        var bedPos = self.getSleepingPos().orElse(null);
+        if (bedPos == null) return;
+        if (!(self.level() instanceof ServerLevel level)) return;
+
+        FSitPoseListener.broadcastBedUpdate(level, bedPos,
+                FSitPoseListener.fakeBedStateFor(self.getYRot()));
     }
 
     @Override

@@ -41,12 +41,10 @@ public record ConfigData(
     CommandConfig commands
 ) {
 
-    /// Bump when the YAML schema changes in a breaking way.
-    /// The loader will back up old configs as `fsit.yml_v<old>_bak` and write fresh defaults.
+    // bump on breaking schema change — loader backs up old file and writes fresh defaults
     public static final int CURRENT_VERSION = 2;
 
-    /// Like `optionalFieldOf(name, default)` but always emits the field on encode (so generated
-    /// configs are self-documenting), while still tolerating a missing key on decode.
+    // like optionalFieldOf but always emits the field on encode (self-documenting yaml)
     private static <A> MapCodec<A> field(Codec<A> codec, String name, A def) {
         return codec.optionalFieldOf(name).xmap(opt -> opt.orElse(def), Optional::of);
     }
@@ -60,7 +58,8 @@ public record ConfigData(
                 new ExtraCodecs.TagOrElementLocation(net.minecraft.resources.Identifier.parse("minecraft:slabs"), true),
                 new ExtraCodecs.TagOrElementLocation(net.minecraft.resources.Identifier.parse("minecraft:stairs"), true),
                 new ExtraCodecs.TagOrElementLocation(net.minecraft.resources.Identifier.parse("minecraft:logs"), true),
-                new ExtraCodecs.TagOrElementLocation(net.minecraft.resources.Identifier.parse("minecraft:fences"), true)
+                new ExtraCodecs.TagOrElementLocation(net.minecraft.resources.Identifier.parse("minecraft:fences"), true),
+                new ExtraCodecs.TagOrElementLocation(net.minecraft.resources.Identifier.parse("minecraft:walls"), true)
             )).forGetter(Sitting::blocks)
         ).apply(i, Sitting::new));
     }
@@ -68,7 +67,7 @@ public record ConfigData(
     private record Riding(boolean enabled, int maxYawDifference) {
         static final Codec<Riding> CODEC = RecordCodecBuilder.create(i -> i.group(
             field(Codec.BOOL, "enabled", true).forGetter(Riding::enabled),
-            field(Codec.intRange(0, 180), "max-yaw-difference", 45).forGetter(Riding::maxYawDifference)
+            field(Codec.intRange(0, 180), "max-yaw-difference", 180).forGetter(Riding::maxYawDifference)
         ).apply(i, Riding::new));
     }
 
@@ -86,8 +85,8 @@ public record ConfigData(
         field(Codec.BOOL, "use-server-config", false).forGetter(ConfigData::useServer),
         field(Sitting.CODEC, "sitting", new Sitting(true, SeatTrait.MOVEABLE, false, List.of())).forGetter(d ->
             new Sitting(d.blockInteraction(), d.seatsTrait(), d.seatsCentered(), d.blockInteractionIds())),
-        field(Riding.CODEC, "riding", new Riding(true, 45)).forGetter(d ->
-            new Riding(d.ridingMinimumYaw() > 0, d.ridingMinimumYaw() > 0 ? d.ridingMinimumYaw() : 45)),
+        field(Riding.CODEC, "riding", new Riding(true, 180)).forGetter(d ->
+            new Riding(d.ridingMinimumYaw() > 0, d.ridingMinimumYaw() > 0 ? d.ridingMinimumYaw() : 180)),
         field(Sneak.CODEC, "sneak-activation", new Sneak(true, 10, 60, true)).forGetter(d ->
             new Sneak(d.sneakWindow() > 0, d.sneakWindow() > 0 ? d.sneakWindow() : 10, d.sneakMinimumPitch(), d.sneakCrawling())),
         field(CommandConfig.CODEC, "commands", new CommandConfig("fsit", "sit", "crawl", "lay"))
@@ -133,5 +132,16 @@ public record ConfigData(
 
     public ClientConfig makeClientConfig() {
         return new ClientConfig(this.useServer(), this.seatsTrait());
+    }
+
+    public ConfigData withRidingMinimumYaw(int angle) {
+        if (angle == this.ridingMinimumYaw) return this;
+        return new ConfigData(
+            this.useServer, this.seatsTrait, this.seatsCentered,
+            this.blockInteraction, this.blockInteractionIds,
+            angle,
+            this.sneakWindow, this.sneakMinimumPitch, this.sneakCrawling,
+            this.commands
+        );
     }
 }
