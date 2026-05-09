@@ -2,6 +2,7 @@ package dev.rvbsm.fsit.event;
 
 import com.mojang.logging.LogUtils;
 import dev.rvbsm.fsit.FSitMod;
+import dev.rvbsm.fsit.api.FSitPlayerSettings;
 import dev.rvbsm.fsit.api.FSitPoseHolder;
 import dev.rvbsm.fsit.world.entity.FSitPose;
 import net.fabricmc.fabric.api.event.player.BlockEvents;
@@ -49,9 +50,8 @@ public final class BlockListener implements BlockEvents.UseWithoutItemCallback {
             return null;
         }
 
-        boolean haveNothingInOurHands =
-                player.getMainHandItem().isEmpty() && player.getOffhandItem().isEmpty();
-        boolean suppressUsingBlock = player.isSecondaryUseActive() || !haveNothingInOurHands;
+        boolean handsAreIdle = FSitPlayerSettings.get(player).handsAreIdle(player, player.registryAccess());
+        boolean suppressUsingBlock = player.isSecondaryUseActive() || !handsAreIdle;
         if (suppressUsingBlock) {
             return null;
         }

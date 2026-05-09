@@ -10,6 +10,7 @@ import dev.rvbsm.fsit.event.CommandRegistrationListener;
 import dev.rvbsm.fsit.event.FSitPoseListener;
 import dev.rvbsm.fsit.event.PlayerDisconnectListener;
 import dev.rvbsm.fsit.event.UseEntityListener;
+import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerSettingsPayload;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundServerConfigPayload;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
 import dev.rvbsm.fsit.network.protocol.game.ServerboundPlayerConfigPayload;
@@ -64,6 +65,7 @@ public final class FSitMod implements ModInitializer {
 
         PayloadTypeRegistry.clientboundPlay().register(ClientboundPlayerPosePayload.TYPE, ClientboundPlayerPosePayload.STREAM_CODEC);
         PayloadTypeRegistry.clientboundPlay().register(ClientboundServerConfigPayload.TYPE, ClientboundServerConfigPayload.STREAM_CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(ClientboundPlayerSettingsPayload.TYPE, ClientboundPlayerSettingsPayload.STREAM_CODEC);
         PayloadTypeRegistry.serverboundPlay().register(ServerboundPlayerPosePayload.TYPE, ServerboundPlayerPosePayload.STREAM_CODEC);
         PayloadTypeRegistry.serverboundPlay().register(ServerboundPlayerConfigPayload.TYPE, ServerboundPlayerConfigPayload.STREAM_CODEC);
         ServerPlayNetworking.registerGlobalReceiver(ServerboundPlayerPosePayload.TYPE, ServerModPacketListener::handleChangePose);

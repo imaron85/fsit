@@ -8,6 +8,7 @@ import org.snakeyaml.engine.v2.nodes.MappingNode;
 import org.snakeyaml.engine.v2.nodes.ScalarNode;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,12 +27,14 @@ public final class ConfigLoader {
             new TagOrElementLocation(Identifier.parse("minecraft:fences"), true),
             new TagOrElementLocation(Identifier.parse("minecraft:walls"), true)
         ),
-        180,
+        180, RidingTeleportMode.ENHANCED,
         10, 60, true,
         new CommandConfig("fsit", "sit", "crawl", "lay")
     );
 
     public static final class VersionMismatchException extends RuntimeException {
+        @Serial
+        private static final long serialVersionUID = 1L;
         public final int found;
         public VersionMismatchException(int found) {
             super("Config version mismatch: found " + found + ", expected " + ConfigData.CURRENT_VERSION);
@@ -121,7 +124,12 @@ public final class ConfigLoader {
         annotations.put("sitting:", join(
             "# Sitting on blocks (e.g. slabs, stairs)."));
         annotations.put("riding:", join(
-            "# Riding other players (interact with a player to sit on their head)."));
+            "# Riding other players (interact with a player to sit on their head).",
+            "# teleport-mode is server-wide (ops only). Possible values:",
+            "#   vanilla   -> let teleports happen as-is (passengers ride along same-dim,",
+            "#                stay behind on cross-dim — and may crash without 'enhanced')",
+            "#   disabled  -> drop passengers before any teleport",
+            "#   enhanced  -> carry passengers along, including across dimensions (recommended)"));
         annotations.put("sneak-activation:", join(
             "# Double-sneak shortcuts for entering sit/crawl poses."));
         annotations.put("commands:", join(

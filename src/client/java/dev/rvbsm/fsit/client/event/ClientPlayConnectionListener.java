@@ -1,5 +1,6 @@
 package dev.rvbsm.fsit.client.event;
 
+import dev.rvbsm.fsit.api.PlayerSettings;
 import dev.rvbsm.fsit.client.FSitModClient;
 import dev.rvbsm.fsit.client.network.ClientModPacketListener;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -25,5 +26,6 @@ public final class ClientPlayConnectionListener implements ClientPlayConnectionE
     @Override
     public void onPlayDisconnect(ClientPacketListener listener, Minecraft client) {
         FSitModClient.getInstance().setEnabled(false);
+        FSitModClient.getInstance().setPlayerSettings(PlayerSettings.DEFAULT);
     }
 }

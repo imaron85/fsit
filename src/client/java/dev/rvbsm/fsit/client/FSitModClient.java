@@ -1,10 +1,12 @@
 package dev.rvbsm.fsit.client;
 
 import dev.rvbsm.fsit.FSitMod;
+import dev.rvbsm.fsit.api.PlayerSettings;
 import dev.rvbsm.fsit.client.event.ClientPlayConnectionListener;
 import dev.rvbsm.fsit.client.network.ClientModPacketListener;
 import dev.rvbsm.fsit.client.option.ModOptions;
 import dev.rvbsm.fsit.config.ConfigData;
+import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerSettingsPayload;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundServerConfigPayload;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
 import net.fabricmc.api.ClientModInitializer;
@@ -21,6 +23,7 @@ public final class FSitModClient implements ClientModInitializer {
     private static @Nullable FSitModClient instance = null;
     private final ModOptions options;
     private boolean enabled;
+    private PlayerSettings playerSettings = PlayerSettings.DEFAULT;
 
     @SuppressWarnings("this-escape")
     public FSitModClient() {
@@ -38,6 +41,7 @@ public final class FSitModClient implements ClientModInitializer {
 
         ClientPlayNetworking.registerGlobalReceiver(ClientboundPlayerPosePayload.TYPE, ClientModPacketListener::handleChangePose);
         ClientPlayNetworking.registerGlobalReceiver(ClientboundServerConfigPayload.TYPE, ClientModPacketListener::handleServerConfig);
+        ClientPlayNetworking.registerGlobalReceiver(ClientboundPlayerSettingsPayload.TYPE, ClientModPacketListener::handlePlayerSettings);
 
         // hashset lookups are cheap, but booleans are even cheaper
         ClientPlayConnectionEvents.JOIN.register(ClientPlayConnectionListener.INSTANCE);
@@ -70,5 +74,13 @@ public final class FSitModClient implements ClientModInitializer {
 
     public boolean isEnabled() {
         return this.enabled && !this.getOptions().useServerRemote;
+    }
+
+    public PlayerSettings getPlayerSettings() {
+        return this.playerSettings;
+    }
+
+    public void setPlayerSettings(PlayerSettings settings) {
+        this.playerSettings = settings;
     }
 }

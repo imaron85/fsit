@@ -33,6 +33,7 @@ public record ConfigData(
     List<ExtraCodecs.TagOrElementLocation> blockInteractionIds,
 
     int ridingMinimumYaw,
+    RidingTeleportMode ridingTeleportMode,
 
     int sneakWindow,
     int sneakMinimumPitch,
@@ -64,10 +65,11 @@ public record ConfigData(
         ).apply(i, Sitting::new));
     }
 
-    private record Riding(boolean enabled, int maxYawDifference) {
+    private record Riding(boolean enabled, int maxYawDifference, RidingTeleportMode teleportMode) {
         static final Codec<Riding> CODEC = RecordCodecBuilder.create(i -> i.group(
             field(Codec.BOOL, "enabled", true).forGetter(Riding::enabled),
-            field(Codec.intRange(0, 180), "max-yaw-difference", 180).forGetter(Riding::maxYawDifference)
+            field(Codec.intRange(0, 180), "max-yaw-difference", 180).forGetter(Riding::maxYawDifference),
+            field(RidingTeleportMode.CODEC, "teleport-mode", RidingTeleportMode.ENHANCED).forGetter(Riding::teleportMode)
         ).apply(i, Riding::new));
     }
 
@@ -85,8 +87,8 @@ public record ConfigData(
         field(Codec.BOOL, "use-server-config", false).forGetter(ConfigData::useServer),
         field(Sitting.CODEC, "sitting", new Sitting(true, SeatTrait.MOVEABLE, false, List.of())).forGetter(d ->
             new Sitting(d.blockInteraction(), d.seatsTrait(), d.seatsCentered(), d.blockInteractionIds())),
-        field(Riding.CODEC, "riding", new Riding(true, 180)).forGetter(d ->
-            new Riding(d.ridingMinimumYaw() > 0, d.ridingMinimumYaw() > 0 ? d.ridingMinimumYaw() : 180)),
+        field(Riding.CODEC, "riding", new Riding(true, 180, RidingTeleportMode.ENHANCED)).forGetter(d ->
+            new Riding(d.ridingMinimumYaw() > 0, d.ridingMinimumYaw() > 0 ? d.ridingMinimumYaw() : 180, d.ridingTeleportMode())),
         field(Sneak.CODEC, "sneak-activation", new Sneak(true, 10, 60, true)).forGetter(d ->
             new Sneak(d.sneakWindow() > 0, d.sneakWindow() > 0 ? d.sneakWindow() : 10, d.sneakMinimumPitch(), d.sneakCrawling())),
         field(CommandConfig.CODEC, "commands", new CommandConfig("fsit", "sit", "crawl", "lay"))
@@ -95,7 +97,7 @@ public record ConfigData(
         useServer,
         sitting.behavior(), sitting.centered(),
         sitting.enabled(), sitting.blocks(),
-        riding.enabled() ? riding.maxYawDifference() : 0,
+        riding.enabled() ? riding.maxYawDifference() : 0, riding.teleportMode(),
         sneak.enabled() ? sneak.windowTicks() : 0, sneak.minPitchDown(), sneak.preferCrawlInTightSpace(),
         commands
     )));
@@ -139,7 +141,18 @@ public record ConfigData(
         return new ConfigData(
             this.useServer, this.seatsTrait, this.seatsCentered,
             this.blockInteraction, this.blockInteractionIds,
-            angle,
+            angle, this.ridingTeleportMode,
+            this.sneakWindow, this.sneakMinimumPitch, this.sneakCrawling,
+            this.commands
+        );
+    }
+
+    public ConfigData withRidingTeleportMode(RidingTeleportMode mode) {
+        if (mode == this.ridingTeleportMode) return this;
+        return new ConfigData(
+            this.useServer, this.seatsTrait, this.seatsCentered,
+            this.blockInteraction, this.blockInteractionIds,
+            this.ridingMinimumYaw, mode,
             this.sneakWindow, this.sneakMinimumPitch, this.sneakCrawling,
             this.commands
         );

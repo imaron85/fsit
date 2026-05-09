@@ -5,6 +5,7 @@ import dev.rvbsm.fsit.api.FSitPoseHolder;
 import dev.rvbsm.fsit.client.FSitModClient;
 import dev.rvbsm.fsit.client.option.HybridKeyMapping;
 import dev.rvbsm.fsit.config.ConfigData;
+import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerSettingsPayload;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundServerConfigPayload;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
 import dev.rvbsm.fsit.network.protocol.game.ServerboundPlayerConfigPayload;
@@ -65,5 +66,10 @@ public final class ClientModPacketListener {
 
     public static void handleServerConfig(ClientboundServerConfigPayload payload, ClientPlayNetworking.Context ctx) {
         FSitModClient.getInstance().getOptions().useServerRemote = payload.useServer();
+    }
+
+    @SuppressWarnings("unused")
+    public static void handlePlayerSettings(ClientboundPlayerSettingsPayload payload, ClientPlayNetworking.Context ctx) {
+        FSitModClient.getInstance().setPlayerSettings(payload.settings());
     }
 }

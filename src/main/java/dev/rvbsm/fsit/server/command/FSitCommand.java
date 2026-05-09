@@ -7,6 +7,7 @@ import com.mojang.logging.LogUtils;
 import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.server.compat.permissions.Permissions;
 import dev.rvbsm.fsit.server.network.ServerModPacketListener;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -17,7 +18,7 @@ public final class FSitCommand {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {
         var root = FSitMod.getInstance().getConfig().commands().root();
         if (root.isEmpty()) {
             LOGGER.info("Not registering root command!");
@@ -25,7 +26,7 @@ public final class FSitCommand {
         }
 
         dispatcher.register(Commands.literal(root)
-                .requires(Permissions.require("fsit.command.root", PermissionLevel.GAMEMASTERS))
+                .requires(Permissions.require("fsit.command.root", PermissionLevel.ALL))
                 .then(Commands.literal("reload")
                         .requires(Permissions.require("fsit.command.root.reload", PermissionLevel.GAMEMASTERS))
                         .executes(ctx -> executeReload(ctx.getSource())))
@@ -37,7 +38,11 @@ public final class FSitCommand {
                                                 ctx.getSource(),
                                                 IntegerArgumentType.getInteger(ctx, "degrees")))))
                         .then(Commands.literal("query")
-                                .executes(ctx -> executeQuery(ctx.getSource())))));
+                                .executes(ctx -> executeQuery(ctx.getSource()))))
+                .then(PlayerSettingsCommand.hands(context)
+                        .requires(Permissions.require("fsit.command.root.hands", PermissionLevel.ALL)))
+                .then(PlayerSettingsCommand.teleport()
+                        .requires(Permissions.require("fsit.command.root.teleport", PermissionLevel.GAMEMASTERS))));
     }
 
     private static int executeReload(CommandSourceStack src) {
@@ -63,7 +68,7 @@ public final class FSitCommand {
         ServerModPacketListener.broadcastConfig(src.getServer(), updated);
 
         src.sendSuccess(
-                () -> prefixed("Mount angle set to " + degrees + "\u00B0" + describeAngle(degrees)),
+                () -> prefixed("Mount angle set to " + degrees + "°" + describeAngle(degrees)),
                 true);
         return Command.SINGLE_SUCCESS;
     }
@@ -71,7 +76,7 @@ public final class FSitCommand {
     private static int executeQuery(CommandSourceStack src) {
         int angle = FSitMod.getInstance().getConfig().ridingMinimumYaw();
         src.sendSuccess(
-                () -> prefixed("Mount angle: " + angle + "\u00B0" + describeAngle(angle)),
+                () -> prefixed("Mount angle: " + angle + "°" + describeAngle(angle)),
                 false);
         return Command.SINGLE_SUCCESS;
     }

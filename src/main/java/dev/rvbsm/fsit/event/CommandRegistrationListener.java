@@ -20,7 +20,7 @@ public final class CommandRegistrationListener implements CommandRegistrationCal
             CommandBuildContext context,
             Commands.CommandSelection selection) {
 
-        FSitCommand.register(dispatcher);
+        FSitCommand.register(dispatcher, context);
         PoseCommand.register(dispatcher);
     }
 }

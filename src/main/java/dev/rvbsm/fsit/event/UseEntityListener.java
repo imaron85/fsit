@@ -1,6 +1,7 @@
 package dev.rvbsm.fsit.event;
 
 import dev.rvbsm.fsit.FSitMod;
+import dev.rvbsm.fsit.api.FSitPlayerSettings;
 import dev.rvbsm.fsit.world.entity.decoration.Ride;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.server.level.ServerPlayer;
@@ -76,9 +77,8 @@ public final class UseEntityListener implements UseEntityCallback {
             return getResultForLevel(level);
         }
 
-        boolean haveNothingInOurHands =
-            player.getMainHandItem().isEmpty() && player.getOffhandItem().isEmpty();
-        boolean suppressUsingPlayer = player.isSecondaryUseActive() || !haveNothingInOurHands;
+        boolean handsAreIdle = FSitPlayerSettings.get(player).handsAreIdle(player, player.registryAccess());
+        boolean suppressUsingPlayer = player.isSecondaryUseActive() || !handsAreIdle;
         if (suppressUsingPlayer) {
             return getResultForLevel(level);
         }

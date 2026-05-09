@@ -16,10 +16,12 @@ public final class ServerPlayConnectionListener implements ServerPlayConnectionE
 
     @Override
     public void onPlayReady(ServerGamePacketListenerImpl listener, PacketSender sender, MinecraftServer server) {
+        var player = listener.getPlayer();
         ServerModPacketListener.send(
-                listener.getPlayer(),
+                player,
                 ClientboundServerConfigPayload.TYPE,
                 () -> new ClientboundServerConfigPayload(
                         FSitMod.getInstance().getConfig().useServer()));
+        ServerModPacketListener.sendPlayerSettings(player);
     }
 }

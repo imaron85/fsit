@@ -1,10 +1,11 @@
 package dev.rvbsm.fsit.server.network;
 
-import com.mojang.logging.LogUtils;
 import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.api.FSitClientConfig;
+import dev.rvbsm.fsit.api.FSitPlayerSettings;
 import dev.rvbsm.fsit.api.FSitPoseHolder;
 import dev.rvbsm.fsit.config.ConfigData;
+import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerSettingsPayload;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundServerConfigPayload;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
 import dev.rvbsm.fsit.network.protocol.game.ServerboundPlayerConfigPayload;
@@ -16,13 +17,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import org.slf4j.Logger;
 
 import java.util.function.Supplier;
 
 public final class ServerModPacketListener {
-
-    private static final Logger LOGGER = LogUtils.getLogger();
 
     private ServerModPacketListener() {
     }
@@ -35,18 +33,17 @@ public final class ServerModPacketListener {
         ServerPlayNetworking.send(player, payload);
     }
 
-    public static boolean send(
+    public static void send(
         ServerPlayer player,
         CustomPacketPayload.Type<?> type,
         Supplier<CustomPacketPayload> supplier
     ) {
         if (!canSend(player, type)) {
-            return false;
+            return;
         }
 
         var payload = supplier.get();
         send(player, payload);
-        return true;
     }
 
     public static void handleChangePose(ServerboundPlayerPosePayload payload, ServerPlayNetworking.Context ctx) {
@@ -77,5 +74,10 @@ public final class ServerModPacketListener {
         var player = ctx.player();
         var config = payload.config();
         FSitClientConfig.set(player, config);
+    }
+
+    public static void sendPlayerSettings(ServerPlayer player) {
+        send(player, ClientboundPlayerSettingsPayload.TYPE,
+            () -> new ClientboundPlayerSettingsPayload(FSitPlayerSettings.get(player)));
     }
 }

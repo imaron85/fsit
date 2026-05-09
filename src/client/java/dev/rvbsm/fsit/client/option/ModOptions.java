@@ -186,6 +186,7 @@ public final class ModOptions {
             this.blockInteraction.get(),
             this.blockInteractionIds,
             this.ridingMinimumYaw.get(),
+            this.modClient.getConfig().ridingTeleportMode(),
             this.sneakWindow.get(),
             this.sneakMinimumPitch.get(),
             this.sneakCrawling.get(),
