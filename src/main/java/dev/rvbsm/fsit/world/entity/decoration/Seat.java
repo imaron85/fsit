@@ -26,7 +26,8 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 
-public class Seat extends ArmorStand {
+public final class Seat extends ArmorStand {
+    private static final EntityDimensions SEAT_DIMENSIONS = EntityDimensions.fixed(0.6f, 0.1f);
 
     private SeatTrait trait = FSitMod.getInstance().getConfig().seatsTrait();
 
@@ -76,11 +77,7 @@ public class Seat extends ArmorStand {
 
     @Override
     public EntityDimensions getDefaultDimensions(Pose pose) {
-        if (this.getFirstPassenger() instanceof Player passenger) {
-            return passenger.getDimensions(pose);
-        }
-
-        return super.getDefaultDimensions(pose);
+        return SEAT_DIMENSIONS;
     }
 
     @Override
