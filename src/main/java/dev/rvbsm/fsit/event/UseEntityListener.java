@@ -98,18 +98,11 @@ public final class UseEntityListener implements UseEntityCallback {
 
     // TODO: start riding with specified offset — riders position is client-side for riders
     private static boolean startRide(Player player, Player target, Level level) {
-        Player top = target;
-        for (int depth = 0; depth < MAX_STACK_DEPTH; depth++) {
-            if (top.getFirstPassenger() instanceof Ride ride
-                && ride.getFirstPassenger() instanceof Player next
-                && !next.equals(player)) {
-                top = next;
-                continue;
-            }
-            break;
+        Player top = findColumnTop(target, player);
+        if (top == null || top.equals(player)) {
+            return false;
         }
-
-        if (top.equals(player)) {
+        if (player.getVehicle() instanceof Ride existing && existing.getVehicle() == top) {
             return false;
         }
 
@@ -118,5 +111,19 @@ public final class UseEntityListener implements UseEntityCallback {
         seat.startRiding(top, true, true);
         player.startRiding(seat, true, true);
         return true;
+    }
+
+    private static @Nullable Player findColumnTop(Player target, Player clicker) {
+        Player top = target.getRootVehicle() instanceof Player rooted ? rooted : target;
+        for (int depth = 0; depth < MAX_STACK_DEPTH; depth++) {
+            if (top.getFirstPassenger() instanceof Ride ride
+                && ride.getFirstPassenger() instanceof Player next
+                && !next.equals(clicker)) {
+                top = next;
+                continue;
+            }
+            break;
+        }
+        return top;
     }
 }
