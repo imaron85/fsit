@@ -1,6 +1,5 @@
 package dev.rvbsm.fsit.client.network;
 
-import com.mojang.logging.LogUtils;
 import dev.rvbsm.fsit.api.FSitPoseHolder;
 import dev.rvbsm.fsit.client.FSitModClient;
 import dev.rvbsm.fsit.client.option.HybridKeyMapping;
@@ -13,13 +12,10 @@ import dev.rvbsm.fsit.world.entity.FSitPose;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.util.Mth;
-import org.slf4j.Logger;
 
 import java.util.function.Supplier;
 
 public final class ClientModPacketListener {
-
-    private static final Logger LOGGER = LogUtils.getLogger();
 
     private ClientModPacketListener() {
     }
@@ -64,6 +60,7 @@ public final class ClientModPacketListener {
         return ClientModPacketListener.send(ServerboundPlayerConfigPayload.TYPE, () -> new ServerboundPlayerConfigPayload(config.makeClientConfig()));
     }
 
+    @SuppressWarnings("unused")
     public static void handleServerConfig(ClientboundServerConfigPayload payload, ClientPlayNetworking.Context ctx) {
         FSitModClient.getInstance().getOptions().useServerRemote = payload.useServer();
     }

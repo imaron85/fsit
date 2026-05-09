@@ -13,10 +13,7 @@ import org.snakeyaml.engine.v2.nodes.NodeTuple;
 import org.snakeyaml.engine.v2.nodes.ScalarNode;
 import org.snakeyaml.engine.v2.nodes.Tag;
 
-import java.io.IOException;
 import java.io.Reader;
-import java.io.UncheckedIOException;
-import java.io.Writer;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,18 +24,6 @@ public final class Yaml {
 
     public static Optional<Node> compose(Reader reader) {
         return new Compose(LOAD_SETTINGS).composeReader(reader);
-    }
-
-    public static Optional<Node> compose(String string) {
-        return new Compose(LOAD_SETTINGS).composeString(string);
-    }
-
-    public static void serialize(Node node, Writer writer) {
-        try {
-            writer.write(new Present(DUMP_SETTINGS).emitToString(new Serialize(DUMP_SETTINGS).serializeOne(node).iterator()));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
     }
 
     public static String serialize(Node node) {

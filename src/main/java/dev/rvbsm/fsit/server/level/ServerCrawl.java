@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 
 import java.util.ArrayList;
 
-public class ServerCrawl extends Shulker {
+public final class ServerCrawl extends Shulker {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     private final ServerPlayer player;

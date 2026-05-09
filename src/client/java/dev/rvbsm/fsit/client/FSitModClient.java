@@ -13,7 +13,6 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.Minecraft;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
@@ -28,7 +27,7 @@ public final class FSitModClient implements ClientModInitializer {
     @SuppressWarnings("this-escape")
     public FSitModClient() {
         instance = this;
-        this.options = new ModOptions(Minecraft.getInstance(), this);
+        this.options = new ModOptions(this);
     }
 
     public static FSitModClient getInstance() {

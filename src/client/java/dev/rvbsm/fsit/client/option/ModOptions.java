@@ -5,7 +5,6 @@ import dev.rvbsm.fsit.client.FSitModClient;
 import dev.rvbsm.fsit.config.ConfigData;
 import dev.rvbsm.fsit.config.SeatTrait;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Tooltip;
@@ -40,7 +39,7 @@ public final class ModOptions {
             case ATTACHED -> Tooltip.create(SEATS_TRAIT_ATTACHED_TOOLTIP);
             case MOVEABLE ->  Tooltip.create(SEATS_TRAIT_MOVEABLE_TOOLTIP);
         },
-        (caption, value) -> Component.translatable("option.fsit.seats_trait." + value.getSerializedName()),
+        (_, value) -> Component.translatable("option.fsit.seats_trait." + value.getSerializedName()),
         new OptionInstance.Enum<>(Arrays.asList(SeatTrait.values()), SeatTrait.CODEC),
         SeatTrait.MOVEABLE,
         _ -> {}
@@ -127,7 +126,7 @@ public final class ModOptions {
     public final OptionInstance<HybridKeyMapping.Mode> hybridSit = new OptionInstance<>(
         "key.fsit.sit",
         OptionInstance.noTooltip(),
-        (caption, mode) -> mode.getDisplayName(),
+        (_, mode) -> mode.getDisplayName(),
         new OptionInstance.Enum<>(Arrays.asList(HybridKeyMapping.Mode.values()), HybridKeyMapping.Mode.CODEC),
         HybridKeyMapping.Mode.HYBRID,
         _ -> {}
@@ -136,7 +135,7 @@ public final class ModOptions {
     public final OptionInstance<HybridKeyMapping.Mode> hybridCrawl = new OptionInstance<>(
         "key.fsit.crawl",
         OptionInstance.noTooltip(),
-        (caption, mode) -> mode.getDisplayName(),
+        (_, mode) -> mode.getDisplayName(),
         new OptionInstance.Enum<>(Arrays.asList(HybridKeyMapping.Mode.values()), HybridKeyMapping.Mode.CODEC),
         HybridKeyMapping.Mode.HYBRID,
         _ -> {}
@@ -158,11 +157,9 @@ public final class ModOptions {
         hybridKeyWindow::get
     );
 
-    private final Minecraft client;
     private final FSitModClient modClient;
 
-    public ModOptions(Minecraft client, FSitModClient modClient) {
-        this.client = client;
+    public ModOptions(FSitModClient modClient) {
         this.modClient = modClient;
     }
 

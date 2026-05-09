@@ -47,6 +47,12 @@ public final class FSitPoseListener implements FSitPoseCallback {
                 (int) Math.floor(playerPos.z));
     }
 
+    /// Sends a block update for the fake bed (or its revert to the real block) to every
+    /// player in the level. Required for other clients to render the laying player with the
+    /// correct body orientation — without the fake bed, the renderer falls back to the
+    ///
+    /// The position is at (bedrock layer), inaccessible during normal
+    /// play; the packet is purely a client-side visual.
     public static void broadcastBedUpdate(ServerLevel level, BlockPos pos, BlockState state) {
         var packet = new ClientboundBlockUpdatePacket(pos, state);
         for (var viewer : level.players()) {

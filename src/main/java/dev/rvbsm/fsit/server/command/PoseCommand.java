@@ -20,37 +20,25 @@ public final class PoseCommand {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        var sit = FSitMod.getInstance().getConfig().commands().sit();
-        if (!register(dispatcher, sit, FSitPose.SITTING, "fsit.command.sit", PermissionLevel.ALL)) {
-            LOGGER.warn("Not registering sit command!");
-        }
-
-        var crawl = FSitMod.getInstance().getConfig().commands().crawl();
-        if (!register(dispatcher, crawl, FSitPose.CRAWLING, "fsit.command.crawl", PermissionLevel.ALL)) {
-            LOGGER.warn("Not registering crawl command!");
-        }
-
-        var lay = FSitMod.getInstance().getConfig().commands().lay();
-        if (!register(dispatcher, lay, FSitPose.LAYING, "fsit.command.lay", PermissionLevel.ALL)) {
-            LOGGER.warn("Not registering lay command!");
-        }
+        var commands = FSitMod.getInstance().getConfig().commands();
+        register(dispatcher, commands.sit(), FSitPose.SITTING, "fsit.command.sit");
+        register(dispatcher, commands.crawl(), FSitPose.CRAWLING, "fsit.command.crawl");
+        register(dispatcher, commands.lay(), FSitPose.LAYING, "fsit.command.lay");
     }
 
-    private static boolean register(
+    private static void register(
             CommandDispatcher<CommandSourceStack> dispatcher,
             String name,
             FSitPose pose,
-            String permission,
-            PermissionLevel level) {
+            String permission) {
         if (name.isEmpty()) {
-            return false;
+            LOGGER.warn("Not registering {} command!", pose.getSerializedName());
+            return;
         }
 
         dispatcher.register(Commands.literal(name)
-                .requires(Permissions.require(permission, level))
+                .requires(Permissions.require(permission, PermissionLevel.ALL))
                 .executes(ctx -> executePose(ctx.getSource(), pose)));
-
-        return true;
     }
 
     private static int executePose(CommandSourceStack src, FSitPose pose) throws CommandSyntaxException {

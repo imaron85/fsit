@@ -44,6 +44,7 @@ public abstract class LivingEntityMixin extends Entity {
     // keep yBodyRot where we set it — otherwise tickHeadTurn drags it back to yaw
     @Inject(method = "tickHeadTurn", at = @At("HEAD"), cancellable = true)
     private void fsit$freezeBodyRotWhenLaying(float yBodyRotT, CallbackInfo ci) {
+        //noinspection ConstantValue — at runtime `this` may be Player (mixin target is LivingEntity)
         if ((Object) this instanceof Player p && FSitPoseHolder.get(p) == FSitPose.LAYING) {
             ci.cancel();
         }
