@@ -5,6 +5,7 @@ import dev.rvbsm.fsit.mixin.EntityAccessor;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.AreaEffectCloud;
@@ -17,7 +18,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 
-public class Ride extends AreaEffectCloud {
+public final class Ride extends AreaEffectCloud {
 
     public Ride(Level level, double x, double y, double z) {
         super(level, x, y, z);
@@ -28,15 +29,27 @@ public class Ride extends AreaEffectCloud {
 
     @Override
     public boolean startRiding(Entity entityToRide, boolean force, boolean sendEventAndTriggers) {
+        if (entityToRide == this.getVehicle()) {
+            return false;
+        }
+        for (Entity v = entityToRide; v.getVehicle() != null; v = v.getVehicle()) {
+            if (v.getVehicle() == this) {
+                return false;
+            }
+        }
+
         if (this.isPassenger()) {
             this.stopRiding();
         }
-
-        ((EntityAccessor) this).setVehicle(entityToRide);
+        // EntityAccessor is mixed into Entity at runtime; javac doesn't see it on a final class,
+        // so we route through Object to keep the unchecked cast valid.
+        ((EntityAccessor) (Object) this).setVehicle(entityToRide);
         ((EntityAccessor) entityToRide).callAddPassenger(this);
-        if (entityToRide instanceof ServerPlayer targetPlayer) {
-            targetPlayer.connection.send(new ClientboundSetPassengersPacket(entityToRide));
+        if (this.level() instanceof ServerLevel sl) {
+            sl.getChunkSource().sendToTrackingPlayersAndSelf(entityToRide,
+                new ClientboundSetPassengersPacket(entityToRide));
         }
+
         if (sendEventAndTriggers) {
             this.level().gameEvent(this, GameEvent.ENTITY_MOUNT, entityToRide.position());
             for (var entity : entityToRide.getIndirectPassengers()) {
@@ -51,6 +64,10 @@ public class Ride extends AreaEffectCloud {
 
     @Override
     public void tick() {
+        if (this.level().isClientSide()) {
+            return;
+        }
+
         if (!this.isPassenger() || !this.isVehicle()) {
             this.discard();
             return;
