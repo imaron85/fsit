@@ -26,28 +26,47 @@ Interact with the topside of the block, that can be sat on, to start sitting on 
 
 ![sapling yippee](./public/sapling-serenity.jpg)
 
-Controlled with [`block-interaction`](#block-interaction).
+Controlled with [`sitting.enabled`](#sittingenabled).
 
 ### Interacting with players
 
 Interact with any player to start riding them.
+Clicking anyone in a riding stack will mount you on the topmost player.
 
 ![elytra](./public/soaring-spirits.jpg)
 
-Control angle difference with [`riding-minimum-yaw`](#riding-minimum-yaw)
+Control angle difference with [`riding.max-yaw-difference`](#ridingmax-yaw-difference).
 
 ### Sneaking
 
 Double sneak while looking down to sit right away.
 
-Doing the same, but near the hole, will start crawling otherwise. ([`sneak-crawling`](#sneak-crawling))
+Doing the same, but near the hole, will start crawling otherwise.
+([`sneak-activation.prefer-crawl-in-tight-space`](#sneak-activationprefer-crawl-in-tight-space))
 
-Minimal pitch and maximum sneak window can be configured with [`sneak-minimum-pitch`](#sneak-minimum-pitch) and
-[`sneak-window`](#sneak-window) accordingly.
+Minimal pitch and the sneak window can be configured with
+[`sneak-activation.min-pitch-down`](#sneak-activationmin-pitch-down) and
+[`sneak-activation.window-ticks`](#sneak-activationwindow-ticks) accordingly.
 
 ### Commands
 
-`/sit` and `/crawl` commands for corresponding actions are available.
+Pose commands:
+
+- `/sit` — sit down where you stand
+- `/crawl` — start crawling
+- `/lay` — lay down (experimental)
+
+Mod commands under `/fsit`:
+
+- `/fsit reload` — re-read the configuration file (op only)
+- `/fsit mount-angle set <0..180>` / `/fsit mount-angle query` — adjust `riding.max-yaw-difference` at runtime (op only)
+- `/fsit hands add <item|#tag>` / `remove` / `clear` / `reset` / `list` — your own list of items that don't count as a "full" hand for the sit/mount checks.
+  Defaults to torch and totem of undying, so you can hold them and still sit down.
+  Available to every player, list is saved per-player.
+- `/fsit teleport <vanilla|disabled|enhanced>` / `/fsit teleport query` — what happens to anyone sitting on you when you teleport (op only, server-wide):
+  - `vanilla` — passengers ride along same-dimension, get left behind on cross-dimension teleport
+  - `disabled` — passengers are dropped before the teleport
+  - `enhanced` — passengers follow you, including across dimensions (recommended)
 
 ### Key bindings (client)
 
@@ -72,36 +91,64 @@ For clients, configuration can be modified with [Mod Menu] and [YetAnotherConfig
 ### Default configuration file
 
 ```yaml
-use-server: false
-seats-trait: moveable
-seats-centered: false
-block-interaction: true
-block-interaction-ids:
-  - '#minecraft:slabs'
-  - '#minecraft:stairs'
-  - '#minecraft:logs'
-  - '#minecraft:fences'
-riding-minimum-yaw: 45
-sneak-window: 10
-sneak-minimum-pitch: 60
-sneak-crawling: true
+# FSit configuration. Do not edit `version` by hand.
+# On a dedicated server: `/fsit reload` re-reads this file.
+# On the client: reloading local config requires a game restart.
+version: 2
+use-server-config: false
+# Sitting on blocks (e.g. slabs, stairs).
+sitting:
+  enabled: true
+  behavior: moveable
+  centered: false
+  blocks:
+    - '#minecraft:slabs'
+    - '#minecraft:stairs'
+    - '#minecraft:logs'
+    - '#minecraft:fences'
+    - '#minecraft:walls'
+# Riding other players (interact with a player to sit on their head).
+# teleport-mode is server-wide (ops only). Possible values:
+#   vanilla   -> let teleports happen as-is (passengers ride along same-dim,
+#                stay behind on cross-dim — and may crash without 'enhanced')
+#   disabled  -> drop passengers before any teleport
+#   enhanced  -> carry passengers along, including across dimensions (recommended)
+riding:
+  enabled: true
+  max-yaw-difference: 180
+  teleport-mode: vanilla
+# Double-sneak shortcuts for entering sit/crawl poses.
+sneak-activation:
+  enabled: true
+  window-ticks: 10
+  min-pitch-down: 60
+  prefer-crawl-in-tight-space: true
+# Commands.
+#   true       -> enabled with default name
+#   false      -> command is not registered
+#   "name"     -> enabled with a custom name (e.g. lay: sleep)
+# A server restart is required for command changes to take effect.
 commands:
-  root: fsit
-  sit: sit
-  crawl: crawl
-  lay: lay
+  root: true
+  sit: true
+  crawl: true
+  lay: true
 ```
 
 <details>
 <summary>Options details</summary>
 
-### `use-server`
+### `use-server-config`
 
 When set to `true`, forces all players (server) or player (client) to use server configuration.
 
 Enabling this option will ignore client pose updates, leaving only server-to-client synchronization.
 
-### `seats-trait`
+### `sitting.enabled`
+
+Allows sitting by interacting with blocks.
+
+### `sitting.behavior`
 
 Controls sitting behaviour. Possible values: `static`, `attached`, `moveable`.
 
@@ -109,38 +156,62 @@ Controls sitting behaviour. Possible values: `static`, `attached`, `moveable`.
 * `attached` – seats will be discarded if they do not have any supporting block underneath;
 * `moveable` – seats can be pushed by fluids, pistons, etc. Will start falling without a supporting block.
 
-### `seats-centered`
+### `sitting.centered`
 
 Place seats in the centre of the block.
 
-### `block-interaction`
-
-Allows sitting by interacting with blocks.
-
-### `riding-minimum-yaw`
-
-When 1..180, allows riding by interacting with players.
-Setting to 0 disables riding interactions, and 180 removes restriction.
-
-The option controls a difference between players' horizontal facing angle to allow riding by interaction.
-
-### `block-interaction-ids`
+### `sitting.blocks`
 
 List of blocks and block tags that are available to interact with.
 
-### `sneak-crawling`
+### `riding.enabled`
+
+Allows riding by interacting with other players.
+
+### `riding.max-yaw-difference`
+
+When 1..180, controls the difference between players' horizontal facing angle to allow riding by interaction.
+0 disables riding interactions, 180 removes the restriction entirely.
+
+Can also be changed at runtime with `/fsit mount-angle set <0..180>`.
+
+### `riding.teleport-mode`
+
+Server-wide behavior for passengers when a player teleports. Possible values: `vanilla`, `disabled`, `enhanced`.
+
+* `vanilla` – passengers ride along same-dimension, get left behind on cross-dimension teleport;
+* `disabled` – passengers are dropped before the teleport;
+* `enhanced` – passengers follow you, including across dimensions (recommended).
+
+Can also be changed at runtime with `/fsit teleport <vanilla|disabled|enhanced>` (ops only).
+
+### `sneak-activation.enabled`
+
+Enables double-sneak shortcuts for sitting and crawling.
+
+### `sneak-activation.prefer-crawl-in-tight-space`
 
 Starts crawling instead of sitting if there is a hole nearby.
 
-### `sneak-minimum-pitch`
+### `sneak-activation.min-pitch-down`
 
 Minimal required player pitch to start registering sneak actions.
 Where 90 is straight down, and -90 ignores player pitch.
 
-### `sneak-window`
+### `sneak-activation.window-ticks`
 
 The window in ticks between sneaks to be recognized as double sneak action.
 Setting to 0 disables sneak actions.
+
+### `commands.*`
+
+Per-command toggle. Each command (`root`, `sit`, `crawl`, `lay`) accepts:
+
+* `true` – registered with the default name;
+* `false` – not registered;
+* `"name"` – registered with a custom name (e.g. `lay: sleep`).
+
+A server restart is required for command changes to take effect.
 
 </details>
 
