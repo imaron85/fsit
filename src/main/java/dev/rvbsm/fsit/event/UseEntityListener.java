@@ -98,6 +98,7 @@ public final class UseEntityListener implements UseEntityCallback {
 
     // TODO: start riding with specified offset — riders position is client-side for riders
     private static boolean startRide(Player player, Player target, Level level) {
+        if (target.isShiftKeyDown()) return false;
         Player top = findColumnTop(target, player);
         if (top == null || top.equals(player)) {
             return false;
