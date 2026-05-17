@@ -7,6 +7,7 @@
     "EntityAccessor",
     "LivingEntityMixin",
     "PlayerMixin",
+    "server.PlayerListMixin",
     "server.ServerGamePacketListenerImplMixin_TEMPORARYFIXANNOYINGOUTOFCONTEXTBUILDLIMITMESSAGE",
     "server.ServerPlayerMixin",
     "server.SleepStatusMixin"
