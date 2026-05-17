@@ -35,6 +35,10 @@ sourceSets.test {
     runtimeClasspath += sourceSets["client"].runtimeClasspath
 }
 
+configurations.implementation {
+    extendsFrom(configurations.shadow.get())
+}
+
 repositories {
     mavenCentral()
 
@@ -69,7 +73,6 @@ dependencies {
     ).map { fabricApi.module(it, property("version.fabric-api").toString()) }.forEach(::implementation)
     implementation("me.lucko:fabric-permissions-api:${property("version.fabric-permissions-api")}")
 
-    implementation("org.snakeyaml:snakeyaml-engine:3.0.1")
     shadow("org.snakeyaml:snakeyaml-engine:3.0.1")
 
     runtimeOnly("net.fabricmc.fabric-api:fabric-api:${property("version.fabric-api")}")
