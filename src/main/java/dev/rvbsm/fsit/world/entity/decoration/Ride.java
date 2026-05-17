@@ -114,7 +114,7 @@ public final class Ride extends AreaEffectCloud {
             }
         }
 
-        return root.position();
+        return root.getDismountLocationForPassenger(passenger);
     }
 
     @Override
