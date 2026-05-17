@@ -2,9 +2,21 @@
 
 ## 3.0.1-beta.1
 
+### Added
+- `/fsit hands` — your own whitelist of items that don't count as a "full" hand for the sit/mount checks. `add` / `remove` / `clear` / `reset` / `list`.
+  torch and totem of undying are seeded by default, so you can hold them and still sit down
+- `/fsit teleport` (op-only) — pick what happens to anyone sitting on you when you teleport:
+  - `vanilla` — same as before, riders get left behind on cross-dimension tp
+  - `disabled` — riders are dropped before you teleport
+  - `enhanced` — riders follow you, including across dimensions
+- clicking any rider in a player stack now mounts the topmost one instead of the player you actually clicked
+- new mod icon
+
 ### Fixed
 - fix Players falling through happyghasts when dismounting while rootplayer is riding it
 - fix players immidiatly dismounting when trying to mount player who is sneaking
+- riders were floating slightly above the seat instead of sitting on it; head-in-wall now suffocates properly
+- ride attachment could get dropped on the client before the server's attach packet arrived, so mounts would sometimes snap off right away
 
 ## v3.0.0-beta.1
 
