@@ -1,12 +1,17 @@
-# FSit
+# FSit Continued
+
+> [!IMPORTANT]
+> This is a community continuation of [FSit](https://modrinth.com/mod/fsit) by rvbsm, who has been unreachable for an extended period.
+> This project exists solely to keep the mod alive and updated for newer Minecraft versions.
+> **It will be taken down immediately if the original author returns and contacts us.**
+> All credit for the original mod goes to rvbsm. Licensed under MIT.
 
 Customizable server-side mod that allows players to sit, crawl, and ride each other.
 Client-side is supported too,
 it allows players to improve their experience by using client configuration
 and adding some client-side mod behaviour improvements.
-
 > [!NOTE]
-> Inspired by [GSit] Spigot plugin.
+> Inspired by [GSit](https://github.com/Gecolay/GSit) Spigot plugin.
 
 ## Usage
 
