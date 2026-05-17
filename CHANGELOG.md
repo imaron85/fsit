@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.1-beta.1
+
+### Fixed
+- fix Players falling through happyghasts when dismounting while rootplayer is riding it
+- fix players immidiatly dismounting when trying to mount player who is sneaking
+
 ## v3.0.0-beta.1
 
 **Tiny Takeover** over the codebase!
