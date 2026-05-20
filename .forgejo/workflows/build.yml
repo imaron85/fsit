@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: debian-unprivileged-runner
+    runs-on: docker
 
     steps:
       - uses: actions/checkout@v4
