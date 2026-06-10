@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.0.1-beta.2
+- fix compat with other mods
+
 ## 3.0.1-beta.1
 
 ### Added

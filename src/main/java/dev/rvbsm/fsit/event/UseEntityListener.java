@@ -25,7 +25,7 @@ public final class UseEntityListener implements UseEntityCallback {
     private static final int MAX_STACK_DEPTH = 16;
 
     private static InteractionResult getResultForLevel(Level level) {
-        return level.isClientSide() ? InteractionResult.FAIL : InteractionResult.PASS;
+        return level.isClientSide() ? InteractionResult.SUCCESS_SERVER : InteractionResult.PASS;
     }
 
     private static @Nullable Vec3 getClickedRidingOffset(LivingEntity vehicle, Vec3 location) {
@@ -114,7 +114,7 @@ public final class UseEntityListener implements UseEntityCallback {
         return true;
     }
 
-    private static @Nullable Player findColumnTop(Player target, Player clicker) {
+    private static Player findColumnTop(Player target, Player clicker) {
         Player top = target.getRootVehicle() instanceof Player rooted ? rooted : target;
         for (int depth = 0; depth < MAX_STACK_DEPTH; depth++) {
             if (top.getFirstPassenger() instanceof Ride ride
