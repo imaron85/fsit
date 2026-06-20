@@ -6,11 +6,12 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.logging.LogUtils;
 import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.api.FSitPoseHolder;
-import dev.rvbsm.fsit.server.compat.permissions.Permissions;
 import dev.rvbsm.fsit.world.entity.FSitPose;
+import net.fabricmc.fabric.api.permission.v1.PermissionPredicates;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.permissions.PermissionLevel;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
@@ -21,23 +22,23 @@ public final class PoseCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         var commands = FSitMod.getInstance().getConfig().commands();
-        register(dispatcher, commands.sit(), FSitPose.SITTING, "fsit.command.sit");
-        register(dispatcher, commands.crawl(), FSitPose.CRAWLING, "fsit.command.crawl");
-        register(dispatcher, commands.lay(), FSitPose.LAYING, "fsit.command.lay");
+        register(dispatcher, commands.sit(), FSitPose.SITTING, Identifier.fromNamespaceAndPath("fsit","command.sit"));
+        register(dispatcher, commands.crawl(), FSitPose.CRAWLING, Identifier.fromNamespaceAndPath("fsit","command.crawl"));
+        register(dispatcher, commands.lay(), FSitPose.LAYING, Identifier.fromNamespaceAndPath("fsit","command.lay"));
     }
 
     private static void register(
             CommandDispatcher<CommandSourceStack> dispatcher,
             String name,
             FSitPose pose,
-            String permission) {
+            Identifier permission) {
         if (name.isEmpty()) {
             LOGGER.warn("Not registering {} command!", pose.getSerializedName());
             return;
         }
 
         dispatcher.register(Commands.literal(name)
-                .requires(Permissions.require(permission, PermissionLevel.ALL))
+                .requires(PermissionPredicates.require(permission, PermissionLevel.ALL))
                 .executes(ctx -> executePose(ctx.getSource(), pose)));
     }
 

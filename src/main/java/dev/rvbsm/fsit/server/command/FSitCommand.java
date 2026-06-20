@@ -5,12 +5,14 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.logging.LogUtils;
 import dev.rvbsm.fsit.FSitMod;
-import dev.rvbsm.fsit.server.compat.permissions.Permissions;
 import dev.rvbsm.fsit.server.network.ServerModPacketListener;
+import net.fabricmc.fabric.api.permission.v1.PermissionNode;
+import net.fabricmc.fabric.api.permission.v1.PermissionPredicates;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.permissions.PermissionLevel;
 import org.slf4j.Logger;
 
@@ -26,12 +28,12 @@ public final class FSitCommand {
         }
 
         dispatcher.register(Commands.literal(root)
-                .requires(Permissions.require("fsit.command.root", PermissionLevel.ALL))
+                .requires(PermissionPredicates.require(PermissionNode.of(Identifier.fromNamespaceAndPath("fsit","command.root")), PermissionLevel.ALL))
                 .then(Commands.literal("reload")
-                        .requires(Permissions.require("fsit.command.root.reload", PermissionLevel.GAMEMASTERS))
+                        .requires(PermissionPredicates.require(PermissionNode.of(Identifier.fromNamespaceAndPath("fsit","command.root.reload")), PermissionLevel.GAMEMASTERS))
                         .executes(ctx -> executeReload(ctx.getSource())))
                 .then(Commands.literal("set")
-                        .requires(Permissions.require("fsit.command.root.set", PermissionLevel.GAMEMASTERS))
+                        .requires(PermissionPredicates.require(PermissionNode.of(Identifier.fromNamespaceAndPath("fsit","command.root.set")), PermissionLevel.GAMEMASTERS))
                         .then(Commands.literal("riding-angle")
                                 .then(Commands.argument("degrees", IntegerArgumentType.integer(0, 180))
                                         .executes(ctx -> executeSetRidingAngle(
@@ -40,9 +42,9 @@ public final class FSitCommand {
                         .then(Commands.literal("query")
                                 .executes(ctx -> executeQuery(ctx.getSource()))))
                 .then(PlayerSettingsCommand.hands(context)
-                        .requires(Permissions.require("fsit.command.root.hands", PermissionLevel.ALL)))
+                        .requires(PermissionPredicates.require(PermissionNode.of(Identifier.fromNamespaceAndPath("fsit","command.root.hands")), PermissionLevel.ALL)))
                 .then(PlayerSettingsCommand.teleport()
-                        .requires(Permissions.require("fsit.command.root.teleport", PermissionLevel.GAMEMASTERS))));
+                        .requires(PermissionPredicates.require(PermissionNode.of(Identifier.fromNamespaceAndPath("fsit","command.root.teleport")), PermissionLevel.GAMEMASTERS))));
     }
 
     private static int executeReload(CommandSourceStack src) {
