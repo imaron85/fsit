@@ -1,6 +1,7 @@
 # Changelog
 
 ## 3.0.1-beta.2
+- update to 26.2
 - fix compat with other mods
 
 ## 3.0.1-beta.1
