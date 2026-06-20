@@ -37,7 +37,7 @@
     "fabric-networking-api-v1": "*"
   },
   "suggests": {
-    "fabric-permissions-api-v0": "*",
+    "fabric-permissions-api-v1": "*",
     "modmenu": "*",
     "yet_another_config_lib_v3": ">=3.9.0"
   }

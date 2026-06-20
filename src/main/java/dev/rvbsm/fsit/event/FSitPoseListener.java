@@ -34,9 +34,14 @@ public final class FSitPoseListener implements FSitPoseCallback {
     // makes the body extend in the player's look direction with the head near them.
     public static BlockState fakeBedStateFor(float yRot) {
         var facing = Direction.fromYRot(yRot).getOpposite();
-        return Blocks.BLACK_BED.defaultBlockState()
-                .setValue(BedBlock.FACING, facing)
-                .setValue(BedBlock.PART, BedPart.HEAD);
+        //? if = 26.1 {
+        return Blocks.BLACK_BED.
+        //?} else {
+        /*return Blocks.BED.black().
+        *///?}
+            defaultBlockState()
+            .setValue(BedBlock.FACING, facing)
+            .setValue(BedBlock.PART, BedPart.HEAD);
     }
 
     // stuff at getMinY is inside bedrock — invisible during normal play

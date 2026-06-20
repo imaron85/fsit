@@ -2,7 +2,12 @@ package dev.rvbsm.fsit.world.entity.decoration;
 
 import dev.rvbsm.fsit.FSitMod;
 import dev.rvbsm.fsit.mixin.EntityAccessor;
+
+//? if = 26.1 {
 import net.minecraft.advancements.CriteriaTriggers;
+ //?} else {
+/*import net.minecraft.advancements.triggers.CriteriaTriggers;
+*///?}
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.server.level.ServerLevel;
