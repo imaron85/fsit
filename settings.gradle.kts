@@ -7,9 +7,9 @@ pluginManagement {
     }
 
     plugins {
-        id("net.fabricmc.fabric-loom") version "1.15-SNAPSHOT" apply false
-        id("me.modmuss50.mod-publish-plugin") version "1.1.0" apply false
-        id("com.gradleup.shadow") version "9.3.1" apply false
+        id("net.fabricmc.fabric-loom") version "1.17-SNAPSHOT" apply false
+        id("me.modmuss50.mod-publish-plugin") version "2.1.1" apply false
+        id("com.gradleup.shadow") version "9.6.0" apply false
     }
 }
 
