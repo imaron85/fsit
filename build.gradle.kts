@@ -4,7 +4,7 @@ plugins {
     id("com.gradleup.shadow")
 }
 
-version = "${rootProject.version}+mc${stonecutter.current.project}"
+version = "${rootProject.version}+mc${sc.current.project}"
 base {
     archivesName = rootProject.name
 }
@@ -27,8 +27,6 @@ loom {
 
     log4jConfigs.from("$rootDir/log4j-dev.xml")
 }
-
-stonecutter {}
 
 sourceSets.test {
     compileClasspath += sourceSets["client"].compileClasspath
@@ -58,7 +56,7 @@ repositories {
 }
 
 dependencies {
-    minecraft("com.minecraft:minecraft:${stonecutter.current.version}")
+    minecraft("com.minecraft:minecraft:${sc.current.version}")
 
     implementation("net.fabricmc:fabric-loader:${property("version.fabric-loader")}")
     setOf(
@@ -68,7 +66,6 @@ dependencies {
         "fabric-key-mapping-api-v1",
         "fabric-lifecycle-events-v1",
         "fabric-networking-api-v1",
-        // TODO: https://github.com/FabricMC/fabric-api/pull/5226
         "fabric-permission-api-v1",
     ).map { fabricApi.module(it, property("version.fabric-api").toString()) }.forEach(::implementation)
 
@@ -89,7 +86,7 @@ tasks.processResources {
     val properties = mapOf(
         "version" to version,
         "java" to ">=${java.targetCompatibility}",
-        "minecraft" to "~${stonecutter.current.project}-",
+        "minecraft" to "~${sc.current.project}-",
     )
 
     inputs.properties(properties)
@@ -148,7 +145,7 @@ publishMods {
     file = tasks.jar.flatMap { it.archiveFile }
     additionalFiles.from(tasks.named<Jar>("sourcesJar").map { it.archiveFile })
 
-    displayName = "[${stonecutter.current.project}] v${rootProject.version}"
+    displayName = "[${sc.current.project}] v${rootProject.version}"
     changelog = readChangelog("CHANGELOG.md")
     type = version.map {
         when {
@@ -167,8 +164,8 @@ publishMods {
         featured = true
 
         minecraftVersionRange {
-            start = stonecutter.current.project
-            end = stonecutter.current.version
+            start = sc.current.project
+            end = sc.current.version // will break if start > end
         }
 
         requires("fabric-api")
