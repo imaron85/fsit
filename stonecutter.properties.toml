@@ -1,13 +1,16 @@
-version.fabric-loader = "0.18.4"
+version.fabric-loader = "0.19.3"
 
 ["26.1"]
-version.fabric-api = "0.152.1+26.1.2"
-version.fabric-permissions-api = "0.7.0"
-version.modmenu = "18.0.0-alpha.6"
-version.yacl = "3.9.0+26.1-fabric"
+version.fabric-api = "0.154.2+26.1.2"
+version.modmenu = "18.0.0"
+version.yacl = "3.9.5+26.1-fabric"
 
 ["26.2"]
-version.fabric-api = "0.152.2+26.2"
-version.modmenu = "20.0.0-beta.3"
-version.yacl = "3.9.4+26.2-fabric"
-version.fabric-loader = "0.19.2"
+version.fabric-api = "0.154.2+26.2"
+version.modmenu = "20.0.1"
+version.yacl = "3.9.5+26.2-fabric"
+
+["26.3"]
+version.fabric-api = "0.154.3+26.3"
+version.modmenu = "20.0.1"
+version.yacl = "3.9.5+26.3-fabric"
