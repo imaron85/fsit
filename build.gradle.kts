@@ -40,7 +40,7 @@ configurations.implementation {
 repositories {
     mavenCentral()
 
-    maven("https://maven.terraformersmc.com/releases") {
+    maven("https://maven.terraformersmc.com") {
         name = "TerraformersMC"
         content {
             includeGroup("com.terraformersmc")
