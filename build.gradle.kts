@@ -40,19 +40,15 @@ configurations.implementation {
 repositories {
     mavenCentral()
 
-    maven("https://maven.terraformersmc.com") {
-        name = "TerraformersMC"
-        content {
-            includeGroup("com.terraformersmc")
-        }
+    // thx @KikuGie
+    fun strictMaven(url: String, alias: String, vararg groups: String) = exclusiveContent {
+        forRepository { maven(url) { name = alias } }
+        filter { groups.forEach(::includeGroup) }
     }
 
-    maven("https://maven.isxander.dev/releases") {
-        name = "Xander"
-        content {
-            includeGroup("dev.isxander")
-        }
-    }
+    strictMaven("https://maven.terraformersmc.com", "TerraformersMC", "com.terraformersmc")
+    strictMaven("https://maven.isxander.dev/releases", "Xander", "dev.isxander")
+    strictMaven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1", "me.djtheredstoner")
 }
 
 dependencies {
@@ -67,17 +63,15 @@ dependencies {
         "fabric-lifecycle-events-v1",
         "fabric-networking-api-v1",
         "fabric-permission-api-v1",
-    ).map { fabricApi.module(it, property("version.fabric-api").toString()) }.forEach(::implementation)
+    ).map { fabricApi.module(it, sc.properties["version.fabric-api"]) }.forEach(::implementation)
 
     shadow("org.snakeyaml:snakeyaml-engine:3.0.1")
 
-    runtimeOnly("net.fabricmc.fabric-api:fabric-api:${property("version.fabric-api")}")
-    implementation("com.terraformersmc:modmenu:${property("version.modmenu")}") {
-        isTransitive = false
-    }
-    implementation("dev.isxander:yet-another-config-lib:${property("version.yacl")}") {
-        isTransitive = false
-    }
+    implementation("com.terraformersmc:modmenu:${property("version.modmenu")}") { isTransitive = false }
+    implementation("dev.isxander:yet-another-config-lib:${property("version.yacl")}") { isTransitive = false }
+
+    localRuntime("net.fabricmc.fabric-api:fabric-api:${property("version.fabric-api")}")
+    localRuntime("me.djtheredstoner:DevAuth-fabric:${property("version.devauth")}")
 
     testImplementation("net.fabricmc:fabric-loader-junit:${property("version.fabric-loader")}")
 }
