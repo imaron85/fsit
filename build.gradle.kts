@@ -19,10 +19,10 @@ loom {
     }
 
     runs.all {
-        isIdeConfigGenerated = true
-        runDir = "../../run"
-        property("mixin.debug.export", "true")
-        vmArg("-Xmx1G")
+        generateRunConfig = true
+        runDirectory = rootProject.file("run")
+        systemProperties.put("mixin.debug.export", "true")
+        jvmArguments.addAll("-Xmx1G")
     }
 
     log4jConfigs.from("$rootDir/log4j-dev.xml")
