@@ -91,6 +91,15 @@ public final class Seat extends ArmorStand {
             this.refreshDimensions();
         }
 
+        if (this.tickCount % 60 == 0) {
+            if (this.getFirstPassenger() instanceof ServerPlayer player && FSitClientConfig.get(player) != null) {
+                //noinspection DataFlowIssue
+                this.trait = FSitClientConfig.get(player).seatTrait();
+            } else {
+                this.trait = FSitMod.getInstance().getConfig().seatsTrait();
+            }
+        }
+
         if (!this.isVehicle()) {
             // FIXME: `remove_entities` might be sent earlier than `player_position`?
             this.discard();
@@ -109,8 +118,7 @@ public final class Seat extends ArmorStand {
         // threshold — absSnapRotationTo marks the entity dirty every call
         if (this.getFirstPassenger() instanceof Player passenger) {
             Vec2 rot = passenger.getRotationVector();
-            if (Math.abs(Mth.wrapDegrees(this.getYRot() - rot.y)) > 1.0f
-                    || Math.abs(this.getXRot() - rot.x) > 1.0f) {
+            if (Math.abs(Mth.wrapDegrees(this.getYRot() - rot.y)) > 1.0f || Math.abs(this.getXRot() - rot.x) > 1.0f) {
                 this.absSnapRotationTo(rot.y, rot.x);
             }
         }
@@ -135,7 +143,7 @@ public final class Seat extends ArmorStand {
         }
 
         var offset = getCollisionHorizontalEscapeVector(
-            passenger.getBbWidth() * Mth.SQRT_OF_TWO, passenger.getBbWidth(), passenger.getYRot());
+                passenger.getBbWidth() * Mth.SQRT_OF_TWO, passenger.getBbWidth(), passenger.getYRot());
         var finalX = this.getX() + offset.x;
         var finalZ = this.getZ() + offset.z;
 
@@ -181,14 +189,6 @@ public final class Seat extends ArmorStand {
     }
 
     private SeatTrait getTrait() {
-        if (this.tickCount % 60 == 0) {
-            if (this.getFirstPassenger() instanceof ServerPlayer player && FSitClientConfig.get(player) != null) {
-                //noinspection DataFlowIssue
-                this.trait = FSitClientConfig.get(player).seatTrait();
-            } else {
-                this.trait = FSitMod.getInstance().getConfig().seatsTrait();
-            }
-        }
 
         return this.trait;
     }
