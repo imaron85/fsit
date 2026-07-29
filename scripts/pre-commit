@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+stonecutter_vcs=$(jq -r '.vcs' ./versions.json)
+stonecutter_active=$(sed -n -e 's/^stonecutter active "\(.*\)".*/\1/p' stonecutter.gradle.kts)
+
+if [ "$stonecutter_active" != "$stonecutter_vcs" ]; then
+  ./gradlew :"Reset active project"
+fi
