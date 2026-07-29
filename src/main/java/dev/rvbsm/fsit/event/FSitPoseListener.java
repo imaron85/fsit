@@ -15,6 +15,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
@@ -27,29 +28,20 @@ public final class FSitPoseListener implements FSitPoseCallback {
 
     public static final FSitPoseListener INSTANCE = new FSitPoseListener();
     private static final Logger LOGGER = LogUtils.getLogger();
-
-    private FSitPoseListener() {}
+    private static final Block FAKE_BED =
+            //$ if ~26.1 'Blocks.GRAY_BED;' else 'Blocks.BED.gray();'
+            Blocks.GRAY_BED;
 
     // FACING opposite of yaw-cardinal — renderer shifts model by -step*headOffset, so this
     // makes the body extend in the player's look direction with the head near them.
     public static BlockState fakeBedStateFor(float yRot) {
         var facing = Direction.fromYRot(yRot).getOpposite();
-        //? if ~26.1 {
-        return Blocks.BLACK_BED.
-        //?} else {
-        /*return Blocks.BED.black().
-        *///?}
-            defaultBlockState()
-            .setValue(BedBlock.FACING, facing)
-            .setValue(BedBlock.PART, BedPart.HEAD);
+        return FAKE_BED.defaultBlockState().setValue(BedBlock.FACING, facing).setValue(BedBlock.PART, BedPart.HEAD);
     }
 
     // stuff at getMinY is inside bedrock — invisible during normal play
     public static BlockPos fakeBedPosFor(ServerLevel level, Vec3 playerPos) {
-        return new BlockPos(
-                (int) Math.floor(playerPos.x),
-                level.getMinY(),
-                (int) Math.floor(playerPos.z));
+        return new BlockPos((int) Math.floor(playerPos.x), level.getMinY(), (int) Math.floor(playerPos.z));
     }
 
     /// Sends a block update for the fake bed (or its revert to the real block) to every
@@ -78,8 +70,7 @@ public final class FSitPoseListener implements FSitPoseCallback {
             broadcastBedUpdate(level, bedPos, level.getBlockState(bedPos));
         }
         if (player.connection != null) {
-            player.connection.teleport(player.getX(), player.getY(), player.getZ(),
-                    player.getYRot(), player.getXRot());
+            player.connection.teleport(player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot());
         }
     }
 
@@ -119,7 +110,8 @@ public final class FSitPoseListener implements FSitPoseCallback {
             }
 
             case SITTING -> {
-                if (!(player instanceof ServerPlayer serverPlayer) || !FSitMod.getInstance().isUsingClient(serverPlayer)) {
+                if (!(player instanceof ServerPlayer serverPlayer)
+                        || !FSitMod.getInstance().isUsingClient(serverPlayer)) {
                     if (config.seatsCentered()) {
                         position = new Vec3(Math.floor(position.x) + 0.5, position.y, Math.floor(position.z) + 0.5);
                     }

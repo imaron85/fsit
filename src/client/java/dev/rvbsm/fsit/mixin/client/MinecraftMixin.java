@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 // skip the bed chat screen while LAYING; normal bed sleep untouched (fsit$pose != LAYING)
 
-// $ if ~26.1 '@Mixin(net.minecraft.client.Minecraft.class)' else '@Mixin(net.minecraft.client.gui.Gui.class)'
+//$ if ~26.1 '@Mixin(net.minecraft.client.Minecraft.class)' else '@Mixin(net.minecraft.client.gui.Gui.class)'
 @Mixin(net.minecraft.client.Minecraft.class)
 public abstract class MinecraftMixin {
 
