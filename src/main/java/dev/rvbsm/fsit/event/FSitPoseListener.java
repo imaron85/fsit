@@ -34,7 +34,7 @@ public final class FSitPoseListener implements FSitPoseCallback {
     // makes the body extend in the player's look direction with the head near them.
     public static BlockState fakeBedStateFor(float yRot) {
         var facing = Direction.fromYRot(yRot).getOpposite();
-        //? if = 26.1 {
+        //? if ~26.1 {
         return Blocks.BLACK_BED.
         //?} else {
         /*return Blocks.BED.black().

@@ -28,6 +28,13 @@ loom {
     log4jConfigs.from("$rootDir/log4j-dev.xml")
 }
 
+stonecutter {
+    replacements.string(current.parsed >= "26.2") {
+        replace("net.minecraft.advancements.CriteriaTriggers", "net.minecraft.advancements.triggers.CriteriaTriggers")
+        replace("EntityType", "EntityTypes")
+    }
+}
+
 sourceSets.test {
     compileClasspath += sourceSets["client"].compileClasspath
     runtimeClasspath += sourceSets["client"].runtimeClasspath

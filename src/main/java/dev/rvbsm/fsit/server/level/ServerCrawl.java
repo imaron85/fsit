@@ -12,13 +12,6 @@ import net.minecraft.network.protocol.game.ClientboundEntityPositionSyncPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.server.level.ServerPlayer;
-//? if = 26.1 {
- import net.minecraft.world.entity.EntityType;
-//?} else {
-/*import net.minecraft.world.entity.EntityTypes;
-*///?}
-
-
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.Shulker;
 import org.slf4j.Logger;
@@ -31,11 +24,7 @@ public final class ServerCrawl extends Shulker {
     private final ServerPlayer player;
 
     public ServerCrawl(ServerPlayer player) {
-        //? if = 26.1 {
         super(EntityType.SHULKER, player.level());
-        //?} else {
-        /*super(EntityTypes.SHULKER, player.level());
-        *///?}
         this.player = player;
         this.setInvisible(true);
         this.entityData.set(DATA_ATTACH_FACE_ID, Direction.UP);
