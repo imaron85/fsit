@@ -13,6 +13,7 @@ import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.vehicle.DismountHelper;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
@@ -63,6 +64,11 @@ public final class Ride extends AreaEffectCloud {
         return true;
     }
 
+    private void removeRide() {
+        this.ejectPassengers();
+        this.discard();
+    }
+
     @Override
     public void tick() {
         if (this.level().isClientSide()) {
@@ -75,9 +81,14 @@ public final class Ride extends AreaEffectCloud {
         }
         var vehicle = this.getVehicle();
         if (vehicle != null) {
-            if (vehicle.isShiftKeyDown()) {
-                this.ejectPassengers();
-                this.discard();
+            if (vehicle.isShiftKeyDown() ) {
+                removeRide();
+                return;
+            }
+            if (vehicle instanceof ServerPlayer player &&
+                player.gameMode.getGameModeForPlayer() == GameType.SPECTATOR)
+                {
+                removeRide();
                 return;
             }
             this.setPos(vehicle.getX(), vehicle.getY(), vehicle.getZ());
