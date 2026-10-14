@@ -183,10 +183,11 @@ public final class Seat extends ArmorStand {
         return false; // do not save as "RootVehicle"
     }
 
-    @Override
-    public boolean canSimulateMovement() {
-        return this.getTrait().canMove();
-    }
+    // TODO: uh oh
+    // @Override
+    // public boolean canSimulateMovement() {
+    // return this.getTrait().canMove();
+    // }
 
     private SeatTrait getTrait() {
 

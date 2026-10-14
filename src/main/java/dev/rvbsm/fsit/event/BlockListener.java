@@ -9,7 +9,6 @@ import net.fabricmc.fabric.api.event.player.BlockEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -75,8 +74,8 @@ public final class BlockListener implements BlockEvents.UseWithoutItemCallback {
 
     private static Vec3 resolveSeatPosition(VoxelShape collisionShape, BlockPos pos, BlockHitResult hit) {
         // clamp X/Z inside the block so seats don't spawn on the edge between two blocks
-        double seatX = Mth.clamp(hit.getLocation().x, pos.getX() + 0.05, pos.getX() + 0.95);
-        double seatZ = Mth.clamp(hit.getLocation().z, pos.getZ() + 0.05, pos.getZ() + 0.95);
+        double seatX = Math.clamp(hit.getLocation().x, pos.getX() + 0.05, pos.getX() + 0.95);
+        double seatZ = Math.clamp(hit.getLocation().z, pos.getZ() + 0.05, pos.getZ() + 0.95);
 
         // set Y to highest collideable point of the block
         // when block's visual shape is different from collision shape, like fences and walls

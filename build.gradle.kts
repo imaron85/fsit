@@ -31,6 +31,10 @@ stonecutter {
         replace("net.minecraft.advancements.CriteriaTriggers", "net.minecraft.advancements.triggers.CriteriaTriggers")
         replace("EntityType", "EntityTypes")
     }
+
+    replacements.string(current.parsed >= "26.3") {
+        replace("InputConstants.Type.KEYSYM", "InputConstants.Type.KEYBOARD")
+    }
 }
 
 sourceSets.test {
