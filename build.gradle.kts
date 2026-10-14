@@ -5,9 +5,7 @@ plugins {
 }
 
 version = "${rootProject.version}+mc${sc.current.project}"
-base {
-    archivesName = rootProject.name
-}
+base.archivesName = rootProject.name
 
 loom {
     splitEnvironmentSourceSets()
@@ -55,7 +53,7 @@ repositories {
 
     strictMaven("https://maven.terraformersmc.com", "TerraformersMC", "com.terraformersmc")
     strictMaven("https://maven.isxander.dev/releases", "Xander", "dev.isxander")
-    strictMaven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1", "me.djtheredstoner")
+    strictMaven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1", "DevAuth", "me.djtheredstoner")
 }
 
 dependencies {
@@ -96,30 +94,33 @@ tasks.processResources {
     }
 }
 
-tasks.shadowJar {
-    configurations = project.configurations.shadow.map(::listOf)
-
-    enableAutoRelocation = true
-    relocationPrefix = "dev.rvbsm.fsit.lib"
-
-    exclude("META-INF/maven/org.snakeyaml/*/**")
-
-    minimize()
+tasks.withType<Jar> {
+    destinationDirectory = rootProject.layout.buildDirectory.dir("libs")
 }
 
 tasks.jar {
-    dependsOn(tasks.shadowJar)
-    from(zipTree(tasks.shadowJar.flatMap { it.archiveFile }))
-    duplicatesStrategy = DuplicatesStrategy.WARN
+    archiveClassifier = "dev"
+    destinationDirectory = rootProject.layout.buildDirectory.dir("devlibs")
+}
+
+
+tasks.shadowJar {
+    dependsOn(tasks.jar)
+    archiveClassifier = null
+
+    configurations = project.configurations.shadow.map(::listOf)
+    enableAutoRelocation = true
+
+    relocationPrefix = "dev.rvbsm.fsit.lib"
+    exclude("META-INF/maven/*/**")
+    minimize()
 
     from("$rootDir/LICENSE") {
         into("META-INF")
     }
 }
 
-tasks.withType<Jar> {
-    destinationDirectory = rootProject.layout.buildDirectory.dir("libs")
-}
+loom.nestJars(tasks.shadowJar, configurations.include)
 
 tasks.test {
     useJUnitPlatform()
@@ -127,7 +128,7 @@ tasks.test {
 
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
-    options.release = java.targetCompatibility.ordinal + 1
+    options.release = 25
     options.compilerArgs.addAll(listOf("-Xlint:all", "-Xlint:-processing", "-parameters"))
     options.isFork = true
     options.forkOptions.jvmArgs = listOf("-Dline.separator=\n")
