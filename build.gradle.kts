@@ -70,7 +70,7 @@ dependencies {
         "fabric-permission-api-v1",
     ).map { fabricApi.module(it, sc.properties["version.fabric-api"]) }.forEach(::implementation)
 
-    shadow("org.snakeyaml:snakeyaml-engine:3.0.1")
+    shadow("org.snakeyaml:snakeyaml-engine:3.2")
 
     implementation("com.terraformersmc:modmenu:${property("version.modmenu")}") { isTransitive = false }
     implementation("dev.isxander:yet-another-config-lib:${property("version.yacl")}") { isTransitive = false }
