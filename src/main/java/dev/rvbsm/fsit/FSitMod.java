@@ -10,9 +10,9 @@ import dev.rvbsm.fsit.event.CommandRegistrationListener;
 import dev.rvbsm.fsit.event.FSitPoseListener;
 import dev.rvbsm.fsit.event.PlayerDisconnectListener;
 import dev.rvbsm.fsit.event.UseEntityListener;
+import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerSettingsPayload;
 import dev.rvbsm.fsit.network.protocol.game.ClientboundServerConfigPayload;
-import dev.rvbsm.fsit.network.protocol.game.ClientboundPlayerPosePayload;
 import dev.rvbsm.fsit.network.protocol.game.ServerboundPlayerConfigPayload;
 import dev.rvbsm.fsit.network.protocol.game.ServerboundPlayerPosePayload;
 import dev.rvbsm.fsit.server.event.ServerPlayConnectionListener;
@@ -36,6 +36,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
 public final class FSitMod implements ModInitializer {
@@ -62,14 +63,28 @@ public final class FSitMod implements ModInitializer {
     @Override
     public void onInitialize() {
         var configLoader = this.reloadConfig();
+        // TODO: keep IO async? client needs config early, otherwise it uses defaults
+        try {
+            configLoader.get();
+        } catch (ExecutionException | InterruptedException e) {
+            // there should be no unhandled exceptions i think?
+            LOGGER.warn("A problem has occurred when loading configuration.", e);
+        }
 
-        PayloadTypeRegistry.clientboundPlay().register(ClientboundPlayerPosePayload.TYPE, ClientboundPlayerPosePayload.STREAM_CODEC);
-        PayloadTypeRegistry.clientboundPlay().register(ClientboundServerConfigPayload.TYPE, ClientboundServerConfigPayload.STREAM_CODEC);
-        PayloadTypeRegistry.clientboundPlay().register(ClientboundPlayerSettingsPayload.TYPE, ClientboundPlayerSettingsPayload.STREAM_CODEC);
-        PayloadTypeRegistry.serverboundPlay().register(ServerboundPlayerPosePayload.TYPE, ServerboundPlayerPosePayload.STREAM_CODEC);
-        PayloadTypeRegistry.serverboundPlay().register(ServerboundPlayerConfigPayload.TYPE, ServerboundPlayerConfigPayload.STREAM_CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(ServerboundPlayerPosePayload.TYPE, ServerModPacketListener::handleChangePose);
-        ServerPlayNetworking.registerGlobalReceiver(ServerboundPlayerConfigPayload.TYPE, ServerModPacketListener::handleConfig);
+        PayloadTypeRegistry.clientboundPlay()
+                .register(ClientboundPlayerPosePayload.TYPE, ClientboundPlayerPosePayload.STREAM_CODEC);
+        PayloadTypeRegistry.clientboundPlay()
+                .register(ClientboundServerConfigPayload.TYPE, ClientboundServerConfigPayload.STREAM_CODEC);
+        PayloadTypeRegistry.clientboundPlay()
+                .register(ClientboundPlayerSettingsPayload.TYPE, ClientboundPlayerSettingsPayload.STREAM_CODEC);
+        PayloadTypeRegistry.serverboundPlay()
+                .register(ServerboundPlayerPosePayload.TYPE, ServerboundPlayerPosePayload.STREAM_CODEC);
+        PayloadTypeRegistry.serverboundPlay()
+                .register(ServerboundPlayerConfigPayload.TYPE, ServerboundPlayerConfigPayload.STREAM_CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(
+                ServerboundPlayerPosePayload.TYPE, ServerModPacketListener::handleChangePose);
+        ServerPlayNetworking.registerGlobalReceiver(
+                ServerboundPlayerConfigPayload.TYPE, ServerModPacketListener::handleConfig);
 
         ServerPlayConnectionEvents.JOIN.register(ServerPlayConnectionListener.INSTANCE);
         BlockEvents.USE_WITHOUT_ITEM.register(BlockListener.INSTANCE);
@@ -78,11 +93,7 @@ public final class FSitMod implements ModInitializer {
 
         FSitPoseCallback.EVENT.register(FSitPoseListener.INSTANCE);
 
-        // commands depend on the config, but we don't want to block other mods from loading
-        configLoader.thenRunAsync(
-            () -> CommandRegistrationCallback.EVENT.register(CommandRegistrationListener.INSTANCE),
-            Runnable::run
-        );
+        CommandRegistrationCallback.EVENT.register(CommandRegistrationListener.INSTANCE);
     }
 
     public ConfigData getConfig() {
@@ -102,7 +113,9 @@ public final class FSitMod implements ModInitializer {
         var configDir = FabricLoader.getInstance().getConfigDir();
         var configPath = configDir.resolve(CONFIG_NAME);
         return ConfigLoader.readConfig(configPath).handle((data, e) -> {
-            LOGGER.debug("Configuration load took {} milliseconds", Duration.between(started, Instant.now()).toMillis());
+            LOGGER.debug(
+                    "Configuration load took {} milliseconds",
+                    Duration.between(started, Instant.now()).toMillis());
 
             if (e == null) {
                 this.setConfig(data);
@@ -115,8 +128,11 @@ public final class FSitMod implements ModInitializer {
             if (didExist && cause instanceof ConfigLoader.VersionMismatchException vme) {
                 // Schema changed in a breaking way — back up the old file and write fresh defaults.
                 var backup = configPath.resolveSibling(CONFIG_NAME + "_v" + vme.found + "_bak");
-                LOGGER.warn("Config version {} is not {}, backing up to {} and regenerating",
-                    vme.found, ConfigData.CURRENT_VERSION, backup.getFileName());
+                LOGGER.warn(
+                        "Config version {} is not {}, backing up to {} and regenerating",
+                        vme.found,
+                        ConfigData.CURRENT_VERSION,
+                        backup.getFileName());
                 try {
                     Files.move(configPath, backup, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
                 } catch (IOException moveErr) {

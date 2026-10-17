@@ -9,7 +9,10 @@ import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.ListBuilder;
 import com.mojang.serialization.MapLike;
 import com.mojang.serialization.RecordBuilder;
+import dev.rvbsm.fsit.serialization.RecordCommentBuilder;
 import org.jspecify.annotations.Nullable;
+import org.snakeyaml.engine.v2.comments.CommentLine;
+import org.snakeyaml.engine.v2.comments.CommentType;
 import org.snakeyaml.engine.v2.common.FlowStyle;
 import org.snakeyaml.engine.v2.common.ScalarStyle;
 import org.snakeyaml.engine.v2.nodes.MappingNode;
@@ -451,7 +454,8 @@ public final class YamlOps implements DynamicOps<Node> {
             DataResult<Node> result = builder.flatMap(b -> {
                 if (!(prefix instanceof SequenceNode sequence)) {
                     if (prefix.getTag() != Tag.NULL) {
-                        return DataResult.error(() -> "Cannot append a list to not a list:" + Yaml.serializeToBlock(prefix), prefix);
+                        return DataResult.error(
+                                () -> "Cannot append a list to not a list:" + Yaml.serializeToBlock(prefix), prefix);
                     }
 
                     return DataResult.success(b, Lifecycle.stable());
@@ -507,35 +511,54 @@ public final class YamlOps implements DynamicOps<Node> {
         }
     }
 
-    private static final class MappingBuilder extends RecordBuilder.AbstractStringBuilder<Node, MappingNode> {
+    private static final class MappingBuilder extends RecordBuilder.AbstractStringBuilder<Node, ArrayList<NodeTuple>>
+            implements RecordCommentBuilder<Node> {
 
         private MappingBuilder() {
             super(YamlOps.INSTANCE);
         }
 
         @Override
-        protected MappingNode append(String key, Node value, MappingNode builder) {
-            builder.getValue().add(new NodeTuple(new ScalarNode(Tag.STR, key, ScalarStyle.PLAIN), value));
+        protected ArrayList<NodeTuple> append(String key, Node value, ArrayList<NodeTuple> builder) {
+            builder.add(new NodeTuple(ops().createString(key), value));
             return builder;
         }
 
         @Override
-        protected MappingNode initBuilder() {
-            return new MappingNode(Tag.MAP, new ArrayList<>(), FlowStyle.AUTO);
+        public MappingBuilder appendComment(List<String> lines) {
+            builder = builder.flatMap(b -> {
+                if (b.isEmpty()) {
+                    return DataResult.error(() -> "appendComment called on empty map", b);
+                }
+
+                b.getLast()
+                        .getKeyNode()
+                        // TODO: from list to stream to list ew
+                        .setBlockComments(lines.stream()
+                                .map(line ->
+                                        new CommentLine(Optional.empty(), Optional.empty(), line, CommentType.BLOCK))
+                                .toList());
+
+                return DataResult.success(b);
+            });
+            return this;
         }
 
         @Override
-        protected DataResult<Node> build(MappingNode builder, Node prefix) {
+        protected ArrayList<NodeTuple> initBuilder() {
+            return new ArrayList<>();
+        }
+
+        @Override
+        protected DataResult<Node> build(ArrayList<NodeTuple> builder, Node prefix) {
             if (prefix.getTag() == Tag.NULL) {
-                return DataResult.success(builder);
+                return DataResult.success(new MappingNode(Tag.MAP, builder, FlowStyle.AUTO));
             }
 
-            if (prefix instanceof MappingNode mapping) {
-                return DataResult.success(new MappingNode(
-                        Tag.MAP,
-                        Stream.concat(mapping.getValue().stream(), builder.getValue().stream())
-                                .toList(),
-                        FlowStyle.AUTO));
+            if (prefix instanceof MappingNode mappingNode) {
+                // should be ArrayList always?
+                mappingNode.getValue().addAll(builder);
+                return DataResult.success(mappingNode);
             }
 
             return DataResult.error(() -> "mergeToMap called with not a map: " + Yaml.serializeToBlock(prefix), prefix);

@@ -20,7 +20,7 @@ import java.util.Optional;
 public final class Yaml {
 
     private static final LoadSettings LOAD_SETTINGS = LoadSettings.builder().build();
-    private static final DumpSettings DUMP_SETTINGS = DumpSettings.builder().build();
+    private static final DumpSettings DUMP_SETTINGS = DumpSettings.builder().setDumpComments(true).build();
 
     public static Optional<Node> compose(Reader reader) {
         return new Compose(LOAD_SETTINGS).composeReader(reader);

@@ -11,6 +11,8 @@ import java.util.function.Function;
 
 public record CommandConfig(String root, String sit, String crawl, String lay) {
 
+    public static final CommandConfig DEFAULT = new CommandConfig("fsit", "sit", "crawl", "lay");
+
     /// Field codec for a command entry. Accepts:
     /// - `true`  — enabled with the default name,
     /// - `false` — disabled (stored as empty string),
