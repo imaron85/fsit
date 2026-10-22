@@ -112,6 +112,9 @@ tasks.shadowJar {
     dependsOn(tasks.jar)
     archiveClassifier = null
 
+    // The release jar must also contain the client source set (split environment)
+    from(sourceSets["client"].output)
+
     configurations = project.configurations.shadow.map(::listOf)
     enableAutoRelocation = true
 
