@@ -3,13 +3,14 @@
   "id": "fsit",
   "version": "${version}",
   "name": "FSit",
-  "description": "Sit anywhere!",
+  "description": "Sit anywhere! Unofficial Minecraft 26.3 build by imaron85, not made or supported by rvbsm. Report problems at https://github.com/imaron85/fsit/issues.",
   "authors": [
     "rvbsm"
   ],
   "contact": {
-    "sources": "https://codeberg.org/rvbsm/fsit",
-    "issues": "https://codeberg.org/rvbsm/fsit/issues"
+    "homepage": "https://github.com/imaron85/fsit",
+    "sources": "https://github.com/imaron85/fsit",
+    "issues": "https://github.com/imaron85/fsit/issues"
   },
   "license": "MIT",
   "icon": "assets/fsit/icon.png",

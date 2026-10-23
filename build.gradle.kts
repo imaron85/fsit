@@ -4,7 +4,7 @@ plugins {
     id("com.gradleup.shadow")
 }
 
-version = "${rootProject.version}+mc${sc.current.project}"
+version = "${rootProject.version}+mc${sc.current.project}-unofficial.2"
 base.archivesName = rootProject.name
 
 loom {
